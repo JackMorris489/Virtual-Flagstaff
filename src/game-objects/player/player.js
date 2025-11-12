@@ -1,9 +1,13 @@
 import * as Phaser from 'phaser'
 import { PLAYER_ANIMATION_KEYS } from '../../common/assets';
-import { ControlsComponent } from '../../components/input/game-object/controls-component';
+import { ControlsComponent } from '../../components/game-object/controls-component';
+import { StateMachine } from '../../components/state-machine/state-machine';
+import { IdleState } from '../../components/state-machine/states/character/idle-state';
+import { CHARACTER_STATES } from '../../components/state-machine/states/character/character-states';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     #controlsComponent;
+    #stateMachine;
 
     constructor(config){
         const { scene, position, assetKey, frame } = config;
@@ -17,11 +21,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.play({ key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1 })
 
+        this.#stateMachine = new StateMachine('player');
+        this.#stateMachine.addState(new IdleState(this));
+        this.#stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
+
         config.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this);
         config.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             config.scene.events.off(Phaser.Scenes.Events.UPDATE, this.update, this);
         });
     };
+
+    get controls() {
+        return this.#controlsComponent.controls;
+    }
 
     update() {
         const controls = this.#controlsComponent.controls;
@@ -57,11 +69,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.#updateVelocity(true, 0);
         }
 
-        if (!controls.isDownDown && !controls.isUpDown && !controls.isLeftDown && !controls.isRightDown) {
-            this.play({ key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1 }, true);
-        }
-
         this.#normalizeVelocity();
+        this.#stateMachine.update();
     }
 
     #updateVelocity(isX, value) {
@@ -76,3 +85,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.body.velocity.normalize().scale(80);
     }
 }
+
+
+
+// https://youtu.be/B5XrPPNZ3cU?si=eY2dnE5FzBx4TeG6&t=4552 CURRENT STEPS
