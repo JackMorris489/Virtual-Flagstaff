@@ -73,6 +73,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     #normalizeVelocity() {
-        this.body.velocity.normalize().scale(80);
+        this.body.velocity.normalize().scale(200);
     }
 }

@@ -4,6 +4,7 @@ export const ASSET_PACK_KEYS = {
 
 export const ASSET_KEYS = {
   PLAYER: 'PLAYER',
+  SQUARE: 'SQUARE',
   POT: 'POT',
   POT_BREAK: 'POT_BREAK',
   SPIDER: 'SPIDER',
@@ -24,6 +25,7 @@ export const ASSET_KEYS = {
   WORLD_LEVEL: 'WORLD_LEVEL',
   HUD_NUMBERS: 'HUD_NUMBERS',
   FONT_PRESS_START_2P: 'FONT_PRESS_START_2P',
+  SQUARE: 'SQUARE',
 };
 
 export const PLAYER_ANIMATION_KEYS = {
@@ -154,3 +156,8 @@ export const HEART_TEXTURE_FRAME = {
   EMPTY: '14',
   HALF: '12',
 };
+
+export const AUDIO = {
+  OCEAN_MAN: 'OCEAN_MAN',
+  LIFE_IS_A_HIGHWAY: 'LIFE_IS_A_HIGHWAY'
+}

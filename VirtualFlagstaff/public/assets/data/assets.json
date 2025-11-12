@@ -154,5 +154,35 @@
         "url": "world.json"
       }
     ]
+  },
+  {
+    "path": "assets/audio",
+    "files": [
+      {
+        "type": "audio",
+        "key": "OCEAN_MAN",
+        "url": ["oceanman.ogg", "oceanman.mp3"]
+      }
+    ]
+  },
+  {
+    "path": "assets/audio",
+    "files": [
+      {
+        "type": "audio",
+        "key": "LIFE_IS_A_HIGHWAY",
+        "url": ["lifeisahighway.mp3", "lifeisahighway.ogg"]
+      }
+    ]
+  },
+  {
+    "path": "assets/images",
+    "files": [
+      {
+        "type": "image",
+        "key": "SQUARE",
+        "url": "square.png"
+      }
+    ]
   }
 ]
