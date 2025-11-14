@@ -10,7 +10,8 @@ export class IdleState extends BaseCharacterState {
     }
 
     onEnter() {
-        this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1 }, true);
+        console.log(this._gameObject.direction);
+        this._gameObject.animationComponent.playAnimation(`IDLE_${this._gameObject.direction}`);
 
         if (!isArcadePhysicsBody(this._gameObject.body)) {
             this._gameObject.body.velocity.x = 0;

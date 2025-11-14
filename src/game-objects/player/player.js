@@ -1,12 +1,20 @@
 import * as Phaser from 'phaser'
-import { PLAYER_ANIMATION_KEYS } from '../../common/assets';
 import { ControlsComponent } from '../../components/game-object/controls-component';
+import { SpeedComponent } from '../../components/game-object/speed-component';
 import { StateMachine } from '../../components/state-machine/state-machine';
-import { IdleState } from '../../components/state-machine/states/character/idle-state';
 import { CHARACTER_STATES } from '../../components/state-machine/states/character/character-states';
+import { IdleState } from '../../components/state-machine/states/character/idle-state';
+import { MoveState } from '../../components/state-machine/states/character/move-state';
+import { PLAYER_SPEED } from '../../common/config';
+import { DirectionComponent } from '../../components/game-object/direction-component';
+import { AnimationComponent } from '../../components/game-object/animation-component';
+import { PLAYER_ANIMATION_KEYS } from '../../common/assets';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     #controlsComponent;
+    #speedComponent;
+    #directionComponent;
+    #animationComponent;
     #stateMachine;
 
     constructor(config){
@@ -17,12 +25,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.#controlsComponent = new ControlsComponent(this, config.controls);
+        const animationConfig = {
+            WALK_UP: {key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1, ignoreIfPlaying: true},
+            WALK_DOWN: {key: PLAYER_ANIMATION_KEYS.WALK_DOWN, repeat: -1, ignoreIfPlaying: true},
+            WALK_LEFT: {key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true},
+            WALK_RIGHT: {key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true},
 
-        this.play({ key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1 })
+            IDLE_UP: {key: PLAYER_ANIMATION_KEYS.IDLE_UP, repeat: -1, ignoreIfPlaying: true},
+            IDLE_DOWN: {key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1, ignoreIfPlaying: true},
+            IDLE_LEFT: {key: PLAYER_ANIMATION_KEYS.IDLE_SIDE, repeat: -1, ignoreIfPlaying: true},
+            IDLE_RIGHT: {key: PLAYER_ANIMATION_KEYS.IDLE_SIDE, repeat: -1, ignoreIfPlaying: true},
+        }
+
+        this.#controlsComponent = new ControlsComponent(this, config.controls);
+        this.#speedComponent = new SpeedComponent(this, PLAYER_SPEED);
+        this.#directionComponent = new DirectionComponent(this);
+        this.#animationComponent = new AnimationComponent(this, animationConfig);
 
         this.#stateMachine = new StateMachine('player');
         this.#stateMachine.addState(new IdleState(this));
+        this.#stateMachine.addState(new MoveState(this));
         this.#stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
 
         config.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this);
@@ -35,57 +57,23 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         return this.#controlsComponent.controls;
     }
 
+    get speed() {
+        return this.#speedComponent.speed;
+    }
+
+    get direction() {
+        return this.#directionComponent.direction;
+    }
+
+    set direction(value) {
+        this.#directionComponent.direction = value;
+    }
+
+    get animationComponent() {
+        return this.#animationComponent;
+    }
+
     update() {
-        const controls = this.#controlsComponent.controls;
-        if (controls.isUpDown) {
-            this.play({ key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1 }, true);
-            this.#updateVelocity(false, -1);
-        } 
-        else if (controls.isDownDown) {
-            this.play({ key: PLAYER_ANIMATION_KEYS.WALK_DOWN, repeat: -1 }, true);
-            this.#updateVelocity(false, 1);
-        } 
-        else {
-            this.#updateVelocity(false, 0);
-        }
-
-        const isMovingVertically = controls.isDownDown || controls.isUpDown;
-
-        if (controls.isLeftDown) {
-            this.setFlipX(true);
-            this.#updateVelocity(true, -1);
-            if(!isMovingVertically) {
-                this.play({ key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1 }, true);
-            }
-        }
-        else if (controls.isRightDown) {
-            this.setFlipX(false);
-            this.#updateVelocity(true, 1);
-            if(!isMovingVertically) {
-                this.play({ key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1 }, true);
-            }
-        } 
-        else {
-            this.#updateVelocity(true, 0);
-        }
-
-        this.#normalizeVelocity();
         this.#stateMachine.update();
     }
-
-    #updateVelocity(isX, value) {
-        if (isX) {
-            this.body.velocity.x = value;
-            return;
-        }
-        this.body.velocity.y = value;
-    }
-
-    #normalizeVelocity() {
-        this.body.velocity.normalize().scale(80);
-    }
 }
-
-
-
-// https://youtu.be/B5XrPPNZ3cU?si=eY2dnE5FzBx4TeG6&t=4552 CURRENT STEPS
