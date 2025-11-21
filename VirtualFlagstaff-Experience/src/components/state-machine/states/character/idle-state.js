@@ -1,6 +1,6 @@
 import { PLAYER_ANIMATION_KEYS } from "../../../../common/assets";
+import { ENABLE_LOGGING } from "../../../../common/config";
 import { isArcadePhysicsBody } from "../../../../common/utils"
-import { Player  } from "../../../../game-objects/player/player";
 import { BaseCharacterState } from "./base-character-state";
 import { CHARACTER_STATES } from "./character-states";
 
@@ -10,7 +10,9 @@ export class IdleState extends BaseCharacterState {
     }
 
     onEnter() {
-        console.log(this._gameObject.direction);
+        if (ENABLE_LOGGING) {
+            console.log(this._gameObject.direction);
+        }
         this._gameObject.animationComponent.playAnimation(`IDLE_${this._gameObject.direction}`);
 
         if (!isArcadePhysicsBody(this._gameObject.body)) {

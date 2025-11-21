@@ -1,7 +1,6 @@
 import { PLAYER_ANIMATION_KEYS } from "../../../../common/assets";
 import { DIRECTION } from "../../../../common/common";
 import { isArcadePhysicsBody } from "../../../../common/utils"
-import { Player  } from "../../../../game-objects/player/player";
 import { BaseCharacterState } from "./base-character-state";
 import { CHARACTER_STATES } from "./character-states";
 
@@ -19,14 +18,20 @@ export class MoveState extends BaseCharacterState {
         }
 
         if (controls.isUpDown) {
-            this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1 }, true);
-            this.#updateVelocity(false, -1);
+            if (this._gameObject._isPlayer && this._gameObject.body.touching.up) {
+                this.#updateVelocity(false, 0);
+                return;
+            }
             this.#updateDirection(DIRECTION.UP);
+            this.#updateVelocity(false, -1);
         } 
         else if (controls.isDownDown) {
-            this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_DOWN, repeat: -1 }, true);
-            this.#updateVelocity(false, 1);
+            if (this._gameObject._isPlayer && this._gameObject.body.touching.down) {
+                this.#updateVelocity(false, 0);
+                return;
+            }
             this.#updateDirection(DIRECTION.DOWN);
+            this.#updateVelocity(false, 1);
         } 
         else {
             this.#updateVelocity(false, 0);
@@ -35,20 +40,26 @@ export class MoveState extends BaseCharacterState {
         const isMovingVertically = controls.isDownDown || controls.isUpDown;
 
         if (controls.isLeftDown) {
+            if (this._gameObject._isPlayer && this._gameObject.body.touching.left) {
+                this.#updateVelocity(true, 0);
+                return;
+            }
+            if(!isMovingVertically) {
+                this.#updateDirection(DIRECTION.LEFT);
+            }
             this._gameObject.setFlipX(true);
             this.#updateVelocity(true, -1);
-            this.#updateDirection(DIRECTION.LEFT);
-            if(!isMovingVertically) {
-                this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1 }, true);
-            }
         }
         else if (controls.isRightDown) {
+            if (this._gameObject._isPlayer && this._gameObject.body.touching.right) {
+                this.#updateVelocity(true, 0);
+                return;
+            }
+            if(!isMovingVertically) {
+                this.#updateDirection(DIRECTION.RIGHT);
+            }
             this._gameObject.setFlipX(false);
             this.#updateVelocity(true, 1);
-            this.#updateDirection(DIRECTION.RIGHT);
-            if(!isMovingVertically) {
-                this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1 }, true);
-            }
         } 
         else {
             this.#updateVelocity(true, 0);
@@ -57,6 +68,13 @@ export class MoveState extends BaseCharacterState {
         this.#normalizeVelocity();
     }
 
+    // set the direction
+    #updateDirection(direction) {
+        this._gameObject.direction = direction;
+        this._gameObject.animationComponent.playAnimation(`WALK_${this._gameObject.direction}`)
+    }
+
+    // update the object's velocity
     #updateVelocity(isX, value) {
         if (!isArcadePhysicsBody(this._gameObject.body)) {
             return;
@@ -68,15 +86,12 @@ export class MoveState extends BaseCharacterState {
         this._gameObject.body.velocity.y = value;
     }
 
+    // normalize the object's velocity
     #normalizeVelocity() {
         if (!isArcadePhysicsBody(this._gameObject.body)) {
             return;
         }
 
         this._gameObject.body.velocity.normalize().scale(this._gameObject.speed);
-    }
-
-    #updateDirection(direction) {
-        this._gameObject.direction = direction;
     }
 }

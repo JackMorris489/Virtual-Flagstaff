@@ -42,5 +42,3 @@ export class AnimationComponent extends BaseGameObjectComponent {
         return this.gameObject.anims.isPlaying;
     }
 }
-
-// https://www.youtube.com/watch?v=B5XrPPNZ3cU 
