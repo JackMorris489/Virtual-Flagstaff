@@ -7,6 +7,7 @@ export class InputComponent {
     #selectKey;
     #enterKey;
     #escapeKey;
+    isFrozen = false;
 
     constructor() {
         this.#up = false;

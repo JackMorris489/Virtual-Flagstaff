@@ -81,4 +81,8 @@ export class StateMachine {
             console.log(`[${StateMachine.name}-${this.#id}:${methodName}] ${message}`) 
         }
     }
+
+    get userId() {
+        return this.#id;
+    }
 }

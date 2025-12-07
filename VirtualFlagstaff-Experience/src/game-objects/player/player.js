@@ -7,9 +7,10 @@ import { CHARACTER_STATES } from '../../components/state-machine/states/characte
 import { IdleState } from '../../components/state-machine/states/character/idle-state';
 import { MoveState } from '../../components/state-machine/states/character/move-state';
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
+import { InteractingObjectComponent } from '../../components/game-object/interacting-object-component';
 
 export class Player extends CharacterGameObject {
-    #collidingObjectsComponent;
+    interactingObjectComponent;
 
     // constructor
     constructor(config){
@@ -41,7 +42,7 @@ export class Player extends CharacterGameObject {
         })
 
         // add components
-        this.#collidingObjectsComponent = new CollidingObjectsComponent(this)
+        this.interactingObjectComponent = new InteractingObjectComponent(this);
 
         // add state machine states
         this._stateMachine.addState(new IdleState(this));
@@ -55,19 +56,22 @@ export class Player extends CharacterGameObject {
         });
 
         // update the size of the physics body
-        this.physicsBody.setSize(12, 16, true).setOffset(this.width/2 - 5, this.height / 2);
+        this.physicsBody.setSize(18, 22, true).setOffset(this.width/2 - 8, this.height/2 - 7);
     }
 
     get physicsBody() {
         return this.body;
     }
 
-    collidedWithGameObject(gameObject) {
-        this.#collidingObjectsComponent.add(gameObject)
+    interactedWithGameObject(gameObject) {
+        this.interactingObjectComponent.set(gameObject)
+    }
+
+    get interactedObject() {
+        return this.interactingObjectComponent.object;
     }
 
     update() {
         super.update();
-        this.#collidingObjectsComponent.reset();
     }
 }

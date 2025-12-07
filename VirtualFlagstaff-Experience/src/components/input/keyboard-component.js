@@ -13,8 +13,8 @@ export class KeyboardComponent extends InputComponent {
         this.#cursorKeys = keyboardPlugin.createCursorKeys();
         this.#actionKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.X);
         this.#selectKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
-        this.#selectKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-        this.#selectKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        this.#enterKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+        this.#escapeKey = keyboardPlugin.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     };
 
     // get for up key
@@ -64,12 +64,14 @@ export class KeyboardComponent extends InputComponent {
     };
 
     // get for enter key
-    get isSelectJustDown() {
+    get isEnterJustDown() {
         return Phaser.Input.Keyboard.JustDown(this.#enterKey);
     };
 
     // get for escape key
-    get isSelectJustDown() {
+    get isEscapeJustDown() {
         return Phaser.Input.Keyboard.JustDown(this.#escapeKey);
     };
+
+
 }

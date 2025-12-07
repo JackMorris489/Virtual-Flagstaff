@@ -8,13 +8,13 @@ export class InteractiveObjectComponent extends BaseGameObjectComponent {
     constructor(
         gameObject, 
         objectType, 
+        callback = () => undefined,
         canInteractCheck = () => true, 
-        callback = () => undefined
-    ) {
+    ){
         super(gameObject);
         this.#objectType = objectType;
-        this.#canInteractCheck = canInteractCheck;
         this.#callback = callback;
+        this.#canInteractCheck = canInteractCheck;
     }
 
     get objectType() {

@@ -1,6 +1,8 @@
 import { PLAYER_ANIMATION_KEYS } from "../../../../common/assets";
-import { DIRECTION } from "../../../../common/common";
+import { DIRECTION, INTERACTIVE_OBJECT_TYPE } from "../../../../common/common";
 import { isArcadePhysicsBody } from "../../../../common/utils"
+import { CollidingObjectsComponent } from "../../../game-object/colliding-objects-component";
+import { InteractiveObjectComponent } from "../../../game-object/interactive-object-component";
 import { BaseCharacterState } from "./base-character-state";
 import { CHARACTER_STATES } from "./character-states";
 
@@ -17,7 +19,7 @@ export class MoveState extends BaseCharacterState {
             this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
         }
 
-        if (controls.isUpDown) {
+        if (controls.isUpDown && !controls.isFrozen) {
             if (this._gameObject._isPlayer && this._gameObject.body.touching.up) {
                 this.#updateVelocity(false, 0);
                 return;
@@ -25,7 +27,7 @@ export class MoveState extends BaseCharacterState {
             this.#updateDirection(DIRECTION.UP);
             this.#updateVelocity(false, -1);
         } 
-        else if (controls.isDownDown) {
+        else if (controls.isDownDown && !controls.isFrozen) {
             if (this._gameObject._isPlayer && this._gameObject.body.touching.down) {
                 this.#updateVelocity(false, 0);
                 return;
@@ -39,7 +41,7 @@ export class MoveState extends BaseCharacterState {
 
         const isMovingVertically = controls.isDownDown || controls.isUpDown;
 
-        if (controls.isLeftDown) {
+        if (controls.isLeftDown && !controls.isFrozen) {
             if (this._gameObject._isPlayer && this._gameObject.body.touching.left) {
                 this.#updateVelocity(true, 0);
                 return;
@@ -50,7 +52,7 @@ export class MoveState extends BaseCharacterState {
             this._gameObject.setFlipX(true);
             this.#updateVelocity(true, -1);
         }
-        else if (controls.isRightDown) {
+        else if (controls.isRightDown && !controls.isFrozen) {
             if (this._gameObject._isPlayer && this._gameObject.body.touching.right) {
                 this.#updateVelocity(true, 0);
                 return;
