@@ -4,24 +4,15 @@ export const ASSET_PACK_KEYS = {
 
 export const ASSET_KEYS = {
   PLAYER: 'PLAYER',
-  POT: 'POT',
-  POT_BREAK: 'POT_BREAK',
   SPIDER: 'SPIDER',
-  WISP: 'WISP',
-  DROW: 'DROW',
-  DAGGER: 'DAGGER',
-  DUNGEON_1_BACKGROUND: 'DUNGEON_1_BACKGROUND',
-  DUNGEON_1_FOREGROUND: 'DUNGEON_1_FOREGROUND',
-  DUNGEON_1_LEVEL: 'DUNGEON_1_LEVEL',
+  SKIS: 'SKIS',
+  FLAGSTAFF_BACKGROUND: 'FLAGSTAFF_BACKGROUND',
+  FLAGSTAFF_FOREGROUND: 'FLAGSTAFF_FOREGROUND',
+  FLAGSTAFF_LEVEL: 'FLAGSTAFF_LEVEL',
   COLLISION: 'COLLISION',
-  DUNGEON_OBJECTS: 'DUNGEON_OBJECTS',
-  ENEMY_DEATH: 'ENEMY_DEATH',
   UI_DIALOG: 'UI_DIALOG',
   UI_ICONS: 'UI_ICONS',
   UI_CURSOR: 'UI_CURSOR',
-  WORLD_BACKGROUND: 'WORLD_BACKGROUND',
-  WORLD_FOREGROUND: 'WORLD_FOREGROUND',
-  WORLD_LEVEL: 'WORLD_LEVEL',
   HUD_NUMBERS: 'HUD_NUMBERS',
   FONT_PRESS_START_2P: 'FONT_PRESS_START_2P',
 };
@@ -59,24 +50,6 @@ export const SPIDER_ANIMATION_KEYS = {
   DEATH: ASSET_KEYS.ENEMY_DEATH,
 };
 
-export const DROW_ANIMATION_KEYS = {
-  WALK_DOWN: 'drow_walk_down',
-  WALK_UP: 'drow_walk_up',
-  WALK_LEFT: 'drow_walk_left',
-  WALK_RIGHT: 'drow_walk_right',
-  IDLE_DOWN: 'drow_idle_down',
-  IDLE_UP: 'drow_idle_up',
-  IDLE_SIDE: 'drow_idle_right',
-  HIT: 'drow_hit',
-  ATTACK_DOWN: 'drow_atk_down',
-  ATTACK_UP: 'drow_atk_up',
-  ATTACK_SIDE: 'drow_atk_right',
-};
-
-export const WISP_ANIMATION_KEYS = {
-  IDLE: 'wisp_idle',
-};
-
 export const CHARACTER_ANIMATIONS = {
   IDLE_DOWN: 'IDLE_DOWN',
   IDLE_UP: 'IDLE_UP',
@@ -106,41 +79,6 @@ export const CHARACTER_ANIMATIONS = {
   DIE_UP: 'DIE_UP',
   DIE_LEFT: 'DIE_LEFT',
   DIE_RIGHT: 'DIE_RIGHT',
-};
-
-export const CHEST_FRAME_KEYS = {
-  BIG_CHEST_CLOSED: 'big_chest_closed.png',
-  SMALL_CHEST_CLOSED: 'chest_closed.png',
-  BIG_CHEST_OPEN: 'big_chest_open.png',
-  SMALL_CHEST_OPEN: 'chest_open.png',
-};
-
-export const DOOR_FRAME_KEYS = {
-  TRAP_LEFT: 'trap_left.png',
-  TRAP_RIGHT: 'trap_right.png',
-  TRAP_UP: 'trap_up.png',
-  TRAP_DOWN: 'trap_down.png',
-  BOSS_LEFT: 'boss_left.png',
-  BOSS_RIGHT: 'boss_right.png',
-  BOSS_UP: 'boss_up.png',
-  BOSS_DOWN: 'boss_down.png',
-  LOCK_LEFT: 'lock_left.png',
-  LOCK_RIGHT: 'lock_right.png',
-  LOCK_UP: 'lock_up.png',
-  LOCK_DOWN: 'lock_down.png',
-};
-
-export const BUTTON_FRAME_KEYS = {
-  FLOOR_SWITCH: 'floor_switch.png',
-  PLATE_SWITCH: 'plate_switch.png',
-};
-
-export const CHEST_REWARD_TO_TEXTURE_FRAME = {
-  SMALL_KEY: 119,
-  BOSS_KEY: 121,
-  MAP: 117,
-  COMPASS: 118,
-  NOTHING: 126,
 };
 
 export const HEART_ANIMATIONS = {

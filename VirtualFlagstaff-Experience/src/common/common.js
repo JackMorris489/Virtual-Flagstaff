@@ -13,6 +13,7 @@ export const INTERACTIVE_OBJECT_TYPE = {
     PICKUP: 'PICKUP',
     OPEN: 'OPEN',
     DIALOG: 'DIALOG',
+    MINI_GAME: 'MINI_GAME',
 }
 
 export const LEVEL_NAME = {

@@ -10,8 +10,8 @@ const gameConfig  = {
     roundPixels: true,
     scale: {
         parent: 'game-container',
-        width: 256,
-        height: 224,
+        width: 384,
+        height: 336,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
     },

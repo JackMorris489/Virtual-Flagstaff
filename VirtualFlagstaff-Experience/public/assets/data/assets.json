@@ -60,33 +60,6 @@
     ]
   },
   {
-    "path": "assets/images/levels/common",
-    "files": [
-      {
-        "type": "image",
-        "key": "COLLISION",
-        "url": "collision.png"
-      },
-      {
-        "type": "atlas",
-        "key": "DUNGEON_OBJECTS",
-        "textureURL": "dungeon_objects.png",
-        "atlasURL": "dungeon_objects.json"
-      },
-      {
-        "type": "image",
-        "key": "POT",
-        "url": "pot.png"
-      },
-      {
-        "type": "spritesheet",
-        "key": "POT_BREAK",
-        "url": "pot_break.png",
-        "frameConfig": { "frameWidth": 32, "frameHeight": 32 }
-      }
-    ]
-  },
-  {
     "path": "assets/images/enemies",
     "files": [
       {
@@ -94,64 +67,36 @@
         "key": "SPIDER",
         "textureURL": "spider.png",
         "atlasURL": "spider.json"
-      },
-      {
-        "type": "aseprite",
-        "key": "WISP",
-        "textureURL": "wisp.png",
-        "atlasURL": "wisp.json"
-      },
-      {
-        "type": "spritesheet",
-        "key": "ENEMY_DEATH",
-        "url": "enemy_death.png",
-        "frameConfig": { "frameWidth": 16, "frameHeight": 16 }
-      },
-      {
-        "type": "aseprite",
-        "key": "DROW",
-        "textureURL": "drow.png",
-        "atlasURL": "drow.json"
       }
     ]
   },
   {
-    "path": "assets/images/levels/dungeon_1",
+    "path": "assets/tiled",
     "files": [
       {
         "type": "image",
-        "key": "DUNGEON_1_BACKGROUND",
-        "url": "dungeon_1_background.png"
+        "key": "FLAGSTAFF_BACKGROUND",
+        "url": "flagstaff_background.png"
       },
       {
         "type": "image",
-        "key": "DUNGEON_1_FOREGROUND",
-        "url": "dungeon_1_foreground.png"
+        "key": "FLAGSTAFF_FOREGROUND",
+        "url": "flagstaff_foreground.png"
       },
       {
         "type": "tilemapTiledJSON",
-        "key": "DUNGEON_1_LEVEL",
-        "url": "dungeon_1.json"
+        "key": "FLAGSTAFF_LEVEL",
+        "url": "flagstaff.json"
       }
     ]
   },
   {
-    "path": "assets/images/levels/world",
+    "path": "assets/tiled",
     "files": [
       {
         "type": "image",
-        "key": "WORLD_BACKGROUND",
-        "url": "world_background.png"
-      },
-      {
-        "type": "image",
-        "key": "WORLD_FOREGROUND",
-        "url": "world_foreground.png"
-      },
-      {
-        "type": "tilemapTiledJSON",
-        "key": "WORLD_LEVEL",
-        "url": "world.json"
+        "key": "COLLISION",
+        "url": "colliders.jpg"
       }
     ]
   }

@@ -10,6 +10,7 @@ import { PlayerContainer } from '../game-objects/player/player-container';
 import { PlayerInteractionZone } from '../game-objects/player/player-interaction-zone';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { NPC_DIALOG } from '../common/npc-dialog';
+import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 
 export class GameScene extends Phaser.Scene {
     #controls;
@@ -22,6 +23,7 @@ export class GameScene extends Phaser.Scene {
     #spider2;
     #interactiveSpider;
     #currentDialogNumber;
+    #allCollisionLayer;
 
     constructor() {
         super({
@@ -30,17 +32,17 @@ export class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.add
-            .text(this.scale.width / 2, this.scale.height /2, 'GAME SCENE', { fontFamily: ASSET_KEYS.FONT_PRESS_START_2P })
-            .setOrigin(0.5);
-
         // check if keyboard is avalible
         if (!this.input.keyboard) {
             console.warn('Phaser keyboard plugin is not setup properly');
             return;
         }
         this.#controls = new KeyboardComponent(this.input.keyboard);
-        
+
+        // add background
+        this.add.image(-1060, -1400, ASSET_KEYS.FLAGSTAFF_BACKGROUND, 0).setOrigin(0);
+        // add foreground
+        this.add.image(-1060, -1400, ASSET_KEYS.FLAGSTAFF_FOREGROUND, 0).setOrigin(0).setDepth(2);
 
         // create player
         this.#player = new Player({
@@ -62,6 +64,7 @@ export class GameScene extends Phaser.Scene {
             children: [this.#player, this.#playerInteractionZone],
         })
 
+        /*
         // create the npc group
         this.#npcGroup = this.add.group([
             // create an NPC (spider)
@@ -77,6 +80,7 @@ export class GameScene extends Phaser.Scene {
         ], {
             runChildUpdate: true
         })
+        */
 
         // create the interactable npc group
         this.#interactiveNPCGroup = this.add.group([
@@ -90,6 +94,21 @@ export class GameScene extends Phaser.Scene {
             runChildUpdate: true
         })
 
+        // create the camera:
+        this.cameras.main.startFollow(this.#player);
+
+        // load in the tilemap data
+        const map = this.make.tilemap({
+            key: ASSET_KEYS.FLAGSTAFF_LEVEL,
+        });
+
+        const collisionTiles = map.addTilesetImage(TILED_TILESET_NAMES.COLLISION, ASSET_KEYS.COLLISION);
+
+        // create collision layers
+        this.#allCollisionLayer = map.createLayer(TILED_LAYER_NAMES.ALL_COLLISION, [collisionTiles], -1060, -1400,);
+        this.#allCollisionLayer.setDepth(2).setAlpha(0);
+
+        // register the events and colliders
         this.#registerColiders();
         this.#registerCustomEvents();
 
@@ -110,16 +129,19 @@ export class GameScene extends Phaser.Scene {
     }
 
     #registerColiders() {
+        /*
         // regular npc group colliders
         this.#npcGroup.getChildren().forEach((npc) => {
             npc.setCollideWorldBounds(true);
             this.physics.add.collider(this.#player, npc, this.#collideObjects, null, this)
         });
+        */
         
         // interactive npc group colliders
         this.#interactiveNPCGroup.getChildren().forEach((npc) => {
             npc.setCollideWorldBounds(true);
-            this.physics.add.collider(this.#player, npc, this.#collideObjects, null, this)
+            this.physics.add.collider(this.#player, npc, this.#collideObjects, null, this);
+            this.physics.add.collider(this.#allCollisionLayer, npc);
             this.physics.add.overlap(this.#playerInteractionZone, npc, () => {
                 if(this.#controls.isActionJustDown) {
                     this.#player.interactedWithGameObject(npc);
@@ -128,6 +150,11 @@ export class GameScene extends Phaser.Scene {
             }, null, this);
 
         });
+
+        // world colliders
+        console.log(this.#allCollisionLayer);
+        this.#allCollisionLayer.setCollision([this.#allCollisionLayer.tileset[0].firstgid]);
+        this.physics.add.collider(this.#player, this.#allCollisionLayer);
     }
 
     #registerCustomEvents() {
@@ -135,16 +162,22 @@ export class GameScene extends Phaser.Scene {
     }
 
     #interact() {
+        var id;
+        var idDigit;
+
         // confirm the object can be interacted with
         if (this.#player.interactedObject.interactionComponent.canInteractWith()) {
             // check the interaction type
             switch (this.#player.interactedObject.interactionComponent.objectType) {
                 case 'DIALOG':
-                    const id = this.#player.interactedObject._stateMachine.userId;
-                    const idDigit = id.charAt(id.length - 1);
+                    id = this.#player.interactedObject._stateMachine.userId;
+                    idDigit = id.charAt(id.length - 1);
                     this.#currentDialogNumber = 1;
                     this.#startDialog(idDigit, this.#currentDialogNumber);
                     break;
+                
+                case 'MINI_GAME':
+                    id = this.#player.interactedObject._stateMachine.userId;
             }
         }
     }
