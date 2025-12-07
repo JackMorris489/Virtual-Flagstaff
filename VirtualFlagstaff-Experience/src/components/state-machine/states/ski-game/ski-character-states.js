@@ -1,0 +1,4 @@
+export const SKI_CHARACTER_STATES = {
+    SKI_IDLE_STATE: 'IDLE_STATE',
+    SKI_MOVE_STATE: 'MOVE_STATE',
+}

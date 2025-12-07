@@ -95,6 +95,26 @@
     "files": [
       {
         "type": "image",
+        "key": "SKI_GAME_BACKGROUND",
+        "url": "skigame_background.png"
+      },
+      {
+        "type": "image",
+        "key": "SKI_GAME_FOREGROUND",
+        "url": "skigame_foreground.png"
+      },
+      {
+        "type": "tilemapTiledJSON",
+        "key": "SKI_GAME_LEVEL",
+        "url": "skigame.json"
+      }
+    ]
+  },
+  {
+    "path": "assets/tiled",
+    "files": [
+      {
+        "type": "image",
         "key": "COLLISION",
         "url": "colliders.jpg"
       }

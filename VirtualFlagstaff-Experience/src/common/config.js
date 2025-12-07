@@ -1,7 +1,7 @@
 export const ENABLE_LOGGING = false;
 
-// player configs
-export const PLAYER_SPEED = 120;
+// player configs (default: 120)
+export const PLAYER_SPEED = 250;
 
 // NPC configs
 export const NPC_SPEED = 100;

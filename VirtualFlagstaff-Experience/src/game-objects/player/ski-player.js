@@ -1,0 +1,81 @@
+import * as Phaser from 'phaser'
+import { CharacterGameObject } from '../common/character-game-object';
+import { PLAYER_SPEED } from '../../common/config';
+import { ASSET_KEYS, PLAYER_ANIMATION_KEYS } from '../../common/assets';
+import { InputComponent } from '../../components/input/input-component';
+import { SKI_CHARACTER_STATES } from '../../components/state-machine/states/ski-game/ski-character-states';
+import { SkiIdleState } from '../../components/state-machine/states/ski-game/ski-idle-state';
+import { SkiMoveState } from '../../components/state-machine/states/ski-game/ski-move-state';
+import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
+import { InteractingObjectComponent } from '../../components/game-object/interacting-object-component';
+
+
+export class SkiPlayer extends CharacterGameObject {
+    interactingObjectComponent;
+
+    // constructor
+    constructor(config){
+        // create animation config for the component
+        const animationConfig = {
+            // walking animations
+            WALK_UP: {key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1, ignoreIfPlaying: true},
+            WALK_DOWN: {key: PLAYER_ANIMATION_KEYS.WALK_DOWN, repeat: -1, ignoreIfPlaying: true},
+            WALK_LEFT: {key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true},
+            WALK_RIGHT: {key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true},
+
+            // idle animations
+            IDLE_UP: {key: PLAYER_ANIMATION_KEYS.IDLE_UP, repeat: -1, ignoreIfPlaying: true},
+            IDLE_DOWN: {key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1, ignoreIfPlaying: true},
+            IDLE_LEFT: {key: PLAYER_ANIMATION_KEYS.IDLE_SIDE, repeat: -1, ignoreIfPlaying: true},
+            IDLE_RIGHT: {key: PLAYER_ANIMATION_KEYS.IDLE_SIDE, repeat: -1, ignoreIfPlaying: true},
+        }
+
+        super({
+            scene: config.scene,
+            position: config.position,
+            assetKey: ASSET_KEYS.PLAYER,
+            frame: 0,
+            id: 'player',
+            isPlayer: true,
+            animationConfig,
+            speed: PLAYER_SPEED,
+            inputComponent: config.controls,
+        })
+
+        // add components
+        this.interactingObjectComponent = new InteractingObjectComponent(this);
+
+        // add state machine states
+        this._stateMachine.addState(new SkiIdleState(this));
+        this._stateMachine.addState(new SkiMoveState(this));
+        this._stateMachine.setState(SKI_CHARACTER_STATES.SKI_IDLE_STATE);
+
+        // auto update
+        config.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this);
+        config.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            config.scene.events.off(Phaser.Scenes.Events.UPDATE, this.update, this);
+        });
+
+        // update the size of the physics body
+        this.physicsBody.setSize(18, 22, true).setOffset(this.width/2 - 8, this.height/2 - 7);
+
+        // add gravity
+        this.body.gravity.y = 20
+    }
+
+    get physicsBody() {
+        return this.body;
+    }
+
+    interactedWithGameObject(gameObject) {
+        this.interactingObjectComponent.set(gameObject)
+    }
+
+    get interactedObject() {
+        return this.interactingObjectComponent.object;
+    }
+
+    update() {
+        super.update();
+    }
+}
