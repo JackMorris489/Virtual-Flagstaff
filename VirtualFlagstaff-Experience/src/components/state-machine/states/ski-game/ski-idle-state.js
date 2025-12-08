@@ -13,7 +13,7 @@ export class SkiIdleState extends SkiBaseCharacterState {
         if (ENABLE_LOGGING) {
             console.log(this._gameObject.direction);
         }
-        this._gameObject.animationComponent.playAnimation(`IDLE_DOWN`);
+//        this._gameObject.animationComponent.playAnimation(`IDLE_DOWN`);
 
         if (!isArcadePhysicsBody(this._gameObject.body)) {
             this._gameObject.body.velocity.x = 0;

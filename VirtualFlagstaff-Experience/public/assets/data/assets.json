@@ -91,6 +91,51 @@
     ]
   },
   {
+    "path": "assets/images/objects",
+    "files": [
+      {
+        "type": "image",
+        "key": "SMALL_TREE",
+        "url": "small-tree.png"
+      },
+      {
+        "type": "image",
+        "key": "MEDIUM_TREE",
+        "url": "med-tree.png"
+      },
+      {
+        "type": "image",
+        "key": "LARGE_TREE",
+        "url": "big-tree.png"
+      },
+      {
+        "type": "image",
+        "key": "SMALL_ROCK",
+        "url": "small_rock.png"
+      },
+      {
+        "type": "image",
+        "key": "LARGE_ROCK",
+        "url": "large_rock.png"
+      }
+    ]
+  },
+  {
+    "path": "assets/images",
+    "files": [
+      {
+        "type": "image",
+        "key": "SNOWBOARDER",
+        "url": "snowboarder.png"
+      },
+      {
+        "type": "image",
+        "key": "SKIIER",
+        "url": "skiier.png"
+      }
+    ]
+  },
+  {
     "path": "assets/tiled",
     "files": [
       {

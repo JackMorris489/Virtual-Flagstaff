@@ -21,12 +21,12 @@ export class SkiMoveState extends SkiBaseCharacterState {
         
         if (controls.isLeftDown && !controls.isFrozen) {
             this.#updateDirection(DIRECTION.LEFT);
-            this._gameObject.setFlipX(true);
+            this._gameObject.setFlipX(false);
             this.#updateVelocity(-1);
         }
         else if (controls.isRightDown && !controls.isFrozen) {
             this.#updateDirection(DIRECTION.RIGHT);
-            this._gameObject.setFlipX(false);
+            this._gameObject.setFlipX(true);
             this.#updateVelocity(1);
         } 
         else {
@@ -37,7 +37,7 @@ export class SkiMoveState extends SkiBaseCharacterState {
     // set the direction
     #updateDirection(direction) {
         this._gameObject.direction = direction;
-        this._gameObject.animationComponent.playAnimation(`WALK_${this._gameObject.direction}`)
+//        this._gameObject.animationComponent.playAnimation(`WALK_${this._gameObject.direction}`)
     }
 
     // update the object's velocity
@@ -47,14 +47,5 @@ export class SkiMoveState extends SkiBaseCharacterState {
         }
         this._gameObject.body.velocity.x = this._gameObject.speed * value;
         return;
-    }
-
-    // normalize the object's velocity
-    #normalizeVelocity() {
-        if (!isArcadePhysicsBody(this._gameObject.body)) {
-            return;
-        }
-
-        this._gameObject.body.velocity.normalize().scale(this._gameObject.speed);
     }
 }

@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
 import { CharacterGameObject } from '../common/character-game-object';
-import { PLAYER_SPEED } from '../../common/config';
+import { SKI_SPEED } from '../../common/config';
 import { ASSET_KEYS, PLAYER_ANIMATION_KEYS } from '../../common/assets';
 import { InputComponent } from '../../components/input/input-component';
 import { SKI_CHARACTER_STATES } from '../../components/state-machine/states/ski-game/ski-character-states';
@@ -12,34 +12,20 @@ import { InteractingObjectComponent } from '../../components/game-object/interac
 
 export class SkiPlayer extends CharacterGameObject {
     interactingObjectComponent;
+    skiAcceleration;
 
     // constructor
     constructor(config){
         // create animation config for the component
-        const animationConfig = {
-            // walking animations
-            WALK_UP: {key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1, ignoreIfPlaying: true},
-            WALK_DOWN: {key: PLAYER_ANIMATION_KEYS.WALK_DOWN, repeat: -1, ignoreIfPlaying: true},
-            WALK_LEFT: {key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true},
-            WALK_RIGHT: {key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true},
-
-            // idle animations
-            IDLE_UP: {key: PLAYER_ANIMATION_KEYS.IDLE_UP, repeat: -1, ignoreIfPlaying: true},
-            IDLE_DOWN: {key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1, ignoreIfPlaying: true},
-            IDLE_LEFT: {key: PLAYER_ANIMATION_KEYS.IDLE_SIDE, repeat: -1, ignoreIfPlaying: true},
-            IDLE_RIGHT: {key: PLAYER_ANIMATION_KEYS.IDLE_SIDE, repeat: -1, ignoreIfPlaying: true},
-        }
-
         super({
             scene: config.scene,
             position: config.position,
-            assetKey: ASSET_KEYS.PLAYER,
             frame: 0,
             id: 'player',
             isPlayer: true,
-            animationConfig,
-            speed: PLAYER_SPEED,
+            speed: SKI_SPEED,
             inputComponent: config.controls,
+            assetKey: config.assetKey,
         })
 
         // add components
@@ -57,10 +43,10 @@ export class SkiPlayer extends CharacterGameObject {
         });
 
         // update the size of the physics body
-        this.physicsBody.setSize(18, 22, true).setOffset(this.width/2 - 8, this.height/2 - 7);
+        this.physicsBody.setSize(18, 32, true).setOffset(this.width/2 - 8, this.height/2 - 7);
 
         // add gravity
-        this.body.gravity.y = 20
+        this.body.gravity.y = 15;
     }
 
     get physicsBody() {

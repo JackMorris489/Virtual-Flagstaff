@@ -16,8 +16,7 @@ export class PreloadScene extends Phaser.Scene {
     create() {
         this.#createAnimations();
 
-//        this.scene.start(SCENE_KEYS.GAME_SCENE);
-        this.scene.start(SCENE_KEYS.SKI_GAME);
+        this.scene.start(SCENE_KEYS.GAME_SCENE);
     }
 
     #createAnimations(){

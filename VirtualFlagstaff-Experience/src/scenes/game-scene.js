@@ -17,6 +17,7 @@ export class GameScene extends Phaser.Scene {
     #playerContainer;
     #playerInteractionZone;
     #player;
+    playerType;
     #npcGroup;
     #interactiveNPCGroup;
     #spider;
@@ -24,6 +25,8 @@ export class GameScene extends Phaser.Scene {
     #interactiveSpider;
     #currentDialogNumber;
     #allCollisionLayer;
+    minigameinteractables;
+    skiGame;
 
     constructor() {
         super({
@@ -94,6 +97,32 @@ export class GameScene extends Phaser.Scene {
             runChildUpdate: true
         })
 
+        this.skiGame = this.scene.get(SCENE_KEYS.SKI_GAME);
+
+        this.snowborderinteractables = this.physics.add.group();
+        this.snowborderinteractables.create(-18, -906, '').setDepth(-1);
+        this.snowborderinteractables.create(12, -906, '').setDepth(-1);
+
+        this.skiierinteractables = this.physics.add.group();
+        this.skiierinteractables.create(108, -906, '').setDepth(-1);
+        this.skiierinteractables.create(140, -906, '').setDepth(-1);
+
+        this.snowborderinteractables.getChildren().forEach((interactable) => {
+            this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
+                if(this.#controls.isActionJustDown) {
+                    this.#minigameInteraction('SNOWBOARDER');
+                }
+            }, null, this);
+        });
+
+        this.skiierinteractables.getChildren().forEach((interactable) => {
+            this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
+                if(this.#controls.isActionJustDown) {
+                    this.#minigameInteraction('SKIIER');
+                }
+            }, null, this);
+        });
+
         // create the camera:
         this.cameras.main.startFollow(this.#player);
 
@@ -112,7 +141,7 @@ export class GameScene extends Phaser.Scene {
         this.#registerColiders();
         this.#registerCustomEvents();
 
-        this.scene.launch(SCENE_KEYS.UI_SCENE)
+        this.scene.launch(SCENE_KEYS.UI_SCENE);
     };
 
     update() {
@@ -120,6 +149,12 @@ export class GameScene extends Phaser.Scene {
         if(this.#controls.isEnterJustDown && this.#controls.isFrozen) {
             this.#continueDialog(this.#currentDialogNumber);
         }
+    }
+
+    #minigameInteraction(playerType) {
+        this.playerType = playerType
+        this.scene.switch(this.skiGame);
+        this.skiGame.scene.restart();
     }
 
 
@@ -148,11 +183,9 @@ export class GameScene extends Phaser.Scene {
                     this.#interact();
                 }
             }, null, this);
-
         });
 
         // world colliders
-        console.log(this.#allCollisionLayer);
         this.#allCollisionLayer.setCollision([this.#allCollisionLayer.tileset[0].firstgid]);
         this.physics.add.collider(this.#player, this.#allCollisionLayer);
     }

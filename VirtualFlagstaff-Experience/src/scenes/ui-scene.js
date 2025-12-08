@@ -3,11 +3,15 @@ import { SCENE_KEYS } from './scene-keys';
 import { ASSET_KEYS, ASSET_PACK_KEYS } from '../common/assets';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
+import { KeyboardComponent } from '../components/input/keyboard-component';
 
 export class UiScene extends Phaser.Scene {
-    #hudContainer
-    #dialogueContainer
-    #dialogueContainerText
+    #hudContainer;
+    #dialogueContainer;
+    #dialogueContainerText;
+    skiscene;
+    worldscene;
+    #controls;
 
     constructor() {
         super({
@@ -33,6 +37,31 @@ export class UiScene extends Phaser.Scene {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
         })
+
+        this.#controls = new KeyboardComponent(this.input.keyboard);
+        this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
+        this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
+    }
+
+    update() {
+        if (this.skiscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
+            // unpause the ski scene (so it can sleep)
+            this.skiscene.scene.resume();
+
+            // switch to the overworld scene
+            this.skiscene.scene.switch(this.worldscene);
+
+            // close dialog
+            this.closeDialog();
+        }
+
+        if (this.skiscene.scene.isPaused() && this.#controls.isEnterJustDown) {
+            // restart the game
+            this.skiscene.scene.restart();
+
+            // close dialog
+            this.closeDialog();
+        }
     }
 
     showDialog(message) {
