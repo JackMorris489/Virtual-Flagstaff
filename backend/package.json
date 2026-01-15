@@ -1,6 +1,6 @@
 {
     "name": "@peakadventureexperences/virtualflagstaff",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A gamified relocation expereince for the city of Flagstaff built in Phaser 3.",
     "scripts": {
         "start": "vite --config config/vite.config.js",
