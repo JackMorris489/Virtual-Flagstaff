@@ -188,7 +188,7 @@ export default function MainMenu() {
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") {
-        router.push("/play");
+        router.push("/virtualflagstaffexperience");
       }
     };
 
@@ -303,7 +303,7 @@ export default function MainMenu() {
           className="grid w-[min(22rem,90vw)] gap-5"
           aria-label="Main menu"
         >
-          <PixelButton href="/play" ariaLabel="Start">
+          <PixelButton href="/virtualflagstaffexperience" ariaLabel="Start">
             Start
           </PixelButton>
 

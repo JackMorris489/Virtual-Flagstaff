@@ -53,7 +53,7 @@ export class SkiGameScene extends Phaser.Scene {
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
         console.log(this.worldscene.playerType);
 
-        var test = eval('ASSET_KEYS.' + this.worldscene.playerType + ';');
+        const test = ASSET_KEYS[this.worldscene.playerType];
         console.log(test);
 
         // create player
