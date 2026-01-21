@@ -220,7 +220,9 @@ export class GameScene extends Phaser.Scene {
         this.#controls.isFrozen = true;
 
         // set dialog
-        const dialogSet = eval('NPC_DIALOG.DIALOG_' + npcId + '_' + dialogDigit + ';');
+        const key = `DIALOG_${npcId}_${dialogDigit}`;
+        const dialogSet = NPC_DIALOG[key];
+
         EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialogSet);
 
         this.#currentDialogNumber++;
@@ -232,7 +234,8 @@ export class GameScene extends Phaser.Scene {
         const idDigit = id.charAt(id.length - 1);
 
         // set dialog
-        const dialogSet = eval('NPC_DIALOG.DIALOG_' + idDigit + '_' + dialogNumber + ';');
+        const key = `DIALOG_${idDigit}_${dialogNumber}`;
+        const dialogSet = NPC_DIALOG[key];
 
         // if that dialog doesn't exist
         if (dialogSet === undefined) {

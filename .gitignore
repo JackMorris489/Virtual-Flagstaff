@@ -2,14 +2,12 @@
 
 ### MAIN IGNORES ###
 node_modules/
+.next
 
 ### FRONTEND IGNORES ###
-/frontend/.next
-/frontend/next-env.d.ts
+
 
 ### BACKEND IGNORES ###
-
-
 
 
 # typescript

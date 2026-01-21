@@ -1,0 +1,49 @@
+{
+    "name": "@peakadventureexperences/virtualflagstaff",
+    "version": "0.1.0",
+    "description": "A gamified relocation expereince for the city of Flagstaff built in Phaser 3.",
+    "private": true,
+    "license": "",
+    "authors": {
+        "lead": "Alonso",
+        "recorder": "Makaela",
+        "architect": "Yahir",
+        "release": "Jack"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/JackMorris489/Virtual-Flagstaff.git"
+    },
+    "homepage": "https://github.com/JackMorris489/Virtual-Flagstaff",
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "game": "vite --config config/vite.config.js",
+        "gamebuild": "tsc && vite build --config config/vite.config.js"
+    },
+    "dependencies": {
+        "@ion-phaser/core": "^1.3.0",
+        "@types/node": "24.10.0",
+        "@types/react": "19.2.2",
+        "@types/react-dom": "19.2.2",
+        "autoprefixer": "10.4.21",
+        "eslint": "9.39.1",
+        "eslint-config-next": "16.0.1",
+        "vite": "6.4.1",
+        "framer-motion": "^12.23.24",
+        "next": "16.0.1",
+        "phaser": "3.90.0",
+        "postcss": "8.5.6",
+        "react": "19.2.0",
+        "react-dom": "19.2.0",
+        "react-router-dom": "^7.12.0"
+    },
+    "devDependencies": {
+        "tailwindcss": "^3.4.18"
+    },
+    "volta": {
+        "node": "20.11.0",
+        "yarn": "1.22.11",
+        "pnpm": "8.14.3"
+    }
+}
