@@ -13,12 +13,10 @@ import { SkiGameScene } from './src/scenes/ski-game-scene';
 
 export default function VirtualFlagstaff() {
     const gameRef = useRef(null)
-    const [initialize, setInitialize] = useState(false)
 
     useEffect(() => {
-        // Prevent SSR execution
         if (typeof window === 'undefined') return
-        if (!initialize) return
+        if (gameRef.current) return // prevent double init (StrictMode)
 
         const game = new Phaser.Game(gameConfig)
 
@@ -34,15 +32,9 @@ export default function VirtualFlagstaff() {
             game.destroy(true)
             gameRef.current = null
         }
-    }, [initialize])
+    }, [])
 
     return (
-        <div>
-            {!initialize && (
-                <button onClick={() => setInitialize(true)}>
-                    Start Game
-                </button>
-            )}
-        </div>
+        <div id="phaser-container"/> 
     )
 }
