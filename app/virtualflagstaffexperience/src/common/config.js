@@ -1,4 +1,4 @@
-export const ENABLE_LOGGING = false;
+export const ENABLE_LOGGING = true;
 
 // player configs (default: 140)
 export const PLAYER_SPEED = 140;
