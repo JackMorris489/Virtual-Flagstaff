@@ -1,9 +1,4 @@
 import * as Phaser from 'phaser';
-import { SCENE_KEYS } from './scenes/scene-keys';
-import { PreloadScene } from './scenes/preload-scene';
-import { GameScene } from './scenes/game-scene';
-import { UiScene } from './scenes/ui-scene';
-import { SkiGameScene } from './scenes/ski-game-scene';
 
 export const gameConfig  = {
     type: Phaser.CANVAS,

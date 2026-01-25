@@ -48,18 +48,15 @@ export class SkiGameScene extends Phaser.Scene {
 
         /* ========== PLAYER ========== */
         // get the playertype
-        const test = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
-        if (ENABLE_LOGGING) {
-            console.log(test);
-        }
+        const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
 
         // create the player
         this.player = new SkiPlayer ({
             scene: this,
             position: {x: this.scale.width/2, y: this.scale.height/2},
             controls: this.#controls,
-            assetKey: test
-        })
+            assetKey: playerModel
+        }).setDepth(6);
 
         // resize the camera viewport and follow the player
         this.cameras.main.startFollow(this.player).followOffset.set(0, -160-32);
@@ -83,8 +80,8 @@ export class SkiGameScene extends Phaser.Scene {
     // TODO: Improve logic to prevent overlap and prevent obstacles from generating too close together
     generateObsticles() {
         // have a 1 in 5 chance of generating an obstacle
-        for (var row = 384; row < 3008; row += 64) {
-            for (var column = 64; column < 480; column += 32) {
+        for (let row = 384; row < 3008; row += 64) {
+            for (let column = 64; column < 480; column += 32) {
                 let spawn = Phaser.Math.RND.between(0, 7);
                 let type = Phaser.Math.RND.between(0, 4);
                 let variance = Phaser.Math.RND.between(-16, 16);
@@ -137,7 +134,6 @@ export class SkiGameScene extends Phaser.Scene {
         // pull up UI scene for congradulations & restart or leave mini-game
         this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
     }
-
 
     #registerColliders() {
         // set up colliders

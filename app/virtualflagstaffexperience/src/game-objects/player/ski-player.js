@@ -21,7 +21,7 @@ export class SkiPlayer extends CharacterGameObject {
             scene: config.scene,
             position: config.position,
             frame: 0,
-            id: 'player',
+            id: 'ski-player',
             isPlayer: true,
             speed: SKI_SPEED,
             inputComponent: config.controls,
@@ -45,6 +45,7 @@ export class SkiPlayer extends CharacterGameObject {
         // update the size of the physics body
         this.physicsBody.setSize(18, 32, true).setOffset(this.width/2 - 8, this.height/2 - 7);
 
+        // TODO: Update inital gravity acceleration (if possible)
         // add gravity
         this.body.gravity.y = 15;
     }

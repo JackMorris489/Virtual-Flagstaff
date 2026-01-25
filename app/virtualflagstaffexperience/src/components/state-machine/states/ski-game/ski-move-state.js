@@ -1,5 +1,6 @@
 import { PLAYER_ANIMATION_KEYS } from "../../../../common/assets";
 import { DIRECTION, INTERACTIVE_OBJECT_TYPE } from "../../../../common/common";
+import { SKI_MAX_Y, SKI_MAX_X } from "../../../../common/config";
 import { isArcadePhysicsBody } from "../../../../common/utils"
 import { CollidingObjectsComponent } from "../../../game-object/colliding-objects-component";
 import { InteractiveObjectComponent } from "../../../game-object/interactive-object-component";
@@ -19,33 +20,65 @@ export class SkiMoveState extends SkiBaseCharacterState {
             this._stateMachine.setState(SKI_CHARACTER_STATES.SKI_IDLE_STATE);
         }
         
+        // up key reduces speed
+        if (controls.isUpDown && !controls.isFrozen) {
+            this.#updateDirection(DIRECTION.UP);
+            this.#updateVelocity(false, -0.75);
+        } 
+        // down key increases speed
+        else if (controls.isDownDown && !controls.isFrozen) {
+            this.#updateDirection(DIRECTION.DOWN);
+            this.#updateVelocity(false, 0.5);
+        }
+
+        // horizontal controls
         if (controls.isLeftDown && !controls.isFrozen) {
             this.#updateDirection(DIRECTION.LEFT);
-            this._gameObject.setFlipX(false);
-            this.#updateVelocity(-1);
+            this.#updateVelocity(true, -1.15);
+            this.#updateAnimation();
         }
         else if (controls.isRightDown && !controls.isFrozen) {
             this.#updateDirection(DIRECTION.RIGHT);
-            this._gameObject.setFlipX(true);
-            this.#updateVelocity(1);
+            this.#updateVelocity(true, 1.15);
+            this.#updateAnimation();
         } 
         else {
-            this.#updateVelocity(0);
+            this.#updateVelocity(true, 0);
         }
     }
 
-    // set the direction
+    // set the player's direction
     #updateDirection(direction) {
         this._gameObject.direction = direction;
-//        this._gameObject.animationComponent.playAnimation(`WALK_${this._gameObject.direction}`)
     }
 
     // update the object's velocity
-    #updateVelocity(value) {
+    #updateVelocity(isX, value) {
         if (!isArcadePhysicsBody(this._gameObject.body)) {
             return;
         }
-        this._gameObject.body.velocity.x = this._gameObject.speed * value;
-        return;
+
+        // update x velocity
+        if (isX) {
+            this._gameObject.body.velocity.x += this._gameObject.speed * value;
+            return;
+        }
+        // update y velocity
+        this._gameObject.body.velocity.y += this._gameObject.speed * value;
+
+        // ensure players can't go up
+        if (this._gameObject.body.velocity.y < 0) {
+            this._gameObject.body.velocity.y = 0;
+        }
+    }
+
+    #updateAnimation() {
+        // update the animation according when the player is moving left or right
+        if (this._gameObject.body.velocity.x < 0) {
+            this._gameObject.setFlipX(false);
+        }
+        else if (this._gameObject.body.velocity.x > 0) {
+            this._gameObject.setFlipX(true);
+        }
     }
 }

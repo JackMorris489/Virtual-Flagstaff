@@ -44,6 +44,7 @@ export class UiScene extends Phaser.Scene {
     }
 
     update() {
+        // TODO: REWORK SCENE TRANSITIONS
         if (this.skiscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
             // unpause the ski scene (so it can sleep)
             this.skiscene.scene.resume();

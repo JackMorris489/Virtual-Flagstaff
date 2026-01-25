@@ -155,7 +155,6 @@ export class GameScene extends Phaser.Scene {
         this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
     }
 
-
     #collideObjects() {
         this.#player.setVelocityX(0);
         this.#player.setVelocityY(0);
@@ -193,23 +192,21 @@ export class GameScene extends Phaser.Scene {
     }
 
     #interact() {
-        var id;
-        var idDigit;
-
         // confirm the object can be interacted with
         if (this.#player.interactedObject.interactionComponent.canInteractWith()) {
 
             // check the interaction type
             switch (this.#player.interactedObject.interactionComponent.objectType) {
                 case 'DIALOG':
-                    id = this.#player.interactedObject._stateMachine.userId;
-                    idDigit = id.charAt(id.length - 1);
+                    let id = this.#player.interactedObject._stateMachine.userId;
+                    let idDigit = id.charAt(id.length - 1);
                     this.#currentDialogNumber = 1;
                     this.#startDialog(idDigit, this.#currentDialogNumber);
                     break;
                 
                 case 'MINI_GAME':
                     id = this.#player.interactedObject._stateMachine.userId;
+                    break;
             }
         }
     }
