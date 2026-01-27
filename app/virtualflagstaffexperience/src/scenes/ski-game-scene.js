@@ -59,8 +59,7 @@ export class SkiGameScene extends Phaser.Scene {
         }).setDepth(6);
 
         // resize the camera viewport and follow the player
-        this.cameras.main.startFollow(this.player).followOffset.set(0, -160-32);
-
+        this.cameras.main.startFollow(this.player).followOffset.set(0, -160-8);
 
         /* ========== Obstacles ========== */
         // create the obstacle group
@@ -76,6 +75,10 @@ export class SkiGameScene extends Phaser.Scene {
         // store the UI scene so it can be referenced
         this.uiScene = this.scene.get(SCENE_KEYS.UI_SCENE);
     };
+
+    update() {
+        this.#updateCamera();
+    }
 
     // TODO: Improve logic to prevent overlap and prevent obstacles from generating too close together
     generateObsticles() {
@@ -128,11 +131,14 @@ export class SkiGameScene extends Phaser.Scene {
     }
 
     #collideWithFinish() {
+        console.log("COLLIDED WITH FINISH")
+        /*
         // pause the current scene
         this.scene.pause();
 
         // pull up UI scene for congradulations & restart or leave mini-game
         this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
+        */
     }
 
     #registerColliders() {
@@ -141,5 +147,11 @@ export class SkiGameScene extends Phaser.Scene {
         this.#finishLayer.setCollision([this.#finishLayer.tileset[0].firstgid]);
         this.physics.add.collider(this.player, this.#collisionLayer);
         this.physics.add.collider(this.player, this.#finishLayer, this.#collideWithFinish, null, this);
+    }
+
+    #updateCamera() {
+        // zoom out when going faster zoom in when going slower
+        // function for zoom: 1.2/((0.002 * velocity) + 1)
+        this.cameras.main.zoom = 1.1/((0.002 * this.player.body.velocity.y) + 1)
     }
 }
