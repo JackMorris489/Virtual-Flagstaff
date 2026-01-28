@@ -1,0 +1,13 @@
+# database_models.py
+
+from sqlmodel import (
+    Field, 
+    SQLModel
+)
+
+class User( SQLModel, table = True ):
+    id: int | None = Field( default = None, primary_key = True )
+    username: str = Field( index = True )
+    email: str = Field( index = True )
+    password: str
+    send_emails: bool = Field( default = False )
