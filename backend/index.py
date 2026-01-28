@@ -22,23 +22,20 @@ def get_weather():
     # Extract the short forecast for the next hour
     def get_forecast( json_data: dict ) -> str:
         return json_data[ "properties" ][ "periods" ][ 1 ][ "shortForecast" ]
-    
-    # Determine if the forecast indicates ANY type of snow
-    def is_snowing( forecast: str ) -> bool:
-        return "snow" in forecast.lower()
+
+    def get_temperature( json_data: dict ) -> int:
+        return json_data[ "properties" ][ "periods" ][ 1 ][ "temperature" ]
 
     # Hourly weather URL for Flagstaff, AZ
     URL = "https://api.weather.gov/gridpoints/FGZ/74,89/forecast/hourly"
 
     # Get forecast in Flagstaff, AZ
     json_data = fetch_request( URL )
-    forecast = get_forecast( json_data )
 
-    # Return if Flagstaff, AZ is snowing or clear
-    if is_snowing( forecast ):
-        return "snow"
-    else:
-        return "clear"
+    return {
+        "forecast": get_forecast( json_data ),
+        "temperature": get_temperature( json_data )
+    }
 
 @app.post( "submit-customer-data" )
 def submit_customer_data( customer_data: dict ):
