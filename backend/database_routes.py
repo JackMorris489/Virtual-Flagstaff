@@ -7,7 +7,7 @@ from database_utilities import (
     get_model_instances,
     raise_http_exception_if_none
 )
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 database_router = APIRouter()
 
@@ -29,7 +29,7 @@ def read_users( session: SessionDep ):
 def read_user( user_id: int, session: SessionDep ):
     user = session.get( User, user_id )
 
-    raise_http_exception_if_none( user, 404, "User not found" )
+    raise_http_exception_if_none( user )
     
     return user
 
@@ -38,7 +38,7 @@ def read_user( user_id: int, session: SessionDep ):
 def update_user( user_id: int, user: UserUpdate, session: SessionDep ):
     user = session.get( User, user_id )
 
-    raise_http_exception_if_none( user, 404, "User not found" )
+    raise_http_exception_if_none( user )
     
     user_data = user.model_dump( exclude_unset = True )
 
