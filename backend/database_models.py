@@ -5,9 +5,28 @@ from sqlmodel import (
     SQLModel
 )
 
-class User( SQLModel, table = True ):
+class UserBase( SQLModel ):
+    username: str = Field( unique = True, index = True )
+    
+class User( UserBase, table = True ):
     id: int | None = Field( default = None, primary_key = True )
-    username: str = Field( index = True )
-    email: str = Field( index = True )
+    password: str 
+    email: str | None = Field( default = None, unique = True, index = True )
+    phone_number: str | None = Field( default = None, unique = True, index = True )
+    receive_notifications: bool = Field( default = False )
+
+class UserPublic( UserBase ):
+    id: int
+
+class UserCreate( UserBase ):
     password: str
-    send_emails: bool = Field( default = False )
+    email: str | None = None
+    phone_number: str | None = None
+    receive_notifications: bool = False
+
+class UserUpdate( UserBase ):
+    username: str | None = None
+    email: str | None = None
+    phone_number: str | None = None
+    password: str | None = None
+    receive_notifications: bool | None = None
