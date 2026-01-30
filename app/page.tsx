@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Press_Start_2P } from "next/font/google";
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: "400" });
+
 
 // Simple phone validation
 function isValidPhone(input: string): boolean {
@@ -153,6 +156,12 @@ export default function MainMenu() {
   // Combined auth modal state
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signup" | "login">("signup");
+  const [signupLoading, setSignupLoading] = useState(false);
+
+  // Weather state
+  const [weather, setWeather] = useState<{ forecast: string; temperature: number } | null>(null);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
 
   // Sign up state
   const [signupEmail, setSignupEmail] = useState("");
@@ -181,21 +190,47 @@ export default function MainMenu() {
 
   // Contact modal state (kept separate)
   const [contactOpen, setContactOpen] = useState(false);
+  
+  // Fetch weather data
+  async function fetchWeather() {
+  setWeatherLoading(true);
+  setWeatherError(null);
 
-  // Disable start shortcut while any modal is open
+  try {
+    const res = await fetch(`${API_BASE}/api/weather`, { method: "GET" });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.detail ?? "Failed to fetch weather");
+    }
+
+    setWeather(data);
+  } catch (err: any) {
+    setWeatherError(err?.message ?? "Unknown error");
+  } finally {
+    setWeatherLoading(false);
+  }
+}
+
   useEffect(() => {
-    if (authOpen || contactOpen) return;
+    fetchWeather();
+  }, []);
 
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " ") {
-        router.push("/virtualflagstaffexperience");
-      }
-    };
+    // Disable start shortcut while any modal is open
+    useEffect(() => {
+      if (authOpen || contactOpen) return;
 
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [authOpen, contactOpen, router]);
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          router.push("/virtualflagstaffexperience");
+        }
+      };
 
+      window.addEventListener("keydown", onKey);
+      return () => window.removeEventListener("keydown", onKey);
+    }, [authOpen, contactOpen, router]);
+
+    
   // When switching auth mode, reset password visibility & focus primary field
   useEffect(() => {
     setShowPassword(false);
@@ -334,6 +369,15 @@ export default function MainMenu() {
         >
           Press Enter to Start
         </motion.p>
+          <div className="mt-6 text-[10px] uppercase tracking-widest text-white/80">
+            {weatherLoading && <p>Loading Flagstaff weather...</p>}
+            {weatherError && <p className="text-white/70">Weather error: {weatherError}</p>}
+            {weather && (
+              <p>
+                Flagstaff: {weather.forecast} • {weather.temperature}°F
+              </p>
+            )}
+          </div>
 
         <p className="mt-10 text-[9px] text-white/50">
           © {new Date().getFullYear()} Virtual Flagstaff
@@ -374,25 +418,53 @@ export default function MainMenu() {
 
         {authMode === "signup" ? (
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
 
               if (signupMethod === "phone") {
                 if (!isValidPhone(signupPhone)) {
-                  alert(
-                    "Please enter a valid phone number"
-                  );
+                  alert("Please enter a valid phone number");
                   return;
                 }
               }
 
-              const identifier =
-                signupMethod === "email" ? signupEmail : signupPhone;
+              const identifier = signupMethod === "email" ? signupEmail : signupPhone;
+              const phoneDigits = signupPhone.replace(/\D/g, "");
 
-              // TODO: replace with real sign up call
-              alert(`Signed up with ${signupMethod}: ${identifier}`);
-              setAuthOpen(false);
+              setSignupLoading(true);
+
+              try {
+                const payload = {
+                  // backend requires username, password
+                  username: identifier, // simplest: use email/phone as username
+                  password: signupPassword,
+                  email: signupMethod === "email" ? signupEmail : null,
+                  phone_number: signupMethod === "phone" ? phoneDigits : null,
+                  receive_notifications: true,
+                };
+
+                const res = await fetch(`${API_BASE}/users`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                  // FastAPI often returns {detail: "..."}
+                  throw new Error(data?.detail ?? "Sign up failed");
+                }
+
+                alert(`Account created! User ID: ${data.id}`);
+                setAuthOpen(false);
+              } catch (err: any) {
+                alert(err?.message ?? "Unknown sign up error");
+              } finally {
+                setSignupLoading(false);
+              }
             }}
+
             className="grid gap-4"
           >
 
