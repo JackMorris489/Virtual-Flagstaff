@@ -1,3 +1,4 @@
+// Constant that holds all the Scene names for easy reference
 export const SCENE_KEYS = {
     PRELOAD_SCENE: 'PRELOAD_SCENE',
     GAME_SCENE: 'GAME_SCENE',

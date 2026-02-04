@@ -1,6 +1,9 @@
 import * as Phaser from 'phaser';
 import { ASSET_KEYS } from "./assets"
 
+/** 
+    A list of common defintions.
+**/
 export const DIRECTION = {
     UP: 'UP',
     DOWN: 'DOWN',

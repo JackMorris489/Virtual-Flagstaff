@@ -18,7 +18,6 @@ export class SkiIdleState extends SkiBaseCharacterState {
         if (!isArcadePhysicsBody(this._gameObject.body)) {
             this._gameObject.body.velocity.x = 0;
             this._gameObject.body.velocity.y = 0;
-            applyGravity();
         }
     }
 

@@ -1,3 +1,6 @@
+/** 
+    List of the ASSET defintions
+**/
 export const ASSET_PACK_KEYS = {
   MAIN: 'MAIN',
 };

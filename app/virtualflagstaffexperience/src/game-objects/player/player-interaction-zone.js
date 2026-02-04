@@ -8,6 +8,10 @@ import { IdleState } from '../../components/state-machine/states/character/idle-
 import { MoveState } from '../../components/state-machine/states/character/move-state';
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
 
+/**
+    Invisable physics object made to stay in front of the player in order to detect when the player
+    is facing and next to an interactable object.
+**/
 export class PlayerInteractionZone extends CharacterGameObject {
     #collidingObjectsComponent;
 
