@@ -8,6 +8,10 @@ import { IdleState } from '../../components/state-machine/states/character/idle-
 import { MoveState } from '../../components/state-machine/states/character/move-state';
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
 
+/**
+    Container made to hold the overworld player and the player's interaction zone. 
+    The container is in charge of making sure the interaction zone stays with the player.
+**/
 export class PlayerContainer extends Phaser.GameObjects.Container {
     // constructor
     constructor(config){
@@ -22,7 +26,7 @@ export class PlayerContainer extends Phaser.GameObjects.Container {
     }
 
     moveInteractZone() {
-        // adjust the interaction zone for the player's direction
+        // check the player's direction
         switch (this.first.direction) {
             case 'UP':
                 // adjust the dimensions of the interaction zone

@@ -5,6 +5,12 @@ import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
 import { KeyboardComponent } from '../components/input/keyboard-component';
 
+/** 
+    The UI scene is where all the dialog and user interfaces are stored. This allows them
+    to be carried over between scenes. The UI scene also is where scene transition 
+    commands occur (for now). 
+**/
+// TODO: Seperate scene transition commands from the UI scene, possibly to their own scene.
 export class UiScene extends Phaser.Scene {
     #hudContainer;
     #dialogueContainer;

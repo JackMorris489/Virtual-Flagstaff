@@ -2,6 +2,10 @@ import * as Phaser from 'phaser';
 import { SCENE_KEYS } from './scene-keys';
 import { ASSET_KEYS, ASSET_PACK_KEYS } from '../common/assets';
 
+/** 
+    The Preload scene is where Phaser loads in all thes assets and
+    creates the animations from sprite files.
+**/
 export class PreloadScene extends Phaser.Scene {
     constructor() {
         super({
@@ -9,8 +13,8 @@ export class PreloadScene extends Phaser.Scene {
         });
     }
 
+    // preload the assets
     preload() {
-        // preload the assets
         this.load.pack(ASSET_PACK_KEYS.MAIN, 'assets/data/assets.json');
     }
 

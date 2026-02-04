@@ -8,6 +8,10 @@ import { MoveState } from '../../components/state-machine/states/character/move-
 import { DirectionComponent } from '../../components/game-object/direction-component';
 import { AnimationComponent } from '../../components/game-object/animation-component';
 
+/** 
+    Base game object class, most, if not all, game objects should extend this or
+    something else that extends this.
+**/
 export class CharacterGameObject extends Phaser.Physics.Arcade.Sprite {
     _controlsComponent;
     _speedComponent;

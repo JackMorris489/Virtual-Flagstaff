@@ -9,14 +9,15 @@ import { SkiMoveState } from '../../components/state-machine/states/ski-game/ski
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
 import { InteractingObjectComponent } from '../../components/game-object/interacting-object-component';
 
-
+/**
+    The ski mini-game player character. This player class handles the animations, 
+    config, and state machine for the player character in the ski mini-game.
+**/
 export class SkiPlayer extends CharacterGameObject {
     interactingObjectComponent;
     skiAcceleration;
 
-    // constructor
     constructor(config){
-        // create animation config for the component
         super({
             scene: config.scene,
             position: config.position,
@@ -27,9 +28,6 @@ export class SkiPlayer extends CharacterGameObject {
             inputComponent: config.controls,
             assetKey: config.assetKey,
         })
-
-        // add components
-        this.interactingObjectComponent = new InteractingObjectComponent(this);
 
         // add state machine states
         this._stateMachine.addState(new SkiIdleState(this));
@@ -45,21 +43,12 @@ export class SkiPlayer extends CharacterGameObject {
         // update the size of the physics body
         this.physicsBody.setSize(18, 32, true).setOffset(this.width/2 - 8, this.height/2 - 7);
 
-        // TODO: Update inital gravity acceleration (if possible)
-        // add gravity
-        this.body.gravity.y = 15;
+        // add gravity to the player
+        this.body.gravity.y = 20;
     }
 
     get physicsBody() {
         return this.body;
-    }
-
-    interactedWithGameObject(gameObject) {
-        this.interactingObjectComponent.set(gameObject)
-    }
-
-    get interactedObject() {
-        return this.interactingObjectComponent.object;
     }
 
     update() {

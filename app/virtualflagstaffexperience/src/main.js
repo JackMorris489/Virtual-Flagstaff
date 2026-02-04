@@ -1,5 +1,8 @@
 import * as Phaser from 'phaser';
 
+/**
+    Game config, most aspects of this file should remain unchanged
+**/
 export const gameConfig  = {
     type: Phaser.CANVAS,
     pixelArt: true,

@@ -9,12 +9,15 @@ import { MoveState } from '../../components/state-machine/states/character/move-
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
 import { InteractingObjectComponent } from '../../components/game-object/interacting-object-component';
 
+/**
+    The overworld player character. This player class handles the animations, 
+    state machine, and interacted object for the player character in the overworld.
+**/
 export class Player extends CharacterGameObject {
     interactingObjectComponent;
 
-    // constructor
     constructor(config){
-        // create animation config for the component
+        // create the animation config for the component
         const animationConfig = {
             // walking animations
             WALK_UP: {key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1, ignoreIfPlaying: true},
@@ -29,6 +32,7 @@ export class Player extends CharacterGameObject {
             IDLE_RIGHT: {key: PLAYER_ANIMATION_KEYS.IDLE_SIDE, repeat: -1, ignoreIfPlaying: true},
         }
 
+        // player construction
         super({
             scene: config.scene,
             position: config.position,

@@ -7,7 +7,12 @@ import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 import { SkiPlayer } from '../game-objects/player/ski-player';
 import { ENABLE_LOGGING } from '../common/config';
 
-export class SkiGameScene extends Phaser.Scene {
+/**
+    The Ski Mini-game scene, this scene is opened by interacting with the respective objects.
+    This scene stores the player, map, and obstacle data and handles collisions between the 
+    player and obstacles and between the player and the finish line.
+**/
+export class SkiGame extends Phaser.Scene {
     #controls;
     player;
     #collisionLayer;
@@ -82,10 +87,11 @@ export class SkiGameScene extends Phaser.Scene {
 
     // TODO: Improve logic to prevent overlap and prevent obstacles from generating too close together
     generateObsticles() {
-        // have a 1 in 5 chance of generating an obstacle
+        // break the map into 32 x 64 grid. In each 'square' attempt to spawn an obstacle 
         for (let row = 384; row < 3008; row += 64) {
             for (let column = 64; column < 480; column += 32) {
-                let spawn = Phaser.Math.RND.between(0, 7);
+                // have a 1 in 10 chance of generating an obstacle
+                let spawn = Phaser.Math.RND.between(0, 9);
                 let type = Phaser.Math.RND.between(0, 4);
                 let variance = Phaser.Math.RND.between(-16, 16);
                 
@@ -131,14 +137,11 @@ export class SkiGameScene extends Phaser.Scene {
     }
 
     #collideWithFinish() {
-        console.log("COLLIDED WITH FINISH")
-        /*
         // pause the current scene
         this.scene.pause();
 
         // pull up UI scene for congradulations & restart or leave mini-game
         this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
-        */
     }
 
     #registerColliders() {
@@ -151,7 +154,7 @@ export class SkiGameScene extends Phaser.Scene {
 
     #updateCamera() {
         // zoom out when going faster zoom in when going slower
-        // function for zoom: 1.2/((0.002 * velocity) + 1)
+        // function for zoom: max zoom/((zoom factor * velocity) + 1)
         this.cameras.main.zoom = 1.1/((0.002 * this.player.body.velocity.y) + 1)
     }
 }

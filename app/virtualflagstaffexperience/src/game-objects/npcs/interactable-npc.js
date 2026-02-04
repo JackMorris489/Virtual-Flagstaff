@@ -10,6 +10,11 @@ import { DIRECTION, INTERACTIVE_OBJECT_TYPE } from '../../common/common';
 import { InteractiveObjectComponent } from '../../components/game-object/interactive-object-component';
 import { NPC_DIALOG } from '../../common/npc-dialog';
 
+/**
+    Interactive NPC class, this class exists essentially as an extention (perhaps later literally)
+    of the base NPC class. This one has additional code to allow it to be interacted with.
+**/ 
+// TODO: OVERHAUL AND MAKE IT EXTEND THE BASE NPC CLASS
 export class InteractiveNPC extends CharacterGameObject {
     interactionComponent;
 
@@ -43,8 +48,9 @@ export class InteractiveNPC extends CharacterGameObject {
         })
 
         // add components
+        // TODO: REWORK INTERACTION COMPONENT
         this.interactionComponent = new InteractiveObjectComponent(this, INTERACTIVE_OBJECT_TYPE.DIALOG, () => {
-            openDialog(NPC_DIALOG.DIALOG_1_1);
+//            openDialog(NPC_DIALOG.DIALOG_1_1);
         });
 
         // add state machine states

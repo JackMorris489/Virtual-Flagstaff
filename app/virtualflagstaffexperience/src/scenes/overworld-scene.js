@@ -12,7 +12,13 @@ import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { NPC_DIALOG } from '../common/npc-dialog';
 import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 
-export class GameScene extends Phaser.Scene {
+/** 
+    The overworld game scene, where players move across the Flagstaff map and can interact with NPCs and Objects.
+    This scene holds the Flagstaff map data, the player, NPCs, and Minigame interactables and handles the
+    interactions between all of these.
+**/
+// TODO: RENAME THIS SCENE TO OVERWORLD
+export class Overworld extends Phaser.Scene {
     #controls;
     #playerContainer;
     #playerInteractionZone;
@@ -191,6 +197,7 @@ export class GameScene extends Phaser.Scene {
         return;
     }
 
+    // TODO: MOVE INTERACT COMMAND TO PLAYER CLASS (IF FEASIBLE)
     #interact() {
         // confirm the object can be interacted with
         if (this.#player.interactedObject.interactionComponent.canInteractWith()) {
@@ -211,6 +218,7 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
+    // TODO: MOVE DIALOG COMMANDS TO UI SCENE
     #startDialog(npcId, dialogNumber) {
         // disable the user's keys
         this.#controls.isFrozen = true;
@@ -233,10 +241,10 @@ export class GameScene extends Phaser.Scene {
 
         // set dialog
         const key = `DIALOG_${npcId}_${dialogNumber}`;
-        const dialogSet = NPC_DIALOG[key];
+        const dialog = NPC_DIALOG[key];
 
         // if that dialog doesn't exist
-        if (dialogSet === undefined) {
+        if (dialog === undefined) {
             // reset the dialog counter, close dialog and unfreeze the user
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
             this.#currentDialogNumber = 0;
@@ -245,7 +253,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         // emmit dialog
-        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialogSet);
+        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
 
         // increment dialog value
         this.#currentDialogNumber++;

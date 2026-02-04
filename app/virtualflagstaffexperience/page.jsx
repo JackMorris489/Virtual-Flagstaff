@@ -7,9 +7,9 @@ import * as Phaser from 'phaser';
 import { gameConfig } from './src/main';
 import { SCENE_KEYS } from './src/scenes/scene-keys';
 import { PreloadScene } from './src/scenes/preload-scene';
-import { GameScene } from './src/scenes/game-scene';
+import { Overworld } from './src/scenes/overworld-scene';
 import { UiScene } from './src/scenes/ui-scene';
-import { SkiGameScene } from './src/scenes/ski-game-scene';
+import { SkiGame } from './src/scenes/ski-game-scene';
 
 export default function VirtualFlagstaff() {
     const gameRef = useRef(null)
@@ -21,8 +21,8 @@ export default function VirtualFlagstaff() {
         const game = new Phaser.Game(gameConfig)
 
         game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene)
-        game.scene.add(SCENE_KEYS.GAME_SCENE, GameScene)
-        game.scene.add(SCENE_KEYS.SKI_GAME, SkiGameScene)
+        game.scene.add(SCENE_KEYS.GAME_SCENE, Overworld)
+        game.scene.add(SCENE_KEYS.SKI_GAME, SkiGame)
         game.scene.add(SCENE_KEYS.UI_SCENE, UiScene)
         game.scene.start(SCENE_KEYS.PRELOAD_SCENE)
 
@@ -35,6 +35,6 @@ export default function VirtualFlagstaff() {
     }, [])
 
     return (
-        <div id="phaser-container"/> 
+        <div id="game-container"/>
     )
 }

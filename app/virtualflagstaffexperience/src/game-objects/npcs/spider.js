@@ -8,6 +8,11 @@ import { IdleState } from '../../components/state-machine/states/character/idle-
 import { MoveState } from '../../components/state-machine/states/character/move-state';
 import { DIRECTION } from '../../common/common';
 
+/**
+    Spider is a leftover from when this was a tutorial. It shouldn't be used and will either 
+    be completly removed or later transitioned into the non-interactable NPC class.
+    Right now it remains as an example NPC class.
+**/ 
 export class Spider extends CharacterGameObject {
     constructor(config){
         // create animation config for the component
