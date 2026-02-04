@@ -12,3 +12,5 @@
 `$ cd ..`
 
 `$ docker compose up --build`
+
+Create a copy of `.env.template` file and name it `.env`
