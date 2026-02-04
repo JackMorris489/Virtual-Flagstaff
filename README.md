@@ -6,6 +6,9 @@
 
 ## Getting Started
 `$ cd frontend`
+
 `$ npm i`
+
 `$ cd ..`
+
 `$ docker compose up --build`
