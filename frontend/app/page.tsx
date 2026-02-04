@@ -198,7 +198,7 @@ export default function MainMenu() {
   setWeatherError(null);
 
   try {
-    const res = await fetch(`${API_BASE}/api/weather`, { method: "GET" });
+    const res = await fetch(`${API_BASE}/weather`, { method: "GET" });
     const data = await res.json();
 
     if (!res.ok) {
