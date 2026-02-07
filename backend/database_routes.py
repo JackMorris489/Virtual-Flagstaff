@@ -47,9 +47,9 @@ def read_user( user_id: int, session: SessionDep ):
 
 @database_router.patch( "/user/{user_id}", response_model = UserPublic )
 def update_user( user_id: int, user: UserUpdate, session: SessionDep ):
-    user = session.get( User, user_id )
-    database_service.raise_http_exception_if_none( user )
+    user_db = session.get( User, user_id )
+    database_service.raise_http_exception_if_none( user_db )
     user_data = user.model_dump( exclude_unset = True )
-    user.sqlmodel_update( user_data )
-    database_service.save( user, session )
-    return user
+    user_db.sqlmodel_update( user_data )
+    database_service.save( user_db, session )
+    return user_db
