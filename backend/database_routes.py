@@ -13,7 +13,10 @@ from database_utilities import (
     raise_http_exception_if_none
 )
 from fastapi import APIRouter, BackgroundTasks
-from email_utilities import send_email_background
+from email_utilities import EmailService
+from constants import MAIL_TO
+
+email_service = EmailService()
 
 database_router = APIRouter()
 
@@ -23,16 +26,13 @@ def create_user( background_tasks: BackgroundTasks, user: UserCreate, session: S
     username = user.username
     contact = user.email or user.phone_number
     survey = user.survey
-    
     save_to_database( user, session )
-    send_email_background( background_tasks, 
-                           'New User!', 
-                           'abg287@nau.edu', 
-                           {
-                                'username': username, 
-                                'contact': contact,
-                                'survey': survey
-                           })
+    email_service.send_background( 
+        background_tasks, 
+        'New User!', 
+        MAIL_TO, 
+        { 'username': username, 'contact': contact, 'survey': survey }
+    )
     return user
 
 
