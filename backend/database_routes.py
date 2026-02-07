@@ -12,14 +12,18 @@ from database_utilities import (
     get_model_instances,
     raise_http_exception_if_none
 )
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
+from email_utilities import send_email_background
 
 database_router = APIRouter()
 
 @database_router.post( "/user", response_model = UserPublic )
-def create_user( user: UserCreate, session: SessionDep ):
+def create_user( background_tasks: BackgroundTasks, user: UserCreate, session: SessionDep ):
     user = User.model_validate( user )
+    username = user.username
+    contact = user.email or user.phone_number
     save_to_database( user, session )
+    send_email_background(background_tasks, 'New User!', 'abg287@nau.edu', {'username': username, 'contact': contact})
     return user
 
 
