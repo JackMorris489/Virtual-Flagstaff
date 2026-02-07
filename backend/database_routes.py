@@ -19,11 +19,10 @@ database_router = APIRouter()
 
 @database_router.post( "/user", response_model = UserPublic )
 def create_user( background_tasks: BackgroundTasks, user: UserCreate, session: SessionDep ):
-    user = User.model_validate( user )
+    user = database_service.create_model_instance( User, session, user )
     username = user.username
     contact = user.email or user.phone_number
     survey = user.survey
-    database_service.save( user, session )
     email_service.send_background( 
         background_tasks, 
         'New User!', 
@@ -40,16 +39,9 @@ def read_users( session: SessionDep ):
 
 @database_router.get( "/user/{user_id}", response_model = UserPublic )
 def read_user( user_id: int, session: SessionDep ):
-    user = session.get( User, user_id )
-    database_service.raise_http_exception_if_none( user )
-    return user
+    return database_service.get_model_instance_by_id( User, session, user_id )
 
 
 @database_router.patch( "/user/{user_id}", response_model = UserPublic )
 def update_user( user_id: int, user: UserUpdate, session: SessionDep ):
-    user_db = session.get( User, user_id )
-    database_service.raise_http_exception_if_none( user_db )
-    user_data = user.model_dump( exclude_unset = True )
-    user_db.sqlmodel_update( user_data )
-    database_service.save( user_db, session )
-    return user_db
+    return database_service.set_model_instance_by_id( User, session, user_id, user )
