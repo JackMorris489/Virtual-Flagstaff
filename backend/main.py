@@ -28,10 +28,9 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     create_database_and_tables()
-    pass
 
 @app.get( "/" )
-def read_root() -> None:
+def read_root() -> str:
     return "Hello from FastAPI Backend!"
 
 @app.get( "/weather" )
