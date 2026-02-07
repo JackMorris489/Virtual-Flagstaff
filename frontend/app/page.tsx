@@ -442,9 +442,10 @@ export default function MainMenu() {
                   email: signupMethod === "email" ? signupEmail : null,
                   phone_number: signupMethod === "phone" ? phoneDigits : null,
                   receive_notifications: true,
+                  survey: null
                 };
 
-                const res = await fetch(`${API_BASE}/users`, {
+                const res = await fetch(`${API_BASE}/user`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(payload),
