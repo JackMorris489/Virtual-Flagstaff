@@ -1,7 +1,15 @@
 <html>
   <body>
-    <h1>New User!</h1>
-    <p>Username: {{username}}</p><br>
-    <p>Contact: {{contact}}</p>
+    <p>Username: {{ username }}</p>
+    <p>Contact: {{ contact }}</p>
+    <h2>Survey Response</h2>
+    <table>
+      {% for question, answer in survey.items() %}
+      <tr>
+        <td><strong>{{ question }}</strong></td>
+        <td>{{ answer }}</td>
+      </tr>
+      {% endfor %}
+    </table>
   </body>
 </html>

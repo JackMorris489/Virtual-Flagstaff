@@ -22,8 +22,17 @@ def create_user( background_tasks: BackgroundTasks, user: UserCreate, session: S
     user = User.model_validate( user )
     username = user.username
     contact = user.email or user.phone_number
+    survey = user.survey
+    
     save_to_database( user, session )
-    send_email_background(background_tasks, 'New User!', 'abg287@nau.edu', {'username': username, 'contact': contact})
+    send_email_background( background_tasks, 
+                           'New User!', 
+                           'abg287@nau.edu', 
+                           {
+                                'username': username, 
+                                'contact': contact,
+                                'survey': survey
+                           })
     return user
 
 
