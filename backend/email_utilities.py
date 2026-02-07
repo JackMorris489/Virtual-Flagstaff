@@ -52,7 +52,7 @@ class EmailService:
         template: str = "email.html"
     ) -> None:
         message = self._prepare_message( subject, email_to, body )
-        await self.fast_mail.send_message( message, template_name = template )
+        await self._fast_mail.send_message( message, template_name = template )
 
 
     def send_background( 
@@ -64,6 +64,6 @@ class EmailService:
         template: str = "email.html"
     ) -> None:
         message = self._prepare_message( subject, email_to, body )
-        background_tasks.add_task( self.fast_mail.send_message, 
+        background_tasks.add_task( self._fast_mail.send_message, 
                                    message, 
                                    template_name=template )
