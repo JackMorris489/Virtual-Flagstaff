@@ -66,4 +66,4 @@ class EmailService:
         message = self._prepare_message( subject, email_to, body )
         background_tasks.add_task( self._fast_mail.send_message, 
                                    message, 
-                                   template_name=template )
+                                   template_name = template )
