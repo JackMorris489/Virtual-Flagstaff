@@ -18,16 +18,17 @@ email_service = EmailService()
 database_router = APIRouter()
 
 @database_router.post( "/user", response_model = UserPublic )
-def create_user( background_tasks: BackgroundTasks, user: UserCreate, session: SessionDep ):
+def create_user( 
+    background_tasks: BackgroundTasks, 
+    user: UserCreate, 
+    session: SessionDep
+) -> UserPublic:
     user = database_service.create_model_instance( User, session, user )
-    username = user.username
-    contact = user.email or user.phone_number
-    survey = user.survey
-    email_service.send_background( 
+    email_service.notify_client_of_new_user( 
         background_tasks, 
-        'New User!', 
-        MAIL_TO, 
-        { 'username': username, 'contact': contact, 'survey': survey }
+        user.username, 
+        user.email or user.phone_number, 
+        user.survey
     )
     return user
 
