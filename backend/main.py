@@ -1,6 +1,7 @@
 # main.py
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from weather_utilities import (
@@ -38,9 +39,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get( "/" )
-def read_root() -> str:
-    return "Hello from FastAPI Backend!"
+@app.get( "/", include_in_schema = False )
+def read_root() -> RedirectResponse:
+    return RedirectResponse( url = "/docs" )
 
 @app.get( "/weather" )
 def get_weather() -> dict:

@@ -8,7 +8,8 @@ from constants import (
     MAIL_FROM,
     MAIL_PORT,
     MAIL_SERVER,
-    MAIL_FROM_NAME
+    MAIL_FROM_NAME,
+    MAIL_TO
 )
 
 CONNECTION_CONFIGURATION = ConnectionConfig(
@@ -67,3 +68,19 @@ class EmailService:
         background_tasks.add_task( self._fast_mail.send_message, 
                                    message, 
                                    template_name = template )
+
+
+    def notify_client_of_new_user( 
+        self, 
+        background_tasks: BackgroundTasks,
+        username: str, 
+        contact: str, 
+        survey: dict
+    ) -> None:
+        subject = "New User!"
+        body = {
+            "username": username,
+            "contact": contact,
+            "survey": survey
+        }
+        self.send_background( background_tasks, subject, MAIL_TO, body )

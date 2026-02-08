@@ -99,6 +99,19 @@ class DatabaseService:
         model_instance.sqlmodel_update( new_data )
         self.save( model_instance, session )
         return model_instance
+    
+
+    def delete_model_instance(
+        self,
+        model: SQLModel,
+        session: Session,
+        model_instance_id: int
+    ):
+        model_instance = session.get( model, model_instance_id )
+        self.raise_http_exception_if_none( model_instance )
+        session.delete( model_instance )
+        session.commit()
+        return { "detail": f"{model.__name__} with id {model_instance_id} deleted" }
 
 database_service = DatabaseService()
 
