@@ -6,10 +6,9 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Press_Start_2P } from "next/font/google";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: "400" });
-
+const WEATHER_API = process.env.NEXT_PUBLIC_HOURLY_FLAGSTAFF_WEATHER_API_URL;
 
 // Simple phone validation
 function isValidPhone(input: string): boolean {
@@ -192,20 +191,87 @@ export default function MainMenu() {
   // Contact modal state (kept separate)
   const [contactOpen, setContactOpen] = useState(false);
   
-  // Fetch weather data
+  
+  // Survey state
+  const [surveyOpen, setSurveyOpen] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [surveyCompleted, setSurveyCompleted] = useState(false);
+  const [surveyLoading, setSurveyLoading] = useState(false);
+  const [surveyErr, setSurveyErr] = useState<string | null>(null);
+
+  // Survey fields (multi-select)
+  const SURVEY_INTERESTS = [
+    "Apartments",
+    "Houses",
+    "Roommates",
+    "Short-term stays",
+    "Buying",
+  ] as const;
+
+  const SURVEY_AMENITIES = [
+    "Pet friendly",
+    "Parking",
+    "Near NAU",
+    "Downtown",
+    "Quiet area",
+    "Close to trails",
+  ] as const;
+
+  const [surveyMoveTiming, setSurveyMoveTiming] = useState("");
+  const [surveyInterests, setSurveyInterests] = useState<string[]>([]);
+  const [surveyAmenities, setSurveyAmenities] = useState<string[]>([]);
+  const [surveyBudget, setSurveyBudget] = useState("");
+  const [surveyPets, setSurveyPets] = useState<"yes" | "no" | "">("");
+  const [surveyNotes, setSurveyNotes] = useState("");
+
+  function toggleMulti(
+    value: string,
+    list: string[],
+    setList: React.Dispatch<React.SetStateAction<string[]>>
+  ) {
+    setList((prev) =>
+      prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]
+    );
+  }
+
+  // Load persisted user + survey completion
+  useEffect(() => {
+    try {
+      const storedUserId = window.localStorage.getItem("vf_user_id");
+      const isCompleted = window.localStorage.getItem("vf_survey_completed") === "true";
+      if (storedUserId) {
+        setUserId(storedUserId);
+        setSurveyCompleted(isCompleted);
+      }
+    } catch {
+      // ignore (privacy mode / SSR)
+    }
+  }, []);
+
+
+// Fetch weather data
   async function fetchWeather() {
   setWeatherLoading(true);
   setWeatherError(null);
 
   try {
-    const res = await fetch(`${API_BASE}/weather`, { method: "GET" });
+    const res = await fetch(WEATHER_API!, { method: "GET" });
     const data = await res.json();
+    const current = data?.properties?.periods?.[0];
 
     if (!res.ok) {
       throw new Error(data?.detail ?? "Failed to fetch weather");
     }
+    
+    if (!current) {
+      throw new Error("Weather data missing");
+    }
 
-    setWeather(data);
+    setWeather({
+      forecast: current.shortForecast,
+      temperature: current.temperature,
+    });
+
   } catch (err: any) {
     setWeatherError(err?.message ?? "Unknown error");
   } finally {
@@ -213,13 +279,65 @@ export default function MainMenu() {
   }
 }
 
-  useEffect(() => {
+  async function submitSurvey() {
+    // Allow survey even if the user isn't signed in yet.
+    const storedUserId =
+      userId ?? (typeof window !== "undefined" ? window.localStorage.getItem("vf_user_id") : null);
+
+    if (!surveyMoveTiming) {
+      setSurveyErr("Please select when you're moving.");
+      return;
+    }
+
+    setSurveyLoading(true);
+    setSurveyErr(null);
+
+    const surveyPayload = {
+      user_id: storedUserId,
+      move_timing: surveyMoveTiming,
+      interests: surveyInterests,
+      amenities: surveyAmenities,
+      budget: surveyBudget,
+      has_pets: surveyPets === "yes" ? true : surveyPets === "no" ? false : null,
+      notes: surveyNotes,
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/survey`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(surveyPayload),
+      });
+
+      const contentType = res.headers.get("content-type") || "";
+      const raw = await res.text();
+      const data = contentType.includes("application/json") ? JSON.parse(raw) : { detail: raw };
+
+      if (!res.ok) throw new Error((data as any)?.detail ?? "Failed to submit survey");
+
+      try {
+        window.localStorage.setItem("vf_survey_completed", "true");
+      } catch {
+        // ignore
+      }
+
+      setSurveyCompleted(true);
+      setSurveyOpen(false);
+    } catch (e: any) {
+      setSurveyErr(e?.message ?? "Unknown survey error");
+    } finally {
+      setSurveyLoading(false);
+    }
+  }
+
+
+    useEffect(() => {
     fetchWeather();
   }, []);
 
     // Disable start shortcut while any modal is open
     useEffect(() => {
-      if (authOpen || contactOpen) return;
+      if (authOpen || contactOpen || surveyOpen) return;
 
       const onKey = (e: KeyboardEvent) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -229,7 +347,7 @@ export default function MainMenu() {
 
       window.addEventListener("keydown", onKey);
       return () => window.removeEventListener("keydown", onKey);
-    }, [authOpen, contactOpen, router]);
+    }, [authOpen, contactOpen, surveyOpen, router]);
 
     
   // When switching auth mode, reset password visibility & focus primary field
@@ -354,6 +472,11 @@ export default function MainMenu() {
             Sign Up / Log In
           </PixelButton>
 
+          <PixelButton onClick={() => setSurveyOpen(true)} ariaLabel="Open survey">
+            Survey
+          </PixelButton>
+
+
           <PixelButton
             onClick={() => setContactOpen(true)}
             ariaLabel="Open contact modal"
@@ -385,7 +508,165 @@ export default function MainMenu() {
         </p>
       </section>
 
-      {/* AUTH (SIGN UP / LOG IN) MODAL */}
+      
+      {/* SURVEY MODAL (shown after sign up until completed) */}
+      <PixelModal
+        open={surveyOpen}
+        title="Quick Survey"
+        onClose={() => {
+          setSurveyOpen(false);
+        }}
+      >
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await submitSurvey();
+          }}
+          className="grid gap-4"
+        >
+          <p className="text-[10px] text-white/70">
+            Help us personalize your experience.
+          </p>
+
+          {surveyErr && (
+            <div className="rounded-none border-[3px] border-white p-3 text-[10px] text-white/90">
+              {surveyErr}
+            </div>
+          )}
+
+          
+          <label className="grid gap-2 text-[10px] uppercase tracking-widest">
+            <span>When are you moving?</span>
+            <select
+              required
+              value={surveyMoveTiming}
+              onChange={(e) => setSurveyMoveTiming(e.target.value)}
+              className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white outline-none"
+            >
+              <option value="" disabled>
+                Select...
+              </option>
+              <option value="0-30 days">0–30 days</option>
+              <option value="1-3 months">1–3 months</option>
+              <option value="3-6 months">3–6 months</option>
+              <option value="6+ months">6+ months</option>
+              <option value="Just browsing">Just browsing</option>
+            </select>
+          </label>
+
+          <fieldset className="grid gap-2 border-[3px] border-white p-3">
+            <legend className="px-2 text-[10px] uppercase tracking-widest">
+              What are you looking for? (select all)
+            </legend>
+            <div className="grid gap-2">
+              {SURVEY_INTERESTS.map((opt) => (
+                <label key={opt} className="flex items-center gap-2 text-[10px]">
+                  <input
+                    type="checkbox"
+                    checked={surveyInterests.includes(opt)}
+                    onChange={() => toggleMulti(opt, surveyInterests, setSurveyInterests)}
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="grid gap-2 border-[3px] border-white p-3">
+            <legend className="px-2 text-[10px] uppercase tracking-widest">
+              Preferences (select all)
+            </legend>
+            <div className="grid gap-2">
+              {SURVEY_AMENITIES.map((opt) => (
+                <label key={opt} className="flex items-center gap-2 text-[10px]">
+                  <input
+                    type="checkbox"
+                    checked={surveyAmenities.includes(opt)}
+                    onChange={() => toggleMulti(opt, surveyAmenities, setSurveyAmenities)}
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <label className="grid gap-2 text-[10px] uppercase tracking-widest">
+            <span>Budget range (optional)</span>
+            <input
+              value={surveyBudget}
+              onChange={(e) => setSurveyBudget(e.target.value)}
+              className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
+              placeholder="$1,200–$1,800"
+            />
+          </label>
+
+          <fieldset className="grid gap-2 border-[3px] border-white p-3">
+            <legend className="px-2 text-[10px] uppercase tracking-widest">
+              Pets? (optional)
+            </legend>
+            <div className="flex flex-wrap gap-3 text-[10px]">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="pets"
+                  checked={surveyPets === "yes"}
+                  onChange={() => setSurveyPets("yes")}
+                />
+                <span>Yes</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="pets"
+                  checked={surveyPets === "no"}
+                  onChange={() => setSurveyPets("no")}
+                />
+                <span>No</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="pets"
+                  checked={surveyPets === ""}
+                  onChange={() => setSurveyPets("")}
+                />
+                <span>Prefer not to say</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label className="grid gap-2 text-[10px] uppercase tracking-widest">
+            <span>Anything else? (optional)</span>
+            <textarea
+              value={surveyNotes}
+              onChange={(e) => setSurveyNotes(e.target.value)}
+              className="min-h-[80px] rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
+              placeholder="Tell us what matters most..."
+            />
+          </label>
+<div className="mt-2 flex items-center gap-3">
+            <PixelButton type="submit" ariaLabel="Submit survey">
+              {surveyLoading ? "Submitting..." : "Submit"}
+            </PixelButton>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (userId && !surveyCompleted) {
+                  alert("Please complete the quick survey to continue.");
+                  return;
+                }
+                setSurveyOpen(false);
+              }}
+              className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </PixelModal>
+
+{/* AUTH (SIGN UP / LOG IN) MODAL */}
       <PixelModal
         open={authOpen}
         title={authMode === "signup" ? "Sign Up" : "Log In"}
@@ -454,12 +735,24 @@ export default function MainMenu() {
                 const data = await res.json();
 
                 if (!res.ok) {
-                  // FastAPI often returns {detail: "..."}
                   throw new Error(data?.detail ?? "Sign up failed");
                 }
 
                 alert(`Account created! User ID: ${data.id}`);
+
+                // Persist user id so we can show survey right after sign up
+                try {
+                  const idStr = String(data.id);
+                  window.localStorage.setItem("vf_user_id", idStr);
+                  window.localStorage.setItem("vf_survey_completed", "false");
+                  setUserId(idStr);
+                  setSurveyCompleted(false);
+                } catch {
+                  // ignore
+                }
+
                 setAuthOpen(false);
+                setSurveyOpen(true);
               } catch (err: any) {
                 alert(err?.message ?? "Unknown sign up error");
               } finally {

@@ -1,11 +1,11 @@
 # constants.py
 
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from os import getenv
 
-# load_dotenv()
+load_dotenv()
 
-HOURLY_FLAGSTAFF_WEATHER_API_URL = getenv( "HOURLY_FLAGSTAFF_WEATHER_API_URL" )
+HOURLY_FLAGSTAFF_WEATHER_API_URL = getenv( "NEXT_PUBLIC_HOURLY_FLAGSTAFF_WEATHER_API_URL" )
 
 DATABASE_URL = getenv( "DATABASE_URL" )
 

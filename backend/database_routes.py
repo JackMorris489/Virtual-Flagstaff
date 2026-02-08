@@ -4,7 +4,8 @@ from database_models.user_models import (
     User, 
     UserCreate, 
     UserPublic, 
-    UserUpdate
+    UserUpdate,
+    SurveySubmission
 )
 from database_utilities import ( SessionDep,
     database_service
@@ -44,4 +45,19 @@ def read_user( user_id: int, session: SessionDep ):
 
 @database_router.patch( "/user/{user_id}", response_model = UserPublic )
 def update_user( user_id: int, user: UserUpdate, session: SessionDep ):
+<<<<<<< HEAD
     return database_service.set_model_instance_by_id( User, session, user_id, user )
+=======
+    user = session.get( User, user_id )
+    raise_http_exception_if_none( user )
+    user_data = user.model_dump( exclude_unset = True )
+    user.sqlmodel_update( user_data )
+    save_to_database( user, session )
+    return user
+
+@database_router.post("/survey")
+def submit_survey(payload: SurveySubmission):
+    # For now: just log it
+    print("Survey received:", payload.model_dump())
+    return {"ok": True}
+>>>>>>> ee4ad05 (Added survey function and fixed weather display on main menu.)
