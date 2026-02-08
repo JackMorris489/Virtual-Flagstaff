@@ -12,11 +12,11 @@ from constants import (
     HOURLY_FLAGSTAFF_WEATHER_API_URL
 )
 from database_routes import database_router
-from database_utilities import create_database_and_tables
+from database_utilities import database_service
 
 @asynccontextmanager
 async def lifespan( app: FastAPI ):
-    create_database_and_tables()
+    database_service.create_database_and_tables()
     yield
 
 app = FastAPI( lifespan = lifespan )
