@@ -16,17 +16,10 @@ from database_routes import database_router
 from database_utilities import database_service
 
 @asynccontextmanager
-<<<<<<< HEAD
 async def lifespan( app: FastAPI ):
     database_service.create_database_and_tables()
-=======
-async def lifespan(app: FastAPI):
-    try:
-        create_database_and_tables()
-    except Exception as e:
-        print(f"DB init failed: {e}")
->>>>>>> ee4ad05 (Added survey function and fixed weather display on main menu.)
     yield
+    
 app = FastAPI( lifespan = lifespan )
 
 app.include_router( database_router )
