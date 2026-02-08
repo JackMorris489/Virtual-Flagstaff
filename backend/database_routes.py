@@ -4,7 +4,8 @@ from database_models.user_models import (
     User, 
     UserCreate, 
     UserPublic, 
-    UserUpdate
+    UserUpdate,
+    SurveySubmission
 )
 from database_utilities import ( SessionDep,
     database_service
