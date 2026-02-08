@@ -46,3 +46,7 @@ def read_user( user_id: int, session: SessionDep ):
 @database_router.patch( "/user/{user_id}", response_model = UserPublic )
 def update_user( user_id: int, user: UserUpdate, session: SessionDep ):
     return database_service.set_model_instance_by_id( User, session, user_id, user )
+
+@database_router.delete( "/user/{user_id}" )
+def delete_user( user_id: int, session: SessionDep ):
+    return database_service.delete_model_instance( User, session, user_id )
