@@ -15,6 +15,8 @@ export class UiScene extends Phaser.Scene {
     #hudContainer;
     #dialogueContainer;
     #dialogueContainerText;
+    #weatherContainer;
+    #weatherContainerText;
     skiscene;
     worldscene;
     #controls;
@@ -35,6 +37,14 @@ export class UiScene extends Phaser.Scene {
         this.#dialogueContainer.add(this.#dialogueContainerText);
         this.#dialogueContainer.setVisible(false);
 
+        this.#weatherContainer = this.add.container(0, 0, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]);
+        this.#weatherContainerText = this.add.text(14, 14, 'Loading Weather...', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
+
+        this.#weatherContainer.add(this.#weatherContainerText);
+        this.#weatherContainer.setVisible(true);
+        
         // register event listeners
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
@@ -47,6 +57,7 @@ export class UiScene extends Phaser.Scene {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
+        this.getWeatherData();
     }
 
     update() {
@@ -68,6 +79,45 @@ export class UiScene extends Phaser.Scene {
 
             // close dialog
             this.closeDialog();
+        }
+    }
+
+    async getWeatherData() {
+        const url = 'https://api.weather.gov/gridpoints/FGZ/74,89/forecast/hourly';
+
+        try {
+            this.#weatherContainerText.setText('Loading Weather...');
+
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'VirtualFlagstaff (VF@virtualflag.game)',
+                    'Accept': 'application/geo+json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`NOAA API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const period = data.properties.periods[0];
+
+            if (!period) {
+                throw new Error('No forecast data available');
+            }
+
+            const {
+                temperature,
+                temperatureUnit,
+                shortForecast,
+            } = period;
+
+            this.#weatherContainerText.setText(
+                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
+            );
+        } catch(error) {
+            console.error(error);
+            this.#weatherContainerText.setText('Weather unavailable');
         }
     }
 
