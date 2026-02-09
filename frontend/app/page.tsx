@@ -1,153 +1,16 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import PixelButton from "./components/PixelButton";
+import PixelModal from "./components/PixelModal";
+import SurveyModal from "./components/SurveyModal";
+import isValidPhone from "./utils/isValidPhone";
+import { API_BASE } from "./utils/constants";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Press_Start_2P } from "next/font/google";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: "400" });
-
-// Simple phone validation
-function isValidPhone(input: string): boolean {
-  const digits = input.replace(/\D/g, "");
-
-  // must be 10 digits
-  if (digits.length != 10) return false;
-
-  // reject numbers like 0000000000 or 1111111111
-  if (/^(\d)\1+$/.test(digits)) return false;
-
-  return true;
-}
-
-// Reusable pixel-styled button
-function PixelButton({
-  href,
-  onClick,
-  children,
-  ariaLabel,
-  type = "button",
-}: {
-  href?: string;
-  onClick?: () => void;
-  children: React.ReactNode;
-  ariaLabel?: string;
-  type?: "button" | "submit";
-}) {
-  const base = (
-    <span
-      className="relative block select-none rounded-none border-[4px] border-white px-6 py-4 text-center text-sm uppercase tracking-widest transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-white/60 active:translate-y-[2px]"
-      style={{
-        textRendering: "optimizeLegibility",
-        boxShadow: "0 0 0 0 #000, 6px 6px 0 0 #ffffff, 8px 8px 0 0 #4ade80",
-      }}
-    >
-      {/* pixel-corner accents */}
-      <span className="pointer-events-none absolute -left-2 -top-2 h-2 w-2 bg-white" />
-      <span className="pointer-events-none absolute -right-2 -top-2 h-2 w-2 bg-white" />
-      <span className="pointer-events-none absolute -left-2 -bottom-2 h-2 w-2 bg-white" />
-      <span className="pointer-events-none absolute -right-2 -bottom-2 h-2 w-2 bg-white" />
-      <span className="relative z-10">{children}</span>
-    </span>
-  );
-
-  if (href) {
-    return (
-      <Link href={href} aria-label={ariaLabel} className="outline-none">
-        {base}
-      </Link>
-    );
-  }
-
-  return (
-    <button
-      aria-label={ariaLabel}
-      onClick={onClick}
-      type={type}
-      className="outline-none"
-    >
-      {base}
-    </button>
-  );
-}
-
-// Accessible pixel modal
-function PixelModal({
-  open,
-  title,
-  onClose,
-  children,
-  initialFocusRef,
-}: {
-  open: boolean;
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  initialFocusRef?: React.RefObject<HTMLElement>;
-}) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const hasFocused = useRef(false);
-
-  useEffect(() => {
-    // When closed, reset so next open can focus again
-    if (!open) {
-      hasFocused.current = false;
-      return;
-    }
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKey);
-
-    // Focus exactly once per open
-    if (!hasFocused.current) {
-      hasFocused.current = true;
-      setTimeout(() => initialFocusRef?.current?.focus(), 0);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose, initialFocusRef]);
-
-  if (!open) return null;
-
-  return (
-    <div
-      ref={overlayRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className="fixed inset-0 z-50 grid place-items-center bg-black/70"
-      onMouseDown={(e) => {
-        if (e.target === overlayRef.current) onClose();
-      }}
-    >
-      <div className="relative w-[min(38rem,92vw)] rounded-none border-[4px] border-white bg-black p-5 text-white shadow-[6px_6px_0_0_#ffffff,8px_8px_0_0_#4ade80]">
-        {/* pixel corners */}
-        <span className="pointer-events-none absolute -left-2 -top-2 h-2 w-2 bg-white" />
-        <span className="pointer-events-none absolute -right-2 -top-2 h-2 w-2 bg-white" />
-        <span className="pointer-events-none absolute -left-2 -bottom-2 h-2 w-2 bg-white" />
-        <span className="pointer-events-none absolute -right-2 -bottom-2 h-2 w-2 bg-white" />
-
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xs sm:text-sm">{title}</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="rounded-none border-[3px] border-white px-2 py-1 text-[10px] uppercase tracking-widest"
-          >
-            Close
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 export default function MainMenu() {
   const router = useRouter();
@@ -195,58 +58,6 @@ export default function MainMenu() {
   const [surveyOpen, setSurveyOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [surveyCompleted, setSurveyCompleted] = useState(false);
-  const [surveyLoading, setSurveyLoading] = useState(false);
-  const [surveyErr, setSurveyErr] = useState<string | null>(null);
-
-  // Survey fields (multi-select)
-  const SURVEY_INTERESTS = [
-    "Apartments",
-    "Houses",
-    "Roommates",
-    "Short-term stays",
-    "Buying",
-  ] as const;
-
-  const SURVEY_AMENITIES = [
-    "Pet friendly",
-    "Parking",
-    "Near NAU",
-    "Downtown",
-    "Quiet area",
-    "Close to trails",
-  ] as const;
-
-  const [surveyMoveTiming, setSurveyMoveTiming] = useState("");
-  const [surveyInterests, setSurveyInterests] = useState<string[]>([]);
-  const [surveyAmenities, setSurveyAmenities] = useState<string[]>([]);
-  const [surveyBudget, setSurveyBudget] = useState("");
-  const [surveyPets, setSurveyPets] = useState<"yes" | "no" | "">("");
-  const [surveyNotes, setSurveyNotes] = useState("");
-
-  function toggleMulti(
-    value: string,
-    list: string[],
-    setList: React.Dispatch<React.SetStateAction<string[]>>
-  ) {
-    setList((prev) =>
-      prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]
-    );
-  }
-
-  // Load persisted user + survey completion
-  useEffect(() => {
-    try {
-      const storedUserId = window.localStorage.getItem("vf_user_id");
-      const isCompleted = window.localStorage.getItem("vf_survey_completed") === "true";
-      if (storedUserId) {
-        setUserId(storedUserId);
-        setSurveyCompleted(isCompleted);
-      }
-    } catch {
-      // ignore (privacy mode / SSR)
-    }
-  }, []);
-
 
 // Fetch weather data
   async function fetchWeather() {
@@ -269,58 +80,6 @@ export default function MainMenu() {
     setWeatherLoading(false);
   }
 }
-
-  async function submitSurvey() {
-    // Allow survey even if the user isn't signed in yet.
-    const storedUserId =
-      userId ?? (typeof window !== "undefined" ? window.localStorage.getItem("vf_user_id") : null);
-
-    if (!surveyMoveTiming) {
-      setSurveyErr("Please select when you're moving.");
-      return;
-    }
-
-    setSurveyLoading(true);
-    setSurveyErr(null);
-
-    const surveyPayload = {
-      user_id: storedUserId,
-      move_timing: surveyMoveTiming,
-      interests: surveyInterests,
-      amenities: surveyAmenities,
-      budget: surveyBudget,
-      has_pets: surveyPets === "yes" ? true : surveyPets === "no" ? false : null,
-      notes: surveyNotes,
-    };
-
-    try {
-      const res = await fetch(`${API_BASE}/survey`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(surveyPayload),
-      });
-
-      const contentType = res.headers.get("content-type") || "";
-      const raw = await res.text();
-      const data = contentType.includes("application/json") ? JSON.parse(raw) : { detail: raw };
-
-      if (!res.ok) throw new Error((data as any)?.detail ?? "Failed to submit survey");
-
-      try {
-        window.localStorage.setItem("vf_survey_completed", "true");
-      } catch {
-        // ignore
-      }
-
-      setSurveyCompleted(true);
-      setSurveyOpen(false);
-    } catch (e: any) {
-      setSurveyErr(e?.message ?? "Unknown survey error");
-    } finally {
-      setSurveyLoading(false);
-    }
-  }
-
 
     useEffect(() => {
     fetchWeather();
@@ -501,161 +260,14 @@ export default function MainMenu() {
 
       
       {/* SURVEY MODAL (shown after sign up until completed) */}
-      <PixelModal
-        open={surveyOpen}
-        title="Quick Survey"
-        onClose={() => {
-          setSurveyOpen(false);
-        }}
-      >
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await submitSurvey();
-          }}
-          className="grid gap-4"
-        >
-          <p className="text-[10px] text-white/70">
-            Help us personalize your experience.
-          </p>
-
-          {surveyErr && (
-            <div className="rounded-none border-[3px] border-white p-3 text-[10px] text-white/90">
-              {surveyErr}
-            </div>
-          )}
-
-          
-          <label className="grid gap-2 text-[10px] uppercase tracking-widest">
-            <span>When are you moving?</span>
-            <select
-              required
-              value={surveyMoveTiming}
-              onChange={(e) => setSurveyMoveTiming(e.target.value)}
-              className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white outline-none"
-            >
-              <option value="" disabled>
-                Select...
-              </option>
-              <option value="0-30 days">0–30 days</option>
-              <option value="1-3 months">1–3 months</option>
-              <option value="3-6 months">3–6 months</option>
-              <option value="6+ months">6+ months</option>
-              <option value="Just browsing">Just browsing</option>
-            </select>
-          </label>
-
-          <fieldset className="grid gap-2 border-[3px] border-white p-3">
-            <legend className="px-2 text-[10px] uppercase tracking-widest">
-              What are you looking for? (select all)
-            </legend>
-            <div className="grid gap-2">
-              {SURVEY_INTERESTS.map((opt) => (
-                <label key={opt} className="flex items-center gap-2 text-[10px]">
-                  <input
-                    type="checkbox"
-                    checked={surveyInterests.includes(opt)}
-                    onChange={() => toggleMulti(opt, surveyInterests, setSurveyInterests)}
-                  />
-                  <span>{opt}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <fieldset className="grid gap-2 border-[3px] border-white p-3">
-            <legend className="px-2 text-[10px] uppercase tracking-widest">
-              Preferences (select all)
-            </legend>
-            <div className="grid gap-2">
-              {SURVEY_AMENITIES.map((opt) => (
-                <label key={opt} className="flex items-center gap-2 text-[10px]">
-                  <input
-                    type="checkbox"
-                    checked={surveyAmenities.includes(opt)}
-                    onChange={() => toggleMulti(opt, surveyAmenities, setSurveyAmenities)}
-                  />
-                  <span>{opt}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <label className="grid gap-2 text-[10px] uppercase tracking-widest">
-            <span>Budget range (optional)</span>
-            <input
-              value={surveyBudget}
-              onChange={(e) => setSurveyBudget(e.target.value)}
-              className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
-              placeholder="$1,200–$1,800"
-            />
-          </label>
-
-          <fieldset className="grid gap-2 border-[3px] border-white p-3">
-            <legend className="px-2 text-[10px] uppercase tracking-widest">
-              Pets? (optional)
-            </legend>
-            <div className="flex flex-wrap gap-3 text-[10px]">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="pets"
-                  checked={surveyPets === "yes"}
-                  onChange={() => setSurveyPets("yes")}
-                />
-                <span>Yes</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="pets"
-                  checked={surveyPets === "no"}
-                  onChange={() => setSurveyPets("no")}
-                />
-                <span>No</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="pets"
-                  checked={surveyPets === ""}
-                  onChange={() => setSurveyPets("")}
-                />
-                <span>Prefer not to say</span>
-              </label>
-            </div>
-          </fieldset>
-
-          <label className="grid gap-2 text-[10px] uppercase tracking-widest">
-            <span>Anything else? (optional)</span>
-            <textarea
-              value={surveyNotes}
-              onChange={(e) => setSurveyNotes(e.target.value)}
-              className="min-h-[80px] rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
-              placeholder="Tell us what matters most..."
-            />
-          </label>
-<div className="mt-2 flex items-center gap-3">
-            <PixelButton type="submit" ariaLabel="Submit survey">
-              {surveyLoading ? "Submitting..." : "Submit"}
-            </PixelButton>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (userId && !surveyCompleted) {
-                  alert("Please complete the quick survey to continue.");
-                  return;
-                }
-                setSurveyOpen(false);
-              }}
-              className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </PixelModal>
+      <SurveyModal
+        surveyOpen={surveyOpen}
+        setSurveyOpen={setSurveyOpen}
+        userId={userId}
+        setUserId={setUserId}
+        surveyCompleted={surveyCompleted}
+        setSurveyCompleted={setSurveyCompleted}
+      />
 
 {/* AUTH (SIGN UP / LOG IN) MODAL */}
       <PixelModal
