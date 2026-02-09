@@ -7,8 +7,8 @@ import toggleMulti from "../utils/toggleMulti";
 type SurveyModalProps = {
     surveyOpen: boolean;
     setSurveyOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    userId: string | null;
-    setUserId: React.Dispatch<React.SetStateAction<string | null>>;
+    userId: number | null;
+    setUserId: React.Dispatch<React.SetStateAction<number | null>>;
     surveyCompleted: boolean;
     setSurveyCompleted: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -51,7 +51,7 @@ export default function SurveyModal({
     // Load persisted user + survey completion
     useEffect(() => {
     try {
-      const storedUserId = window.localStorage.getItem("vf_user_id");
+      const storedUserId = Number(window.localStorage.getItem("vf_user_id"));
       const isCompleted = window.localStorage.getItem("vf_survey_completed") === "true";
       if (storedUserId) {
         setUserId(storedUserId);

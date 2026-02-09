@@ -56,7 +56,7 @@ export default function MainMenu() {
   
   // Survey state
   const [surveyOpen, setSurveyOpen] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 
 // Fetch weather data
@@ -345,10 +345,11 @@ export default function MainMenu() {
 
                 // Persist user id so we can show survey right after sign up
                 try {
-                  const idStr = String(data.id);
+                  setUserId(data.id);
+                  const idStr = String(userId);
                   window.localStorage.setItem("vf_user_id", idStr);
                   window.localStorage.setItem("vf_survey_completed", "false");
-                  setUserId(idStr);
+                  // setUserId(idStr);
                   setSurveyCompleted(false);
                 } catch {
                   // ignore
