@@ -76,18 +76,20 @@ export default function SurveyModal({
     setSurveyErr(null);
 
     const surveyPayload = {
-      user_id: storedUserId,
-      move_timing: surveyMoveTiming,
-      interests: surveyInterests,
-      amenities: surveyAmenities,
-      budget: surveyBudget,
-      has_pets: surveyPets === "yes" ? true : surveyPets === "no" ? false : null,
-      notes: surveyNotes,
+      survey: {
+        move_timing: surveyMoveTiming,
+        interests: surveyInterests,
+        amenities: surveyAmenities,
+        budget: surveyBudget,
+        has_pets: surveyPets === "yes" ? true : surveyPets === "no" ? false : null,
+        notes: surveyNotes,
+      }
     };
 
     try {
-      const res = await fetch(`${API_BASE}/survey`, {
-        method: "POST",
+      console.log( JSON.stringify( surveyPayload ) )
+      const res = await fetch(`${API_BASE}/user/${userId}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(surveyPayload),
       });
