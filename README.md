@@ -13,4 +13,10 @@ Create a copy of `.env.template` file and name it `.env`
 
 `$ cd ..`
 
-`$ docker compose up --build`
+`$ docker compose up`
+
+## Hard Reset Services
+
+`docker compose down -v`
+
+`docker compose up --build`
