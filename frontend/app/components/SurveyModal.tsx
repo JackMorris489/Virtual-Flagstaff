@@ -57,7 +57,8 @@ export default function SurveyModal({
         setUserId(storedUserId);
         setSurveyCompleted(isCompleted);
       }
-    } catch {
+    }
+    catch {
       // ignore (privacy mode / SSR)
     }
     }, []);

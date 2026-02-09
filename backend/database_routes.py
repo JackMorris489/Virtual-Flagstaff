@@ -46,12 +46,12 @@ def read_user( user_id: int, session: SessionDep ):
 
 @database_router.patch( "/user/{user_id}", response_model = UserPublic )
 def update_user( background_tasks: BackgroundTasks, user_id: int, user: UserUpdate, session: SessionDep ):
-    print( user.survey)
     if user.survey is not None:
+        user_db = database_service.get_model_instance_by_id( User, session, user_id )
         email_service.notify_client_of_new_user( 
             background_tasks,
-            user.username, 
-            MAIL_TO, 
+            user_db.username, 
+            user_db.email or user_db.phone_number, 
             user.survey
         )
     return database_service.set_model_instance_by_id( User, session, user_id, user )
