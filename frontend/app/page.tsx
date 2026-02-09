@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Press_Start_2P } from "next/font/google";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: "400" });
-const WEATHER_API = process.env.NEXT_PUBLIC_HOURLY_FLAGSTAFF_WEATHER_API_URL;
 
 // Simple phone validation
 function isValidPhone(input: string): boolean {
@@ -255,22 +254,14 @@ export default function MainMenu() {
   setWeatherError(null);
 
   try {
-    const res = await fetch(WEATHER_API!, { method: "GET" });
+    const res = await fetch(`${API_BASE}/weather`, { method: "GET" });
     const data = await res.json();
-    const current = data?.properties?.periods?.[0];
 
     if (!res.ok) {
       throw new Error(data?.detail ?? "Failed to fetch weather");
     }
-    
-    if (!current) {
-      throw new Error("Weather data missing");
-    }
 
-    setWeather({
-      forecast: current.shortForecast,
-      temperature: current.temperature,
-    });
+    setWeather(data);
 
   } catch (err: any) {
     setWeatherError(err?.message ?? "Unknown error");
