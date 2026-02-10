@@ -26,7 +26,7 @@ export class Overworld extends Phaser.Scene {
     playerType;
     #interactiveNPCGroup;
     #interactiveSpider;
-    #currentDialogNumber;
+    currentDialogNumber;
     #allCollisionLayer;
     minigameinteractables;
 
@@ -151,7 +151,7 @@ export class Overworld extends Phaser.Scene {
     update() {
         this.#playerContainer.moveInteractZone();
         if(this.#controls.isEnterJustDown && this.#controls.isFrozen) {
-            this.#continueDialog(this.#currentDialogNumber);
+            this.continueDialog(this.currentDialogNumber);
         }
     }
 
@@ -183,7 +183,7 @@ export class Overworld extends Phaser.Scene {
             this.physics.add.overlap(this.#playerInteractionZone, npc, () => {
                 if(this.#controls.isActionJustDown) {
                     this.#player.interactedWithGameObject(npc);
-                    this.#interact();
+                    this.#player.interact();
                 }
             }, null, this);
         });
@@ -197,29 +197,8 @@ export class Overworld extends Phaser.Scene {
         return;
     }
 
-    // TODO: MOVE INTERACT COMMAND TO PLAYER CLASS (IF FEASIBLE)
-    #interact() {
-        // confirm the object can be interacted with
-        if (this.#player.interactedObject.interactionComponent.canInteractWith()) {
-
-            // check the interaction type
-            switch (this.#player.interactedObject.interactionComponent.objectType) {
-                case 'DIALOG':
-                    let id = this.#player.interactedObject._stateMachine.userId;
-                    let idDigit = id.charAt(id.length - 1);
-                    this.#currentDialogNumber = 1;
-                    this.#startDialog(idDigit, this.#currentDialogNumber);
-                    break;
-                
-                case 'MINI_GAME':
-                    id = this.#player.interactedObject._stateMachine.userId;
-                    break;
-            }
-        }
-    }
-
     // TODO: MOVE DIALOG COMMANDS TO UI SCENE
-    #startDialog(npcId, dialogNumber) {
+    startDialog(npcId, dialogNumber) {
         // disable the user's keys
         this.#controls.isFrozen = true;
 
@@ -231,10 +210,10 @@ export class Overworld extends Phaser.Scene {
         EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialogSet);
 
         // increment the dialog counter
-        this.#currentDialogNumber++;
+        this.currentDialogNumber++;
     }
 
-    #continueDialog(dialogNumber) {
+    continueDialog(dialogNumber) {
         // get dialog values
         const id = this.#player.interactedObject._stateMachine.userId;
         const npcId = id.charAt(id.length - 1);
@@ -247,7 +226,7 @@ export class Overworld extends Phaser.Scene {
         if (dialog === undefined) {
             // reset the dialog counter, close dialog and unfreeze the user
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
-            this.#currentDialogNumber = 0;
+            this.currentDialogNumber = 0;
             this.#controls.isFrozen = false;
             return;
         }
@@ -256,6 +235,6 @@ export class Overworld extends Phaser.Scene {
         EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
 
         // increment dialog value
-        this.#currentDialogNumber++;
+        this.currentDialogNumber++;
     }
 }
