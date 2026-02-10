@@ -5,14 +5,14 @@ import { API_BASE } from "../utils/constants";
 import { useState, useEffect, useRef } from "react"
 
 type AuthModalProps = {
-    authOpen: boolean;
-    setAuthOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    authMode: string;
-    setAuthMode: React.Dispatch<React.SetStateAction<string>>;
-    userId: number | null;
-    setUserId: React.Dispatch<React.SetStateAction<number | null>>;
-    setSurveyOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setSurveyCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+    authOpen: boolean
+    setAuthOpen: React.Dispatch<React.SetStateAction<boolean>>
+    authMode: string
+    setAuthMode: React.Dispatch<React.SetStateAction<string>>
+    userId: number | null
+    setUserId: React.Dispatch<React.SetStateAction<number | null>>
+    setSurveyOpen: React.Dispatch<React.SetStateAction<boolean>>
+    setSurveyCompleted: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function AuthModal({
@@ -51,6 +51,45 @@ export default function AuthModal({
         authEmailRef.current.focus();
         }
     }, [authMode, authOpen]);
+
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+
+        if (loginMethod === "phone") {
+            if (!isValidPhone(loginPhone)) {
+                alert( "Please enter a valid phone number.");
+                return;
+            }
+        }
+
+        const identifier = loginMethod === "email" ? loginEmail : loginPhone;
+
+        // TODO: replace with real log in call
+        const payload = { identifier, "password": loginPassword }
+        try {
+            const res = await fetch(`${API_BASE}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            
+            const data = await res.json()
+            console.log( data )
+
+            if (!res.ok)
+            {
+                throw new Error( data?.detail || "Login failed" )
+            }
+
+            alert(`Logged in with ${loginMethod}: ${identifier}`);
+            setAuthOpen(false);
+        }
+        catch
+        {
+            alert( "Incorrect credentials" );
+        }
+        
+    }
 
     return(
          <PixelModal
@@ -268,25 +307,7 @@ export default function AuthModal({
           </form>
         ) : (
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              if (loginMethod === "phone") {
-                if (!isValidPhone(loginPhone)) {
-                  alert(
-                    "Please enter a valid phone number."
-                  );
-                  return;
-                }
-              }
-
-              const identifier =
-                loginMethod === "email" ? loginEmail : loginPhone;
-
-              // TODO: replace with real log in call
-              alert(`Logged in with ${loginMethod}: ${identifier}`);
-              setAuthOpen(false);
-            }}
+            onSubmit={(e) => {handleLoginSubmit(e)}}
             className="grid gap-4"
           >
 

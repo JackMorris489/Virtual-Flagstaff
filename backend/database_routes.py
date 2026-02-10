@@ -10,9 +10,10 @@ from database_models.user_models import (
 from database_utilities import ( SessionDep,
     database_service
 )
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from email_utilities import EmailService
 from constants import MAIL_TO
+from sqlmodel import select, or_, and_
 
 email_service = EmailService()
 
@@ -24,14 +25,6 @@ def create_user(
     session: SessionDep
 ) -> UserPublic:
     return database_service.create_model_instance( User, session, user )
-    # user = database_service.create_model_instance( User, session, user )
-    # email_service.notify_client_of_new_user( 
-    #     background_tasks, 
-    #     user.username, 
-    #     user.email or user.phone_number, 
-    #     user.survey
-    # )
-    # return user
 
 
 @database_router.get( "/users", response_model = list[ UserPublic ] )
@@ -60,3 +53,23 @@ def update_user( background_tasks: BackgroundTasks, user_id: int, user: UserUpda
 @database_router.delete( "/user/{user_id}" )
 def delete_user( user_id: int, session: SessionDep ):
     return database_service.delete_model_instance( User, session, user_id )
+
+
+@database_router.post( "/login" )
+def login( data: dict, session: SessionDep ):
+    query = select(User).where(
+        or_(
+            User.email == data[ "identifier" ],
+            User.phone_number == data[ "identifier" ]
+        )
+    )
+
+    user = database_service.get_model_instance( User, session, query )
+    print( user )
+    if not user:
+        raise HTTPException( 401, "Invalid credentials" )
+    
+    if not user.password == data[ "password" ]:
+        raise HTTPException( 401, "Invalid credentials" )
+    
+    return { "detail": "Login successful"}
