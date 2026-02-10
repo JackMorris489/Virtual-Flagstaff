@@ -1,0 +1,32 @@
+services:
+  backend:
+    env_file:
+      - .env
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: fast-api-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/code
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: next-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+  database:
+    container_name: postgres-database
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - "postgres_data:/var/lib/postgresql/data"
+volumes:
+  postgres_data:

@@ -15,6 +15,8 @@ export class UiScene extends Phaser.Scene {
     #hudContainer;
     #dialogueContainer;
     #dialogueContainerText;
+    #weatherContainer;
+    #weatherContainerText;
     skiscene;
     worldscene;
     #controls;
@@ -35,6 +37,14 @@ export class UiScene extends Phaser.Scene {
         this.#dialogueContainer.add(this.#dialogueContainerText);
         this.#dialogueContainer.setVisible(false);
 
+        this.#weatherContainer = this.add.container(0, 0, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]);
+        this.#weatherContainerText = this.add.text(14, 14, 'Loading Weather...', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
+
+        this.#weatherContainer.add(this.#weatherContainerText);
+        this.#weatherContainer.setVisible(true);
+        
         // register event listeners
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
@@ -47,6 +57,8 @@ export class UiScene extends Phaser.Scene {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
+//        this.getWeatherData();
+        this.fetchDataFromLocalhost();
     }
 
     update() {
@@ -68,6 +80,38 @@ export class UiScene extends Phaser.Scene {
 
             // close dialog
             this.closeDialog();
+        }
+    }
+
+    async getWeatherData() {
+        const url = 'http://localhost:8000/weather';
+
+        try {
+            this.#weatherContainerText.setText('Loading Weather...');
+
+            const response = await fetch(url);
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+    
+            const weather = await response.json();
+            console.log(weather);
+
+            const {
+                forecast,
+                temperature,
+            } = weather
+
+            this.#weatherContainerText.setText(
+                `${forecast}\n` + `Temp: ${temperature}°F\n`
+            );
+
+            return weather;
+        } 
+        catch (error) {
+            console.error('Fetch problem:', error);
+            this.#weatherContainerText.setText('Weather unavailable');
         }
     }
 

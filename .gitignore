@@ -8,7 +8,9 @@ node_modules/
 
 
 ### BACKEND IGNORES ###
-
+.env
+__pycache__/
+.venv
 
 # typescript
 *.tsbuildinfo

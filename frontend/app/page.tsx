@@ -1,152 +1,16 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import PixelButton from "./components/PixelButton";
+import PixelModal from "./components/PixelModal";
+import SurveyModal from "./components/SurveyModal";
+import isValidPhone from "./utils/isValidPhone";
+import { API_BASE } from "./utils/constants";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Press_Start_2P } from "next/font/google";
 
 const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: "400" });
-
-// Simple phone validation
-function isValidPhone(input: string): boolean {
-  const digits = input.replace(/\D/g, "");
-
-  // must be 10 digits
-  if (digits.length != 10) return false;
-
-  // reject numbers like 0000000000 or 1111111111
-  if (/^(\d)\1+$/.test(digits)) return false;
-
-  return true;
-}
-
-// Reusable pixel-styled button
-function PixelButton({
-  href,
-  onClick,
-  children,
-  ariaLabel,
-  type = "button",
-}: {
-  href?: string;
-  onClick?: () => void;
-  children: React.ReactNode;
-  ariaLabel?: string;
-  type?: "button" | "submit";
-}) {
-  const base = (
-    <span
-      className="relative block select-none rounded-none border-[4px] border-white px-6 py-4 text-center text-sm uppercase tracking-widest transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-white/60 active:translate-y-[2px]"
-      style={{
-        textRendering: "optimizeLegibility",
-        boxShadow: "0 0 0 0 #000, 6px 6px 0 0 #ffffff, 8px 8px 0 0 #4ade80",
-      }}
-    >
-      {/* pixel-corner accents */}
-      <span className="pointer-events-none absolute -left-2 -top-2 h-2 w-2 bg-white" />
-      <span className="pointer-events-none absolute -right-2 -top-2 h-2 w-2 bg-white" />
-      <span className="pointer-events-none absolute -left-2 -bottom-2 h-2 w-2 bg-white" />
-      <span className="pointer-events-none absolute -right-2 -bottom-2 h-2 w-2 bg-white" />
-      <span className="relative z-10">{children}</span>
-    </span>
-  );
-
-  if (href) {
-    return (
-      <Link href={href} aria-label={ariaLabel} className="outline-none">
-        {base}
-      </Link>
-    );
-  }
-
-  return (
-    <button
-      aria-label={ariaLabel}
-      onClick={onClick}
-      type={type}
-      className="outline-none"
-    >
-      {base}
-    </button>
-  );
-}
-
-// Accessible pixel modal
-function PixelModal({
-  open,
-  title,
-  onClose,
-  children,
-  initialFocusRef,
-}: {
-  open: boolean;
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-  initialFocusRef?: React.RefObject<HTMLElement>;
-}) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const hasFocused = useRef(false);
-
-  useEffect(() => {
-    // When closed, reset so next open can focus again
-    if (!open) {
-      hasFocused.current = false;
-      return;
-    }
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKey);
-
-    // Focus exactly once per open
-    if (!hasFocused.current) {
-      hasFocused.current = true;
-      setTimeout(() => initialFocusRef?.current?.focus(), 0);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose, initialFocusRef]);
-
-  if (!open) return null;
-
-  return (
-    <div
-      ref={overlayRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className="fixed inset-0 z-50 grid place-items-center bg-black/70"
-      onMouseDown={(e) => {
-        if (e.target === overlayRef.current) onClose();
-      }}
-    >
-      <div className="relative w-[min(38rem,92vw)] rounded-none border-[4px] border-white bg-black p-5 text-white shadow-[6px_6px_0_0_#ffffff,8px_8px_0_0_#4ade80]">
-        {/* pixel corners */}
-        <span className="pointer-events-none absolute -left-2 -top-2 h-2 w-2 bg-white" />
-        <span className="pointer-events-none absolute -right-2 -top-2 h-2 w-2 bg-white" />
-        <span className="pointer-events-none absolute -left-2 -bottom-2 h-2 w-2 bg-white" />
-        <span className="pointer-events-none absolute -right-2 -bottom-2 h-2 w-2 bg-white" />
-
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xs sm:text-sm">{title}</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="rounded-none border-[3px] border-white px-2 py-1 text-[10px] uppercase tracking-widest"
-          >
-            Close
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 export default function MainMenu() {
   const router = useRouter();
@@ -154,6 +18,12 @@ export default function MainMenu() {
   // Combined auth modal state
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signup" | "login">("signup");
+  const [signupLoading, setSignupLoading] = useState(false);
+
+  // Weather state
+  const [weather, setWeather] = useState<{ forecast: string; temperature: number } | null>(null);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
 
   // Sign up state
   const [signupEmail, setSignupEmail] = useState("");
@@ -182,21 +52,54 @@ export default function MainMenu() {
 
   // Contact modal state (kept separate)
   const [contactOpen, setContactOpen] = useState(false);
+  
+  
+  // Survey state
+  const [surveyOpen, setSurveyOpen] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [surveyCompleted, setSurveyCompleted] = useState(false);
 
-  // Disable start shortcut while any modal is open
-  useEffect(() => {
-    if (authOpen || contactOpen) return;
+// Fetch weather data
+  async function fetchWeather() {
+  setWeatherLoading(true);
+  setWeatherError(null);
 
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " ") {
-        router.push("/virtualflagstaffexperience");
-      }
-    };
+  try {
+    const res = await fetch(`${API_BASE}/weather`, { method: "GET" });
+    const data = await res.json();
 
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [authOpen, contactOpen, router]);
+    if (!res.ok) {
+      throw new Error(data?.detail ?? "Failed to fetch weather");
+    }
 
+    setWeather(data);
+
+  } catch (err: any) {
+    setWeatherError(err?.message ?? "Unknown error");
+  } finally {
+    setWeatherLoading(false);
+  }
+}
+
+    useEffect(() => {
+    fetchWeather();
+  }, []);
+
+    // Disable start shortcut while any modal is open
+    useEffect(() => {
+      if (authOpen || contactOpen || surveyOpen) return;
+
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          router.push("/virtualflagstaffexperience");
+        }
+      };
+
+      window.addEventListener("keydown", onKey);
+      return () => window.removeEventListener("keydown", onKey);
+    }, [authOpen, contactOpen, surveyOpen, router]);
+
+    
   // When switching auth mode, reset password visibility & focus primary field
   useEffect(() => {
     setShowPassword(false);
@@ -319,6 +222,11 @@ export default function MainMenu() {
             Sign Up / Log In
           </PixelButton>
 
+          <PixelButton onClick={() => setSurveyOpen(true)} ariaLabel="Open survey">
+            Survey
+          </PixelButton>
+
+
           <PixelButton
             onClick={() => setContactOpen(true)}
             ariaLabel="Open contact modal"
@@ -335,13 +243,33 @@ export default function MainMenu() {
         >
           Press Enter to Start
         </motion.p>
+          <div className="mt-6 text-[10px] uppercase tracking-widest text-white/80">
+            {weatherLoading && <p>Loading Flagstaff weather...</p>}
+            {weatherError && <p className="text-white/70">Weather error: {weatherError}</p>}
+            {weather && (
+              <p>
+                Flagstaff: {weather.forecast} • {weather.temperature}°F
+              </p>
+            )}
+          </div>
 
         <p className="mt-10 text-[9px] text-white/50">
           © {new Date().getFullYear()} Virtual Flagstaff
         </p>
       </section>
 
-      {/* AUTH (SIGN UP / LOG IN) MODAL */}
+      
+      {/* SURVEY MODAL (shown after sign up until completed) */}
+      <SurveyModal
+        surveyOpen={surveyOpen}
+        setSurveyOpen={setSurveyOpen}
+        userId={userId}
+        setUserId={setUserId}
+        surveyCompleted={surveyCompleted}
+        setSurveyCompleted={setSurveyCompleted}
+      />
+
+{/* AUTH (SIGN UP / LOG IN) MODAL */}
       <PixelModal
         open={authOpen}
         title={authMode === "signup" ? "Sign Up" : "Log In"}
@@ -375,25 +303,67 @@ export default function MainMenu() {
 
         {authMode === "signup" ? (
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
 
               if (signupMethod === "phone") {
                 if (!isValidPhone(signupPhone)) {
-                  alert(
-                    "Please enter a valid phone number"
-                  );
+                  alert("Please enter a valid phone number");
                   return;
                 }
               }
 
-              const identifier =
-                signupMethod === "email" ? signupEmail : signupPhone;
+              const identifier = signupMethod === "email" ? signupEmail : signupPhone;
+              const phoneDigits = signupPhone.replace(/\D/g, "");
 
-              // TODO: replace with real sign up call
-              alert(`Signed up with ${signupMethod}: ${identifier}`);
-              setAuthOpen(false);
+              setSignupLoading(true);
+
+              try {
+                const payload = {
+                  // backend requires username, password
+                  username: identifier, // simplest: use email/phone as username
+                  password: signupPassword,
+                  email: signupMethod === "email" ? signupEmail : null,
+                  phone_number: signupMethod === "phone" ? phoneDigits : null,
+                  receive_notifications: true,
+                  survey: null
+                };
+
+                const res = await fetch(`${API_BASE}/user`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                  throw new Error(data?.detail ?? "Sign up failed");
+                }
+
+                alert(`Account created! User ID: ${data.id}`);
+
+                // Persist user id so we can show survey right after sign up
+                try {
+                  setUserId(data.id);
+                  const idStr = String(userId);
+                  window.localStorage.setItem("vf_user_id", idStr);
+                  window.localStorage.setItem("vf_survey_completed", "false");
+                  // setUserId(idStr);
+                  setSurveyCompleted(false);
+                } catch {
+                  // ignore
+                }
+
+                setAuthOpen(false);
+                setSurveyOpen(true);
+              } catch (err: any) {
+                alert(err?.message ?? "Unknown sign up error");
+              } finally {
+                setSignupLoading(false);
+              }
             }}
+
             className="grid gap-4"
           >
 

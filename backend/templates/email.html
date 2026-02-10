@@ -1,0 +1,17 @@
+<html>
+  <body>
+    <p>Username: {{ username }}</p>
+    <p>Contact: {{ contact }}</p>
+    {% if survey %}
+    <h2>Survey Response</h2>
+    <table>
+      {% for question, answer in survey.items() %}
+      <tr>
+        <td><strong>{{ question }}</strong></td>
+        <td>{{ answer }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  </body>
+</html>
