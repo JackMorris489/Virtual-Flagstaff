@@ -57,7 +57,8 @@ export class UiScene extends Phaser.Scene {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
-        this.getWeatherData();
+//        this.getWeatherData();
+        this.fetchDataFromLocalhost();
     }
 
     update() {
@@ -83,40 +84,33 @@ export class UiScene extends Phaser.Scene {
     }
 
     async getWeatherData() {
-        const url = 'https://api.weather.gov/gridpoints/FGZ/74,89/forecast/hourly';
+        const url = 'http://localhost:8000/weather';
 
         try {
             this.#weatherContainerText.setText('Loading Weather...');
 
-            const response = await fetch(url, {
-                headers: {
-                    'User-Agent': 'VirtualFlagstaff (VF@virtualflag.game)',
-                    'Accept': 'application/geo+json',
-                },
-            });
-
+            const response = await fetch(url);
+    
             if (!response.ok) {
-                throw new Error(`NOAA API error: ${response.status}`);
+                throw new Error('Network response was not ok: ' + response.statusText);
             }
-
-            const data = await response.json();
-            const period = data.properties.periods[0];
-
-            if (!period) {
-                throw new Error('No forecast data available');
-            }
+    
+            const weather = await response.json();
+            console.log(weather);
 
             const {
+                forecast,
                 temperature,
-                temperatureUnit,
-                shortForecast,
-            } = period;
+            } = weather
 
             this.#weatherContainerText.setText(
-                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
+                `${forecast}\n` + `Temp: ${temperature}°F\n`
             );
-        } catch(error) {
-            console.error(error);
+
+            return weather;
+        } 
+        catch (error) {
+            console.error('Fetch problem:', error);
             this.#weatherContainerText.setText('Weather unavailable');
         }
     }
