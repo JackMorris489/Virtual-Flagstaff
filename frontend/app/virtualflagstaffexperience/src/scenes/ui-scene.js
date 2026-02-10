@@ -57,8 +57,7 @@ export class UiScene extends Phaser.Scene {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
-//        this.getWeatherData();
-        this.fetchDataFromLocalhost();
+        this.getWeatherData();
     }
 
     update() {
