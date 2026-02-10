@@ -113,6 +113,15 @@ class DatabaseService:
         session.commit()
         return { "detail": f"{model.__name__} with id {model_instance_id} deleted" }
 
+
+    def get_model_instance(
+        self,
+        model: SQLModel,
+        session: Session,
+        query: str
+    ):
+        return session.exec( query ).first()
+
 database_service = DatabaseService()
 
 SessionDep = Annotated[ Session, Depends( database_service.get_session ) ]
