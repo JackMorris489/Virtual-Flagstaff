@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import PixelButton from "./components/PixelButton";
 import PixelModal from "./components/PixelModal";
+import ContactModal from "./components/ContactModal"
 import SurveyModal from "./components/SurveyModal";
 import AuthModal from "./components/AuthModal"
 import { API_BASE } from "./utils/constants";
@@ -62,21 +63,11 @@ export default function MainMenu() {
   // Combined auth modal state
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signup" | "login">("signup");
-  // const [signupLoading, setSignupLoading] = useState(false);
 
   // Weather state
   const [weather, setWeather] = useState<{ forecast: string; temperature: number } | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
-
-  // Contact state
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [message, setMessage] = useState("");
-
-  // Refs for initial focus
-  const contactFirstRef = useRef<HTMLInputElement>(null);
 
   // Contact modal state (kept separate)
   const [contactOpen, setContactOpen] = useState(false);
@@ -326,7 +317,11 @@ export default function MainMenu() {
       />
 
       {/* CONTACT MODAL */}
-      <PixelModal
+      <ContactModal
+        contactOpen={contactOpen}
+        setContactOpen={setContactOpen}
+      />
+      {/* <PixelModal
         open={contactOpen}
         title="Contact Us"
         onClose={() => setContactOpen(false)}
@@ -419,7 +414,7 @@ export default function MainMenu() {
             </button>
           </div>
         </form>
-      </PixelModal>
+      </PixelModal> */}
     </main>
   );
 }
