@@ -42,17 +42,16 @@ export default function Page() {
 
     return (
         <main
-          className={`${pixelFont.className} relative min-h-screen overflow-hidden bg-black text-white`}
+            className={`${pixelFont.className} relative min-h-screen overflow-hidden bg-black text-white`}
         >
             <BackgroundGraphics/>
-
             <MainMenu
                 setAuthMode={setAuthMode}
                 setAuthOpen={setAuthOpen}
                 setSurveyOpen={setSurveyOpen}
                 setContactOpen={setContactOpen}
             />
-
+            
             <SurveyModal
                 surveyOpen={surveyOpen}
                 setSurveyOpen={setSurveyOpen}
@@ -61,7 +60,6 @@ export default function Page() {
                 surveyCompleted={surveyCompleted}
                 setSurveyCompleted={setSurveyCompleted}
             />
-
             <AuthModal
                 authOpen={authOpen}
                 setAuthOpen={setAuthOpen}
@@ -72,7 +70,6 @@ export default function Page() {
                 setSurveyOpen={setSurveyOpen}
                 setSurveyCompleted={setSurveyCompleted}
             />
-
             <ContactModal
                 contactOpen={contactOpen}
                 setContactOpen={setContactOpen}
