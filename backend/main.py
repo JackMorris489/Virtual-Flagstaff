@@ -18,6 +18,7 @@ from database_utilities import database_service
 @asynccontextmanager
 async def lifespan( app: FastAPI ):
     database_service.create_database_and_tables()
+    database_service.seed_games()
     yield
     
 app = FastAPI( lifespan = lifespan )

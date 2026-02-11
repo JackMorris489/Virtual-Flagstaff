@@ -4,6 +4,7 @@ from sqlmodel import Session, SQLModel, create_engine, select
 from typing import Annotated
 from fastapi import Depends, HTTPException
 from constants import DATABASE_URL
+from database_models.game_models import Game
 
 class DatabaseService:
     def __init__( self, database_url: str = DATABASE_URL ):
@@ -121,6 +122,24 @@ class DatabaseService:
         query: str
     ):
         return session.exec( query ).first()
+    
+
+    def seed_games( self ):
+        with Session(self._engine) as session:
+            games = [
+                {"name": "Snowboard"},
+                {"name": "Ski"},
+            ]
+
+            for game in games:
+                existing = session.exec(
+                    select(Game).where(Game.name == game["name"])
+                ).first()
+
+                if not existing:
+                    session.add(Game(**game))
+
+            session.commit()
 
 database_service = DatabaseService()
 

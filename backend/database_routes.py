@@ -4,9 +4,11 @@ from database_models.user_models import (
     User, 
     UserCreate, 
     UserPublic, 
-    UserUpdate,
-    # SurveySubmission
+    UserUpdate
 )
+from database_models.game_models import Game
+from database_models.game_session_models import GameSession
+
 from database_utilities import ( SessionDep,
     database_service
 )
@@ -73,3 +75,8 @@ def login( data: dict, session: SessionDep ):
         raise HTTPException( 401, "Invalid credentials" )
     
     return { "detail": "Login successful"}
+
+
+@database_router.get( "/games", response_model = list[ Game ] )
+def read_games( session: SessionDep ):
+    return database_service.get_model_instances( Game, session )
