@@ -117,7 +117,6 @@ class DatabaseService:
 
     def get_model_instance(
         self,
-        model: SQLModel,
         session: Session,
         query: str
     ):

@@ -66,8 +66,7 @@ def login( data: dict, session: SessionDep ):
         )
     )
 
-    user = database_service.get_model_instance( User, session, query )
-    print( user )
+    user = database_service.get_model_instance( session, query )
     if not user:
         raise HTTPException( 401, "Invalid credentials" )
     
