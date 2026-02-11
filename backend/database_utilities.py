@@ -115,15 +115,11 @@ class DatabaseService:
         return { "detail": f"{model.__name__} with id {model_instance_id} deleted" }
 
 
-    def get_model_instance(
-        self,
-        session: Session,
-        query: str
-    ):
+    def get_model_instance(self, session: Session, query: str):
         return session.exec( query ).first()
     
 
-    def seed_games( self ):
+    def seed_games(self):
         with Session(self._engine) as session:
             games = [
                 {"name": "Snowboard"},
