@@ -13,3 +13,8 @@ MAIL_PORT = getenv( "MAIL_PORT" )
 MAIL_SERVER = getenv( "MAIL_SERVER" )
 MAIL_FROM_NAME = getenv( "MAIL_FROM_NAME" )
 MAIL_TO = getenv( "MAIL_TO" )
+
+GAMES = [
+    {"name": "Snowboard"},
+    {"name": "Ski"},
+]

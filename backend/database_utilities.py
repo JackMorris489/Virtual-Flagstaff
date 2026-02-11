@@ -3,7 +3,7 @@
 from sqlmodel import Session, SQLModel, create_engine, select
 from typing import Annotated
 from fastapi import Depends, HTTPException
-from constants import DATABASE_URL
+from constants import DATABASE_URL, GAMES
 from database_models.game_models import Game
 
 class DatabaseService:
@@ -112,7 +112,7 @@ class DatabaseService:
         self.raise_http_exception_if_none( model_instance )
         session.delete( model_instance )
         session.commit()
-        return { "detail": f"{model.__name__} with id {model_instance_id} deleted" }
+        return {"detail": f"{model.__name__} with id {model_instance_id} deleted"}
 
 
     def get_model_instance(self, session: Session, query: str):
@@ -121,21 +121,12 @@ class DatabaseService:
 
     def seed_games(self):
         with Session(self._engine) as session:
-            games = [
-                {"name": "Snowboard"},
-                {"name": "Ski"},
-            ]
-
-            for game in games:
-                existing = session.exec(
-                    select(Game).where(Game.name == game["name"])
-                ).first()
-
+            for game in GAMES:
+                query = select(Game).where(Game.name == game["name"])
+                existing = self.get_model_instance( session, query )
                 if not existing:
                     session.add(Game(**game))
-
             session.commit()
 
 database_service = DatabaseService()
-
 SessionDep = Annotated[ Session, Depends( database_service.get_session ) ]
