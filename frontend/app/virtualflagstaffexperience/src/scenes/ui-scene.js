@@ -57,7 +57,32 @@ export class UiScene extends Phaser.Scene {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
-        this.weather = this.getWeatherData();
+        this.getWeatherData().then((result) => {
+            this.weather = result;
+            console.log(this.weather);
+
+            switch(this.weather) {
+                case `Sunny`: 
+                    this.worldscene.overlayImage.fillColor = 0xFFFF00;
+                    break;
+
+                case `Partly Sunny`: 
+                    this.worldscene.overlayImage.fillColor = 0xAAAA00;
+                    break;
+
+                case `Snowing`:
+                    this.worldscene.overlayImage.fillColor = 0xFFFFFF;
+                    break;
+
+                default:
+                    this.worldscene.overlayImage.fillColor = 0x00FF00;
+                    break;
+            }
+            console.log(this.worldscene.overlayImage.fillColor.toString(16));
+        }).catch((error) => {
+            console.error(error);
+        });
+        
     }
 
     update() {
