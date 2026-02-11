@@ -3,6 +3,7 @@
 ### MAIN IGNORES ###
 node_modules/
 .next
+.vscode
 
 ### FRONTEND IGNORES ###
 

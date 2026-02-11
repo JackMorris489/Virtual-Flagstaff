@@ -38,12 +38,3 @@ class UserUpdate( UserBase ):
     password: str | None = None
     receive_notifications: bool | None = None
     survey: dict[ str, Any ] | None = None
-
-# class SurveySubmission(BaseModel):
-#     user_id: Optional[str] = None
-#     move_timing: str
-#     interests: List[str] = []
-#     amenities: List[str] = []
-#     budget: Optional[str] = None
-#     has_pets: Optional[bool] = None
-#     notes: Optional[str] = None
