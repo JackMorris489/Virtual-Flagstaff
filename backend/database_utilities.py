@@ -119,9 +119,9 @@ class DatabaseService:
         return session.exec( query ).first()
     
 
-    def seed_games(self):
+    def seed_games(self, games: list[dict[str, str]] = GAMES):
         with Session(self._engine) as session:
-            for game in GAMES:
+            for game in games:
                 query = select(Game).where(Game.name == game["name"])
                 existing = self.get_model_instance( session, query )
                 if not existing:
