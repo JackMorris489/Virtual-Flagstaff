@@ -10,13 +10,13 @@ import { KeyboardComponent } from '../components/input/keyboard-component';
     to be carried over between scenes. The UI scene also is where scene transition 
     commands occur (for now). 
 **/
-// TODO: Seperate scene transition commands from the UI scene, possibly to their own scene.
 export class UiScene extends Phaser.Scene {
     #hudContainer;
     #dialogueContainer;
     #dialogueContainerText;
     #weatherContainer;
     #weatherContainerText;
+    weather
     skiscene;
     worldscene;
     #controls;
@@ -57,7 +57,7 @@ export class UiScene extends Phaser.Scene {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
-        this.getWeatherData();
+        this.weather = this.getWeatherData();
     }
 
     update() {
@@ -95,7 +95,6 @@ export class UiScene extends Phaser.Scene {
             }
     
             const weather = await response.json();
-            console.log(weather);
 
             const {
                 forecast,
@@ -106,7 +105,7 @@ export class UiScene extends Phaser.Scene {
                 `${forecast}\n` + `Temp: ${temperature}°F\n`
             );
 
-            return weather;
+            return forecast;
         } 
         catch (error) {
             console.error('Fetch problem:', error);

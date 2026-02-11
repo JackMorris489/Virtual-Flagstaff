@@ -17,16 +17,15 @@ import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
     This scene holds the Flagstaff map data, the player, NPCs, and Minigame interactables and handles the
     interactions between all of these.
 **/
-// TODO: RENAME THIS SCENE TO OVERWORLD
 export class Overworld extends Phaser.Scene {
-    #controls;
+    controls;
     #playerContainer;
     #playerInteractionZone;
-    #player;
+    player;
     playerType;
     #interactiveNPCGroup;
     #interactiveSpider;
-    currentDialogNumber;
+    currentDialogNumber = 1;
     #allCollisionLayer;
     minigameinteractables;
 
@@ -58,14 +57,14 @@ export class Overworld extends Phaser.Scene {
             console.warn('Phaser keyboard plugin is not setup properly');
             return;
         }
-        this.#controls = new KeyboardComponent(this.input.keyboard);
+        this.controls = new KeyboardComponent(this.input.keyboard);
 
         /* ========== PLAYER ========== */
         // create the player container to hold the player and interaction zone
-        this.#player = new Player({
+        this.player = new Player({
             scene: this,
             position: {x: this.scale.width/2, y: this.scale.height/2},
-            controls: this.#controls,
+            controls: this.controls,
         });
         this.#playerInteractionZone = new PlayerInteractionZone({
             scene: this,
@@ -75,11 +74,11 @@ export class Overworld extends Phaser.Scene {
             scene: this,
             x: 0, 
             y: 0,
-            children: [this.#player, this.#playerInteractionZone],
+            children: [this.player, this.#playerInteractionZone],
         });
 
         // lock the camera to the player
-        this.cameras.main.startFollow(this.#player);
+        this.cameras.main.startFollow(this.player);
 
         /* ========== NPCs ========== */
         /*
@@ -100,14 +99,14 @@ export class Overworld extends Phaser.Scene {
         })
         */
 
-        // TODO: CHANGE HOW INTERACTIVE NPCS ARE LABLED/MADE
         // create the interactable npc group
         this.#interactiveNPCGroup = this.add.group([
             // create an interactable npc
             this.#interactiveSpider = new InteractiveNPC({
                 scene: this,
                 position: {x: this.scale.width/2, y: this.scale.height/2 - 100},
-                count: 1,
+                id: `MAYOR`,
+                interactionType: `DIALOG`,
             }),
         ], {
             runChildUpdate: true
@@ -121,7 +120,7 @@ export class Overworld extends Phaser.Scene {
         this.snowborderinteractables.create(12, -906, '').setDepth(-1);
         this.snowborderinteractables.getChildren().forEach((interactable) => {
             this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
-                if(this.#controls.isActionJustDown) {
+                if(this.controls.isActionJustDown) {
                     this.#minigameInteraction('SNOWBOARDER');
                 }
             }, null, this);
@@ -133,7 +132,7 @@ export class Overworld extends Phaser.Scene {
         this.skiierinteractables.create(140, -906, '').setDepth(-1);
         this.skiierinteractables.getChildren().forEach((interactable) => {
             this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
-                if(this.#controls.isActionJustDown) {
+                if(this.controls.isActionJustDown) {
                     this.#minigameInteraction('SKIIER');
                 }
             }, null, this);
@@ -146,24 +145,29 @@ export class Overworld extends Phaser.Scene {
 
         // register the UI Scene with this game scene
         this.scene.launch(SCENE_KEYS.UI_SCENE);
+
+        // camera hue shifting based on weather WIP
+        // TODO: REFINE/REMAKE THIS FUNCTION
+        if (this.scene.manager.getScene(SCENE_KEYS.UI_SCENE).getWeatherData() != null) {
+            let overlayImage = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width, this.cameras.main.height, 0x0000ff);
+            overlayImage.setScrollFactor(0);
+            overlayImage.setDepth(1000).setAlpha(0.1);
+        }
     };
 
     update() {
         this.#playerContainer.moveInteractZone();
-        if(this.#controls.isEnterJustDown && this.#controls.isFrozen) {
-            this.continueDialog(this.currentDialogNumber);
-        }
     }
 
     #minigameInteraction(playerType) {
-        this.playerType = playerType
+        this.playerType = playerType;
         this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
         this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
     }
 
     #collideObjects() {
-        this.#player.setVelocityX(0);
-        this.#player.setVelocityY(0);
+        this.player.setVelocityX(0);
+        this.player.setVelocityY(0);
     }
 
     #registerColiders() {
@@ -178,63 +182,22 @@ export class Overworld extends Phaser.Scene {
         // interactive npc group colliders
         this.#interactiveNPCGroup.getChildren().forEach((npc) => {
             npc.setCollideWorldBounds(true);
-            this.physics.add.collider(this.#player, npc, this.#collideObjects, null, this);
+            this.physics.add.collider(this.player, npc, this.#collideObjects, null, this);
             this.physics.add.collider(this.#allCollisionLayer, npc);
             this.physics.add.overlap(this.#playerInteractionZone, npc, () => {
-                if(this.#controls.isActionJustDown) {
-                    this.#player.interactedWithGameObject(npc);
-                    this.#player.interact();
+                if(this.controls.isActionJustDown) {
+                    this.player.interactedWithGameObject(npc);
+                    this.player.interact();
                 }
             }, null, this);
         });
 
         // world colliders
         this.#allCollisionLayer.setCollision([this.#allCollisionLayer.tileset[0].firstgid]);
-        this.physics.add.collider(this.#player, this.#allCollisionLayer);
+        this.physics.add.collider(this.player, this.#allCollisionLayer);
     }
 
     #registerCustomEvents() {
         return;
-    }
-
-    // TODO: MOVE DIALOG COMMANDS TO UI SCENE
-    startDialog(npcId, dialogNumber) {
-        // disable the user's keys
-        this.#controls.isFrozen = true;
-
-        // set dialog
-        const key = `DIALOG_${npcId}_${dialogNumber}`;
-        const dialogSet = NPC_DIALOG[key];
-
-        // emit dialog through the event bus
-        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialogSet);
-
-        // increment the dialog counter
-        this.currentDialogNumber++;
-    }
-
-    continueDialog(dialogNumber) {
-        // get dialog values
-        const id = this.#player.interactedObject._stateMachine.userId;
-        const npcId = id.charAt(id.length - 1);
-
-        // set dialog
-        const key = `DIALOG_${npcId}_${dialogNumber}`;
-        const dialog = NPC_DIALOG[key];
-
-        // if that dialog doesn't exist
-        if (dialog === undefined) {
-            // reset the dialog counter, close dialog and unfreeze the user
-            EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
-            this.currentDialogNumber = 0;
-            this.#controls.isFrozen = false;
-            return;
-        }
-
-        // emmit dialog
-        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
-
-        // increment dialog value
-        this.currentDialogNumber++;
     }
 }
