@@ -280,6 +280,21 @@ export default function AuthModal({
               </div>
             </label>
 
+
+
+
+
+
+            {/* TODO: ADD LOGIC TO THIS! */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <label htmlFor="notifications">Receive emails/texts?</label>
+              <input type="checkbox" id="notifications" />
+            </div>
+
+
+
+
+
             <p className="text-[9px] text-white/60">
               Already have an account?{" "}
               <button
