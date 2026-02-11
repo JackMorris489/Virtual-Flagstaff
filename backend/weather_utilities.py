@@ -12,8 +12,8 @@ def get_weather_api_data( weather_api_url: str ) -> dict:
 
 
 def get_forecast( weather_data: dict ) -> str:
-    return weather_data[ "properties" ][ "periods" ][ 1 ][ "shortForecast" ]
+    return weather_data[ "properties" ][ "periods" ][ 0 ][ "shortForecast" ]
 
 
 def get_temperature( weather_data: dict ) -> int:
-    return weather_data[ "properties" ][ "periods" ][ 1 ][ "temperature" ]
+    return weather_data[ "properties" ][ "periods" ][ 0 ][ "temperature" ]
