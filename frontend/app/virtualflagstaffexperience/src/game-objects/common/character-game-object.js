@@ -36,6 +36,7 @@ export class CharacterGameObject extends Phaser.Physics.Arcade.Sprite {
         this._animationComponent = new AnimationComponent(this, animationConfig);
 
         // create the state machine
+        this.name = id;
         this._stateMachine = new StateMachine(id);
 
         // general config

@@ -68,7 +68,7 @@ export class Player extends CharacterGameObject {
     }
 
     interactedWithGameObject(gameObject) {
-        this.interactingObjectComponent.set(gameObject)
+        this.interactingObjectComponent.set(gameObject);
     }
 
     get interactedObject() {
@@ -78,20 +78,8 @@ export class Player extends CharacterGameObject {
     interact() {
         // confirm the object can be interacted with
         if (this.interactedObject.interactionComponent.canInteractWith()) {
-
-            // check the interaction type
-            switch (this.interactedObject.interactionComponent.objectType) {
-                case 'DIALOG':
-                    let id = this.interactedObject._stateMachine.userId;
-                    let idDigit = id.charAt(id.length - 1);
-                    this.scene.currentDialogNumber = 1;
-                    this.scene.startDialog(idDigit, this.scene.currentDialogNumber);
-                    break;
-                
-                case 'MINI_GAME':
-                    id = this.interactedObject._stateMachine.userId;
-                    break;
-            }
+            // run interaction
+            this.interactedObject.interactionComponent.runInteract();
         }
     }
 

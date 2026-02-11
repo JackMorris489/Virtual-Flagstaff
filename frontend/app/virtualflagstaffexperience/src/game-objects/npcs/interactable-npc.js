@@ -9,6 +9,7 @@ import { MoveState } from '../../components/state-machine/states/character/move-
 import { DIRECTION, INTERACTIVE_OBJECT_TYPE } from '../../common/common';
 import { InteractiveObjectComponent } from '../../components/game-object/interactive-object-component';
 import { NPC_DIALOG } from '../../common/npc-dialog';
+import { CUSTOM_EVENTS, EVENT_BUS } from '../../common/event-bus';
 
 /**
     Interactive NPC class, this class exists essentially as an extention (perhaps later literally)
@@ -16,6 +17,7 @@ import { NPC_DIALOG } from '../../common/npc-dialog';
 **/ 
 // TODO: OVERHAUL AND MAKE IT EXTEND THE BASE NPC CLASS
 export class InteractiveNPC extends CharacterGameObject {
+    interactionType;
     interactionComponent;
 
     constructor(config) {
@@ -39,23 +41,53 @@ export class InteractiveNPC extends CharacterGameObject {
             scene: config.scene,
             position: config.position,
             assetKey: ASSET_KEYS.SPIDER,
-            frame: 0,
-            id: `interactive-${config.count}`,
-            isPlayer: false,
             animationConfig,
-            speed: NPC_SPEED,
+            frame: 0,
+            id: `${config.id}`,
             inputComponent: new InputComponent(),
+            speed: NPC_SPEED,
+            isPlayer: false,
         })
 
+        this.interactionType = config.interactionType;
+
         // add components
-        // TODO: REWORK INTERACTION COMPONENT
-        this.interactionComponent = new InteractiveObjectComponent(this, INTERACTIVE_OBJECT_TYPE.DIALOG, () => {
-//            openDialog(NPC_DIALOG.DIALOG_1_1);
+        this.interactionComponent = new InteractiveObjectComponent(this, INTERACTIVE_OBJECT_TYPE[this.interactionType], () => {
+            // check the interaction type
+            switch (this.interactionComponent.objectType) {
+                case 'DIALOG':
+                    this.dialog();
+                    break;
+            }
         });
 
         // add state machine states
         this._stateMachine.addState(new IdleState(this));
         this._stateMachine.addState(new MoveState(this));
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
+    }
+
+    dialog() {
+        // disable the user's movement keys
+        this.scene.controls.isFrozen = true;
+
+        // set dialog
+        const key = `${this.name}_${this.scene.currentDialogNumber}`;
+        const dialog = NPC_DIALOG[key];
+
+        // if that dialog doesn't exist
+        if (dialog === undefined) {
+            // reset the dialog counter, close dialog and unfreeze the user
+            EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
+            this.scene.currentDialogNumber = 1;
+            this.scene.controls.isFrozen = false;
+            return;
+        }
+
+        // emit dialog through the event bus
+        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
+
+        // increment the current dialog
+        this.scene.currentDialogNumber++;
     }
 }
