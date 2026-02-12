@@ -4,9 +4,12 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from weather_service import weather_service
-from routes import users_router, game_sessions_router, auth_router
-
+from routes import (
+    users_router, 
+    game_sessions_router, 
+    auth_router,
+    weather_router
+)
 from database import database_service
 
 @asynccontextmanager
@@ -20,6 +23,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(users_router)
 app.include_router(game_sessions_router)
 app.include_router(auth_router)
+app.include_router(weather_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,7 +36,3 @@ app.add_middleware(
 @app.get( "/", include_in_schema = False )
 def read_root() -> RedirectResponse:
     return RedirectResponse( url = "/docs" )
-
-@app.get( "/weather" )
-def get_weather() -> dict:
-    return weather_service.get_forecast_summary()
