@@ -8,12 +8,12 @@ from email_utilities import EmailService
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
-@users_router.post("/", response_model = UserPublic)
+@users_router.post("", response_model = UserPublic)
 def create_user(user: UserCreate, session: SessionDep) -> UserPublic:
     return database_service.create_model_instance(User, session, user)
 
 
-@users_router.get( "/", response_model = list[UserPublic] )
+@users_router.get( "", response_model = list[UserPublic] )
 def read_users( session: SessionDep ):
     return database_service.get_model_instances(User, session)
 
