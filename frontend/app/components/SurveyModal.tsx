@@ -89,7 +89,7 @@ export default function SurveyModal({
 
     try {
       console.log( JSON.stringify( surveyPayload ) )
-      const res = await fetch(`${API_BASE}/user/${userId}`, {
+      const res = await fetch(`${API_BASE}/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(surveyPayload),

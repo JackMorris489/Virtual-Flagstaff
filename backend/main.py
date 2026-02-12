@@ -5,7 +5,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from weather_service import weather_service
-from database_routes import database_router
+from routes import database_router, users_router
+
 from database import database_service
 
 @asynccontextmanager
@@ -16,7 +17,7 @@ async def lifespan(app: FastAPI):
     
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(database_router)
+app.include_router(users_router)
 
 app.add_middleware(
     CORSMiddleware,
