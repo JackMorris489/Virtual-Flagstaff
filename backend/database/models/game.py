@@ -1,7 +1,6 @@
-from sqlmodel import (
-    Field, 
-    SQLModel
-)
+# game.py
+
+from sqlmodel import Field, SQLModel
 
 class Game(SQLModel, table=True):
     id: int|None = Field(default=None, primary_key=True)

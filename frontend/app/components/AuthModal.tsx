@@ -64,7 +64,6 @@ export default function AuthModal({
 
         const identifier = loginMethod === "email" ? loginEmail : loginPhone;
 
-        // TODO: replace with real log in call
         const payload = { identifier, "password": loginPassword }
         try {
             const res = await fetch(`${API_BASE}/login`, {
@@ -151,7 +150,7 @@ export default function AuthModal({
                   survey: null
                 };
 
-                const res = await fetch(`${API_BASE}/user`, {
+                const res = await fetch(`${API_BASE}/users`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(payload),

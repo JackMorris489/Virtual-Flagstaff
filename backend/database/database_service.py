@@ -4,7 +4,7 @@ from sqlmodel import Session, SQLModel, create_engine, select
 from typing import Annotated
 from fastapi import Depends, HTTPException
 from constants import DATABASE_URL, GAMES
-from database_models.game_models import Game
+from database.models import Game
 
 class DatabaseService:
     def __init__( self, database_url: str = DATABASE_URL ):

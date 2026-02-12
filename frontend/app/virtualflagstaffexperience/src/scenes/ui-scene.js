@@ -122,15 +122,16 @@ export class UiScene extends Phaser.Scene {
             const weather = await response.json();
 
             const {
-                forecast,
+                shortForecast,
                 temperature,
+                temperatureUnit,
             } = weather
 
             this.#weatherContainerText.setText(
-                `${forecast}\n` + `Temp: ${temperature}°F\n`
+                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
             );
 
-            return forecast;
+            return shortForecast;
         } 
         catch (error) {
             console.error('Fetch problem:', error);
