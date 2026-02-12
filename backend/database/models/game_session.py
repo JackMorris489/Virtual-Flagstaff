@@ -11,7 +11,8 @@ class GameSession(GameSessionBase, table=True):
     game_id: int | None = Field(default=None, foreign_key="game.id")
 
 class GameSessionPublic(GameSessionBase):
-    pass
+    game_id: int
 
 class GameSessionCreate(GameSessionBase):
-    pass
+    user_id: int
+    game_id: int
