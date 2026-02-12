@@ -2,16 +2,16 @@
 
 from sqlmodel import Field, SQLModel
 
-class GameSessionsBase(SQLModel):
+class GameSessionBase(SQLModel):
     score: int = Field(default=0)
 
-class GameSession(GameSessionsBase, table=True):
+class GameSession(GameSessionBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int | None = Field(default=None, foreign_key="user.id")
     game_id: int | None = Field(default=None, foreign_key="game.id")
 
-class GameSessionPublic(GameSessionsBase):
+class GameSessionPublic(GameSessionBase):
     pass
 
-class GameSessionCreate(GameSessionsBase):
+class GameSessionCreate(GameSessionBase):
     pass
