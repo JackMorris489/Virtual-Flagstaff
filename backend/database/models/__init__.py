@@ -1,3 +1,8 @@
 from .user import User, UserBase, UserPublic, UserCreate, UserUpdate
 from .game import Game
-from .game_session import GameSession
+from .game_session import (
+    GameSession, 
+    GameSessionsBase, 
+    GameSessionCreate,
+    GameSessionPublic
+)
