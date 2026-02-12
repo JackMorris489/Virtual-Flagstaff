@@ -18,7 +18,7 @@ export default function MainMenu({
 }: MainMenuProps )
 {
     // Weather state
-    const [weather, setWeather] = useState<{ forecast: string; temperature: number } | null>(null);
+    const [weather, setWeather] = useState<{ shortForecast: string; temperature: number; temperatureUnit: string } | null>(null);
     const [weatherError, setWeatherError] = useState<string | null>(null);
     const [weatherLoading, setWeatherLoading] = useState(false);
 
@@ -177,7 +177,7 @@ export default function MainMenu({
                 {weatherError && <p className="text-white/70">Weather error: {weatherError}</p>}
                 {weather && (
                 <p>
-                    Flagstaff: {weather.forecast} • {weather.temperature}°F
+                    Flagstaff: {weather.shortForecast} • {weather.temperature}°{weather.temperatureUnit}
                 </p>
                 )}
             </div>

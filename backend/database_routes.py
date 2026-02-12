@@ -1,21 +1,19 @@
 # database_routes.py
 
-from database_models.user_models import (
+from database.models import (
     User, 
     UserCreate, 
     UserPublic, 
-    UserUpdate
+    UserUpdate,
+    Game,
+    GameSession
 )
-from database_models.game_models import Game
-from database_models.game_session_models import GameSession
 
-from database_utilities import ( SessionDep,
-    database_service
-)
+from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from email_utilities import EmailService
 from constants import MAIL_TO
-from sqlmodel import select, or_, and_
+from sqlmodel import select, or_
 
 email_service = EmailService()
 

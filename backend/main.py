@@ -4,16 +4,15 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from weather_service import weather_service
 from weather_utilities import (
     get_weather_api_data,
     get_forecast,
     get_temperature
 )
-from constants import (
-    HOURLY_FLAGSTAFF_WEATHER_API_URL
-)
+from constants import HOURLY_FLAGSTAFF_WEATHER_API_URL
 from database_routes import database_router
-from database_utilities import database_service
+from database.database_service import database_service
 
 @asynccontextmanager
 async def lifespan( app: FastAPI ):
@@ -39,6 +38,7 @@ def read_root() -> RedirectResponse:
 
 @app.get( "/weather" )
 def get_weather() -> dict:
+    return weather_service.get_forecast_summary()
     flagstaff_weather_data = \
                         get_weather_api_data( HOURLY_FLAGSTAFF_WEATHER_API_URL )
     return {
