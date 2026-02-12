@@ -1,4 +1,4 @@
-from database.models import GameSession, GameSessionPublic, GameSessionCreate, UserPublic
+from database.models import GameSession, GameSessionPublic, GameSessionCreate
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter
 
