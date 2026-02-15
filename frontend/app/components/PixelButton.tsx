@@ -1,14 +1,20 @@
 import Link from "next/link";
 
 export default function PixelButton({
-    href,
-    onClick,
-    children,
-    ariaLabel,
-    type = "button",
+  href,
+  onClick,
+  onMouseEnter,
+  onPointerEnter,
+  onFocus,
+  children,
+  ariaLabel,
+  type = "button",
 }: {
   href?: string;
   onClick?: () => void;
+  onMouseEnter?: React.MouseEventHandler<HTMLElement>;
+  onPointerEnter?: React.PointerEventHandler<HTMLElement>;
+  onFocus?: React.FocusEventHandler<HTMLElement>;
   children: React.ReactNode;
   ariaLabel?: string;
   type?: "button" | "submit";
@@ -28,11 +34,19 @@ export default function PixelButton({
       <span className="pointer-events-none absolute -right-2 -bottom-2 h-2 w-2 bg-white" />
       <span className="relative z-10">{children}</span>
     </span>
-  )
+  );
 
   if (href) {
     return (
-      <Link href={href} aria-label={ariaLabel} className="outline-none">
+      <Link
+        href={href}
+        aria-label={ariaLabel}
+        className="outline-none"
+        onClick={onClick as any}
+        onMouseEnter={onMouseEnter as any}
+        onPointerEnter={onPointerEnter as any}
+        onFocus={onFocus as any}
+      >
         {base}
       </Link>
     );
@@ -42,6 +56,9 @@ export default function PixelButton({
     <button
       aria-label={ariaLabel}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onPointerEnter={onPointerEnter}
+      onFocus={onFocus}
       type={type}
       className="outline-none"
     >

@@ -28,6 +28,7 @@ export class Overworld extends Phaser.Scene {
     currentDialogNumber = 1;
     #allCollisionLayer;
     minigameinteractables;
+    overlayImage;
 
     constructor() {
         super({
@@ -38,8 +39,8 @@ export class Overworld extends Phaser.Scene {
     create() {
         /* ========== MAP ========== */
         // add background and foreground map image
-        this.add.image(-1060, -1400, ASSET_KEYS.FLAGSTAFF_BACKGROUND, 0).setOrigin(0);
-        this.add.image(-1060, -1400, ASSET_KEYS.FLAGSTAFF_FOREGROUND, 0).setOrigin(0).setDepth(2);
+        this.add.image(-1060, -1912, ASSET_KEYS.FLAGSTAFF_BACKGROUND, 0).setOrigin(0);
+        this.add.image(-1060, -1912, ASSET_KEYS.FLAGSTAFF_FOREGROUND, 0).setOrigin(0).setDepth(2);
 
         // load in the tilemap data
         const map = this.make.tilemap({
@@ -148,11 +149,8 @@ export class Overworld extends Phaser.Scene {
 
         // camera hue shifting based on weather WIP
         // TODO: REFINE/REMAKE THIS FUNCTION
-        if (this.scene.manager.getScene(SCENE_KEYS.UI_SCENE).getWeatherData() != null) {
-            let overlayImage = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width, this.cameras.main.height, 0x0000ff);
-            overlayImage.setScrollFactor(0);
-            overlayImage.setDepth(1000).setAlpha(0.1);
-        }
+        this.overlayImage = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width, this.cameras.main.height, 0x000000, 0.1).setDepth(10000);
+        this.overlayImage.setScrollFactor(0);
     };
 
     update() {
