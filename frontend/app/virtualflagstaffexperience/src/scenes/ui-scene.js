@@ -61,22 +61,40 @@ export class UiScene extends Phaser.Scene {
             this.weather = result;
             console.log(this.weather);
 
-            switch(this.weather) {
-                case `Sunny`: 
-                    this.worldscene.overlayImage.fillColor = 0xFFFF00;
-                    break;
+            // switch(this.weather.toLowerCase()) {
+            //     case `Sunny`: 
+            //         this.worldscene.overlayImage.fillColor = 0xFFFF00;
+            //         break;
 
-                case `Partly Sunny`: 
-                    this.worldscene.overlayImage.fillColor = 0xAAAA00;
-                    break;
+            //     case `Partly Sunny`: 
+            //         this.worldscene.overlayImage.fillColor = 0xAAAA00;
+            //         break;
 
-                case `Snowing`:
-                    this.worldscene.overlayImage.fillColor = 0xFFFFFF;
-                    break;
+            //     case `Snowing`:
+            //         this.worldscene.overlayImage.fillColor = 0xFFFFFF;
+            //         break;
 
-                default:
-                    this.worldscene.overlayImage.fillColor = 0x00FF00;
-                    break;
+            //     default:
+            //         this.worldscene.overlayImage.fillColor = 0x00FF00;
+            //         break;
+            // }
+
+            const lowerCasedWeather = this.weather.toLowerCase()
+            if (lowerCasedWeather.includes("sun"))
+            {
+                this.worldscene.overlayImage.fillColor = 0xFFFF00;
+            }
+            else if (lowerCasedWeather.includes("cloud"))
+            {
+                this.worldscene.overlayImage.fillColor = 0x808080;
+            }
+            else if (lowerCasedWeather.includes("snow"))
+            {
+                this.worldscene.overlayImage.fillColor = 0xFFFFFF;
+            }
+            else if (lowerCasedWeather.includes("rain"))
+            {
+                this.worldscene.overlayImage.fillColor = 0x0000FF;
             }
             console.log(this.worldscene.overlayImage.fillColor.toString(16));
         }).catch((error) => {

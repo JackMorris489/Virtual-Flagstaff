@@ -25,7 +25,7 @@ const SURVEY_RELATIONSHIP = ["Single", "Partnered", "Married", "Divorced"] as co
 
 const SURVEY_WORK_MODE = ["Remotely", "Semi-remotely", "In-Office"] as const;
 
-const SURVEY_AGE = ["-30", "31-50", "50+"] as const;
+const SURVEY_AGE = ["<31", "31-50", "50+"] as const;
 
 const SURVEY_REGION = ["East Coast", "West Coast", "Mid-west", "South", "North"] as const;
 
