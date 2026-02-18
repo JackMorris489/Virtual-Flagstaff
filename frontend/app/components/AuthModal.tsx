@@ -31,6 +31,8 @@ export default function AuthModal({
   const [signupPhone, setSignupPhone] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupMethod, setSignupMethod] = useState<"email" | "phone">("email");
+  const [receiveNotifications, setReceiveNotifications] = useState(true);
+
 
   // Log in state
   const [loginEmail, setLoginEmail] = useState("");
@@ -146,7 +148,7 @@ export default function AuthModal({
                   password: signupPassword,
                   email: signupMethod === "email" ? signupEmail : null,
                   phone_number: signupMethod === "phone" ? phoneDigits : null,
-                  receive_notifications: true,
+                  receive_notifications: receiveNotifications,
                   survey: null
                 };
 
@@ -279,20 +281,15 @@ export default function AuthModal({
               </div>
             </label>
 
-
-
-
-
-
-            {/* TODO: ADD LOGIC TO THIS! */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <label htmlFor="notifications">Receive emails/texts?</label>
-              <input type="checkbox" id="notifications" />
+              <input
+                type="checkbox"
+                id="notifications"
+                checked={receiveNotifications}
+                onChange={(e) => setReceiveNotifications(e.target.checked)}
+              />
             </div>
-
-
-
-
 
             <p className="text-[9px] text-white/60">
               Already have an account?{" "}

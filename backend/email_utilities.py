@@ -84,3 +84,22 @@ class EmailService:
             "survey": survey
         }
         self.send_background( background_tasks, subject, MAIL_TO, body )
+
+    def broadcast_html_email(
+        self,
+        background_tasks: BackgroundTasks,
+        subject: str,
+        recipients: list[str],
+        html: str,
+    ) -> None:
+        if not recipients:
+            return
+
+        for email_to in recipients:
+            message = MessageSchema(
+                subject=subject,
+                recipients=[email_to],
+                body=html,
+                subtype="html",
+            )
+            background_tasks.add_task(self._fast_mail.send_message, message)

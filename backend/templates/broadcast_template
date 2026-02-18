@@ -1,0 +1,14 @@
+$headers = @{
+  "Content-Type" = "application/json"
+  "X-Admin-Key"  = "ADMINKEYHERE" # replace with your actual key
+}
+
+$body = @{
+  subject = "Test Notification"
+  html    = "<h1>Hello!</h1><p>This is a test.</p>"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8000/users/notifications/broadcast" `
+  -Method Post `
+  -Headers $headers `
+  -Body $body

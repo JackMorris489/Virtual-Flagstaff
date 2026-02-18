@@ -2,8 +2,10 @@
 
 from database.models import User, UserCreate, UserPublic, UserUpdate
 from database.database_service import SessionDep, database_service
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from email_utilities import EmailService
+from sqlmodel import select
+from constants import ADMIN_EMAIL_BROADCAST_KEY
 
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
@@ -44,3 +46,38 @@ def update_user(
 @users_router.delete("/{user_id}")
 def delete_user(user_id: int, session: SessionDep):
     return database_service.delete_model_instance( User, session, user_id )
+
+@users_router.post("/notifications/broadcast")
+def broadcast_to_opted_in_users(
+    background_tasks: BackgroundTasks,
+    payload: dict,
+    session: SessionDep,
+    x_admin_key: str | None = Header(default=None),
+):
+    if not ADMIN_EMAIL_BROADCAST_KEY:
+        raise HTTPException(status_code=500, detail="ADMIN_EMAIL_BROADCAST_KEY not set")
+
+    if x_admin_key != ADMIN_EMAIL_BROADCAST_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    subject = payload.get("subject")
+    html_content = payload.get("html")  # client can send HTML
+    if not subject or not html_content:
+        raise HTTPException(status_code=400, detail="subject and html are required")
+
+    # only users who opted in + actually have an email
+    query = select(User).where(
+        User.receive_notifications == True, 
+        User.email != None,
+    )
+    users = session.exec(query).all()
+    recipients = [u.email for u in users if u.email]
+
+    email_service.broadcast_html_email(
+        background_tasks=background_tasks,
+        subject=subject,
+        recipients=recipients,
+        html=html_content,
+    )
+
+    return {"sent_to": len(recipients)}
