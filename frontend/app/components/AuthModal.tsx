@@ -68,7 +68,7 @@ export default function AuthModal({
 
         const payload = { identifier, "password": loginPassword }
         try {
-            const res = await fetch(`${API_BASE}/login`, {
+            const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -164,7 +164,7 @@ export default function AuthModal({
                   throw new Error(data?.detail ?? "Sign up failed");
                 }
 
-                alert(`Account created! User ID: ${data.id}`);
+                // alert(`Account created! User ID: ${data.id}`);
 
                 // Persist user id so we can show survey right after sign up
                 try {
