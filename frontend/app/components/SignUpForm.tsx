@@ -34,72 +34,69 @@ export default function SignUpForm({
     const [receiveNotifications, setReceiveNotifications] = useState(true);
 
     const [signupLoading, setSignupLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+            if (signupMethod === "phone") {
+            if (!isValidPhone(signupPhone)) {
+                alert("Please enter a valid phone number");
+                return;
+            }
+            }
+
+            const identifier = signupMethod === "email" ? signupEmail : signupPhone;
+            const phoneDigits = signupPhone.replace(/\D/g, "");
+
+            setSignupLoading(true);
+
+            try {
+            const payload = {
+                // backend requires username, password
+                username: identifier, // simplest: use email/phone as username
+                password: signupPassword,
+                email: signupMethod === "email" ? signupEmail : null,
+                phone_number: signupMethod === "phone" ? phoneDigits : null,
+                receive_notifications: receiveNotifications,
+                survey: null
+            };
+
+            const res = await fetch(`${API_BASE}/users`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data?.detail ?? "Sign up failed");
+            }
+
+            // Persist user id so we can show survey right after sign up
+            try {
+                setUserId(data.id);
+                const idStr = String(userId);
+                window.localStorage.setItem("vf_user_id", idStr);
+                window.localStorage.setItem("vf_survey_completed", "false");
+                // setUserId(idStr);
+                setSurveyCompleted(false);
+            } catch {
+                // ignore
+            }
+
+            setAuthOpen(false);
+            setSurveyOpen(true);
+            } catch (err: any) {
+            alert(err?.message ?? "Unknown sign up error");
+            } finally {
+            setSignupLoading(false);
+            }
+    }
+
     return (
 
-        <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-
-              if (signupMethod === "phone") {
-                if (!isValidPhone(signupPhone)) {
-                  alert("Please enter a valid phone number");
-                  return;
-                }
-              }
-
-              const identifier = signupMethod === "email" ? signupEmail : signupPhone;
-              const phoneDigits = signupPhone.replace(/\D/g, "");
-
-              setSignupLoading(true);
-
-              try {
-                const payload = {
-                  // backend requires username, password
-                  username: identifier, // simplest: use email/phone as username
-                  password: signupPassword,
-                  email: signupMethod === "email" ? signupEmail : null,
-                  phone_number: signupMethod === "phone" ? phoneDigits : null,
-                  receive_notifications: receiveNotifications,
-                  survey: null
-                };
-
-                const res = await fetch(`${API_BASE}/users`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                });
-
-                const data = await res.json();
-
-                if (!res.ok) {
-                  throw new Error(data?.detail ?? "Sign up failed");
-                }
-
-                // alert(`Account created! User ID: ${data.id}`);
-
-                // Persist user id so we can show survey right after sign up
-                try {
-                  setUserId(data.id);
-                  const idStr = String(userId);
-                  window.localStorage.setItem("vf_user_id", idStr);
-                  window.localStorage.setItem("vf_survey_completed", "false");
-                  // setUserId(idStr);
-                  setSurveyCompleted(false);
-                } catch {
-                  // ignore
-                }
-
-                setAuthOpen(false);
-                setSurveyOpen(true);
-              } catch (err: any) {
-                alert(err?.message ?? "Unknown sign up error");
-              } finally {
-                setSignupLoading(false);
-              }
-            }}
-
-            className="grid gap-4"
-          >
+        <form onSubmit={handleSubmit} className="grid gap-4">
 
             {/* method toggle */}
             <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest">
