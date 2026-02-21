@@ -5,7 +5,6 @@ from database.database_service import database_service, SessionDep
 from sqlmodel import select, or_
 from fastapi import HTTPException
 from pydantic import BaseModel
-from auth.token_service import create_access_token
 from pwdlib import PasswordHash
 
 password_hash = PasswordHash.recommended()
