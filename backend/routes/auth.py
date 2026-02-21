@@ -1,24 +1,18 @@
-from database.database_service import SessionDep, database_service
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select, or_
-from database.models import User
+from database.database_service import SessionDep
+from fastapi import APIRouter
+from database.models import UserCreate, UserPublic
+from auth.auth_service import AuthService, LoginRequest
 
-auth_router = APIRouter(prefix="/auth", tags=["Auth"])
+ROUTER_PREFIX = "/auth"
 
-@auth_router.post( "/login" )
-def login( data: dict, session: SessionDep ):
-    query = select(User).where(
-        or_(
-            User.email == data[ "identifier" ],
-            User.phone_number == data[ "identifier" ]
-        )
-    )
+auth_service = AuthService()
 
-    user = database_service.get_model_instance( session, query )
-    if not user:
-        raise HTTPException( 401, "Invalid credentials" )
-    
-    if not user.password == data[ "password" ]:
-        raise HTTPException( 401, "Invalid credentials" )
-    
-    return { "detail": "Login successful"}
+auth_router = APIRouter(prefix=ROUTER_PREFIX, tags=["Auth"])
+
+@auth_router.post("/login")
+def login(credentials: LoginRequest, session: SessionDep):
+    return auth_service.login_user(credentials, session)
+
+@auth_router.post("/sign-up", response_model=UserPublic, status_code=201)
+def sign_up(user: UserCreate, session: SessionDep ):
+    return auth_service.register_user(user, session)
