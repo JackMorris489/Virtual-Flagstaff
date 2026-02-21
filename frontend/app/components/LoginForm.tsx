@@ -11,6 +11,18 @@ type LoginFormProps = {
     setAuthMode: React.Dispatch<React.SetStateAction<string>>
 }
 
+const EMAIL = "email" as const
+const PHONE = "phone" as const
+
+type LoginMethod = typeof EMAIL | typeof PHONE
+
+type LoginFormState = {
+  email: string
+  phone: string
+  password: string
+  method: LoginMethod
+}
+
 export default function LoginForm({
     setAuthOpen,
     authEmailRef,
@@ -19,25 +31,71 @@ export default function LoginForm({
     setAuthMode
 }: LoginFormProps)
 {
-    const [loginEmail, setLoginEmail] = useState("");
-    const [loginPhone, setLoginPhone] = useState("");
-    const [loginPassword, setLoginPassword] = useState("");
-    const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
+    const [loginForm, setLoginForm] = useState<LoginFormState>({
+        email: "",
+        phone: "",
+        password: "",
+        method: EMAIL
+    })
+
+    const handleEmailChange = (e) => {
+        setLoginForm({
+            ...loginForm,
+            email: e.target.value
+        })
+    }
+
+    const handlePhoneChange = (e) => {
+        setLoginForm({
+            ...loginForm,
+            phone: e.target.value
+        })
+    }
+
+    const handlePasswordChange = (e) => {
+        setLoginForm({
+            ...loginForm,
+            password: e.target.value
+        })
+    }
+
+    const handleMethodChange = (e) => {
+        setLoginForm({
+            ...loginForm,
+            email: "",
+            phone: "",
+            method: e.target.value
+        })
+    }
+
+    // const [loginEmail, setLoginEmail] = useState("");
+    // const [loginPhone, setLoginPhone] = useState("");
+    // const [loginPassword, setLoginPassword] = useState("");
+    // const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
+
+    const reset = () => {
+        setLoginForm({
+            email: "",
+            phone: "",
+            password: "",
+            method: EMAIL
+        })
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (loginMethod === "phone") {
-            if (!isValidPhone(loginPhone)) {
-                alert( "Please enter a valid phone number.");
+        if (loginForm.method === PHONE) {
+            if (!isValidPhone(loginForm.phone)) {
+                alert("Please enter a valid phone number.");
                 return;
             }
         }
 
-        const identifier = loginMethod === "email" ? loginEmail : loginPhone;
+        const identifier = loginForm.method === EMAIL ? loginForm.email : loginForm.phone;
 
-        const payload = { "username": identifier, "password": loginPassword }
-        console.log(payload)
+        const payload = { "username": identifier, "password": loginForm.password }
+
         try {
             const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
@@ -46,14 +104,14 @@ export default function LoginForm({
             });
             
             const data = await res.json()
-            console.log( data )
 
             if (!res.ok)
             {
                 throw new Error( data?.detail || "Login failed" )
             }
 
-            alert(`Logged in with ${loginMethod}: ${identifier}`);
+            reset()
+            alert(`Logged in with ${loginForm.method}: ${identifier}`);
             setAuthOpen(false);
         }
         catch
@@ -74,9 +132,10 @@ export default function LoginForm({
             <span className="text-white/70">Use</span>
             <button
             type="button"
-            onClick={() => setLoginMethod("email")}
+            value={EMAIL}
+            onClick={handleMethodChange}
             className={`flex-1 border-[3px] px-3 py-2 ${
-                loginMethod === "email"
+                loginForm.method === EMAIL
                 ? "border-white bg-white text-black"
                 : "border-white bg-black text-white"
             }`}
@@ -85,9 +144,10 @@ export default function LoginForm({
             </button>
             <button
             type="button"
-            onClick={() => setLoginMethod("phone")}
+            value={PHONE}
+            onClick={handleMethodChange}
             className={`flex-1 border-[3px] px-3 py-2 ${
-                loginMethod === "phone"
+                loginForm.method === PHONE
                 ? "border-white bg-white text-black"
                 : "border-white bg-black text-white"
             }`}
@@ -96,7 +156,7 @@ export default function LoginForm({
             </button>
         </div>
 
-        {loginMethod === "email" ? (
+        {loginForm.method === "email" ? (
             <label
             htmlFor="login-email"
             className="grid gap-2 text-[10px] uppercase tracking-widest"
@@ -107,8 +167,8 @@ export default function LoginForm({
                 ref={authEmailRef}
                 type="email"
                 required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
+                value={loginForm.email}
+                onChange={handleEmailChange}
                 className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
                 placeholder="you@example.com"
             />
@@ -124,8 +184,8 @@ export default function LoginForm({
                 ref={authEmailRef}
                 type="tel"
                 required
-                value={loginPhone}
-                onChange={(e) => setLoginPhone(e.target.value)}
+                value={loginForm.phone}
+                onChange={handlePhoneChange}
                 className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
                 placeholder="(555) 123-4567"
             />
@@ -143,8 +203,8 @@ export default function LoginForm({
                 id="login-password"
                 type={showPassword ? "text" : "password"}
                 required
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
+                value={loginForm.password}
+                onChange={handlePasswordChange}
                 className="w-full rounded-none border-[3px] border-white bg-black px-3 py-2 pr-16 text-xs text-white placeholder-white/50 outline-none"
                 placeholder="••••••••"
             />
