@@ -1,11 +1,18 @@
+# auth_service.py
+
 from database.models import User, UserCreate
 from database.database_service import database_service, SessionDep
 from sqlmodel import select, or_
 from fastapi import HTTPException
 from pydantic import BaseModel
+from auth.token_service import create_access_token
+from pwdlib import PasswordHash
+
+password_hash = PasswordHash.recommended()
+DUMMY_HASH = password_hash.hash("dummypassword")
 
 class LoginRequest(BaseModel):
-    identifier: str
+    username: str
     password: str
 
 class AuthService:
@@ -23,21 +30,20 @@ class AuthService:
         if user_exists:
             raise HTTPException(409, "User exists")
         
+        user.password = password_hash.hash(user.password)
+        print(user)
         return database_service.create_model_instance(User, dbSession, user)
     
     def login_user(self, credentials: LoginRequest, session: SessionDep):
+        
         query = select(User).where(
-            or_(
-                User.email == credentials.identifier,
-                User.phone_number == credentials.identifier
-            )
+            User.username == credentials.username
         )
 
         user = database_service.get_model_instance( session, query )
         if not user:
             raise HTTPException( 401, "Invalid credentials" )
 
-        if not user.password == credentials.password:
+        if not password_hash.verify(credentials.password, user.password):
             raise HTTPException( 401, "Invalid credentials" )
-
-        return {"detail": "Login successful"}
+        return {"detail":"Success"}
