@@ -17,10 +17,11 @@ const PHONE = "phone" as const
 type LoginMethod = typeof EMAIL | typeof PHONE
 
 type LoginFormState = {
-  email: string
-  phone: string
-  password: string
-  method: LoginMethod
+    identifier: string
+    email: string
+    phone: string
+    password: string
+    method: LoginMethod
 }
 
 export default function LoginForm({
@@ -32,11 +33,29 @@ export default function LoginForm({
 }: LoginFormProps)
 {
     const [loginForm, setLoginForm] = useState<LoginFormState>({
+        identifier: "",
         email: "",
         phone: "",
         password: "",
         method: EMAIL
     })
+
+    const reset = () => {
+        setLoginForm({
+            identifier: "",
+            email: "",
+            phone: "",
+            password: "",
+            method: EMAIL
+        })
+    }
+
+    const handleIdentifierChange = (e) => {
+        setLoginForm({
+            ...loginForm,
+            identifier: e.target.value
+        })
+    }
 
     const handleEmailChange = (e) => {
         setLoginForm({
@@ -56,24 +75,6 @@ export default function LoginForm({
         setLoginForm({
             ...loginForm,
             password: e.target.value
-        })
-    }
-
-    const handleMethodChange = (e) => {
-        setLoginForm({
-            ...loginForm,
-            email: "",
-            phone: "",
-            method: e.target.value
-        })
-    }
-
-    const reset = () => {
-        setLoginForm({
-            email: "",
-            phone: "",
-            password: "",
-            method: EMAIL
         })
     }
 
@@ -122,70 +123,57 @@ export default function LoginForm({
             className="grid gap-4"
         >
 
-        {/* method toggle */}
-        <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest">
-            <span className="text-white/70">Use</span>
-            <button
-            type="button"
-            value={EMAIL}
-            onClick={handleMethodChange}
-            className={`flex-1 border-[3px] px-3 py-2 ${
-                loginForm.method === EMAIL
-                ? "border-white bg-white text-black"
-                : "border-white bg-black text-white"
-            }`}
-            >
-            Email
-            </button>
-            <button
-            type="button"
-            value={PHONE}
-            onClick={handleMethodChange}
-            className={`flex-1 border-[3px] px-3 py-2 ${
-                loginForm.method === PHONE
-                ? "border-white bg-white text-black"
-                : "border-white bg-black text-white"
-            }`}
-            >
-            Phone
-            </button>
-        </div>
-
-        {loginForm.method === "email" ? (
+        <label
+            htmlFor="identifier"
+            className="grid gap-2 text-[10px] uppercase tracking-widest"
+        >
+            <span>Username, email, or phone number</span>
+            <input
+                id="identifier"
+                ref={authEmailRef}
+                type="text"
+                required
+                value={loginForm.identifier}
+                onChange={handleIdentifierChange}
+                className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
+                placeholder=""
+            />
+        </label>
+        {/* {loginForm.method === "email" ? (
             <label
                 htmlFor="login-email"
                 className="grid gap-2 text-[10px] uppercase tracking-widest"
             >
-            <span>Email</span>
-            <input
-                id="login-email"
-                ref={authEmailRef}
-                type="email"
-                required
-                value={loginForm.email}
-                onChange={handleEmailChange}
-                className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
-                placeholder="you@example.com"
-            />
+                <span>Email</span>
+                <input
+                    id="login-email"
+                    ref={authEmailRef}
+                    type="email"
+                    required
+                    value={loginForm.email}
+                    onChange={handleEmailChange}
+                    className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
+                    placeholder="you@example.com"
+                />
             </label>
         ) : (
             <label
-            htmlFor="login-phone"
-            className="grid gap-2 text-[10px] uppercase tracking-widest"
+                htmlFor="login-phone"
+                className="grid gap-2 text-[10px] uppercase tracking-widest"
             >
-            <span>Phone</span>
-            <input
-                id="login-phone"
-                ref={authEmailRef}
-                type="tel"
-                required
-                value={loginForm.phone}
-                onChange={handlePhoneChange}
-                className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
-                placeholder="(555) 123-4567"
-            />
+                <span>Phone</span>
+                <input
+                    id="login-phone"
+                    ref={authEmailRef}
+                    type="tel"
+                    required
+                    value={loginForm.phone}
+                    onChange={handlePhoneChange}
+                    className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
+                    placeholder="(555) 123-4567"
+                />
             </label>
-        )}
+        )} */}
 
         <label
             htmlFor="login-password"
