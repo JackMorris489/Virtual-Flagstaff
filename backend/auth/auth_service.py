@@ -15,14 +15,15 @@ class LoginRequest(BaseModel):
 
 class AuthService:
     def register_user(self, user: UserCreate, dbSession: SessionDep):
+        identifier = user.username or user.email or user.phone_number
         query = select(User).where(
             or_(
-                User.username == user.username,
-                User.email == user.email,
-                User.phone_number == user.phone_number
+                User.username == identifier,
+                User.email == identifier,
+                User.phone_number == identifier
             )
         )
-
+        
         user_exists = database_service.get_model_instance(dbSession, query)
         if user_exists:
             raise HTTPException(409, "User exists")
