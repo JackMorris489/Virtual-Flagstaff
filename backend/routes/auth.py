@@ -13,6 +13,6 @@ auth_router = APIRouter(prefix=ROUTER_PREFIX, tags=["Auth"])
 def login(credentials: LoginRequest, session: SessionDep):
     return auth_service.login_user(credentials, session)
 
-@auth_router.post("/sign-up", response_model=UserPublic)
+@auth_router.post("/sign-up", response_model=UserPublic, status_code=201)
 def sign_up(user: UserCreate, session: SessionDep ):
     return auth_service.register_user(user, session)
