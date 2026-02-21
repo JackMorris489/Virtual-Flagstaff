@@ -15,10 +15,10 @@ class LoginRequest(BaseModel):
 
 class AuthService:
     def register_user(self, user: UserCreate, dbSession: SessionDep):
-        identifier = user.username or user.email or user.phone_number
+        identifier = user.email or user.phone_number
         query = select(User).where(
             or_(
-                User.username == identifier,
+                User.username == user.username,
                 User.email == identifier,
                 User.phone_number == identifier
             )
