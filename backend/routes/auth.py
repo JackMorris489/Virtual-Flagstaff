@@ -1,4 +1,4 @@
-from database.database_service import SessionDep, database_service
+from database.database_service import SessionDep
 from fastapi import APIRouter
 from database.models import UserCreate, UserPublic
 from auth.auth_service import AuthService, LoginRequest
