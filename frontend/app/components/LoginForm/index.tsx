@@ -1,19 +1,5 @@
-import {useState} from "react"
 import PixelButton from "../PixelButton"
-import {API_BASE} from "../../utils/constants";
-
-type LoginFormProps = {
-    setAuthOpen: React.Dispatch<React.SetStateAction<boolean>>
-    authEmailRef: React.RefObject<HTMLInputElement>
-    showPassword: boolean,
-    setShowPassword: React.Dispatch<React.SetStateAction<boolean>>
-    setAuthMode: React.Dispatch<React.SetStateAction<string>>
-}
-
-type LoginFormState = {
-    identifier: string
-    password: string
-}
+import {LoginFormProps, useLoginForm} from "./hooks"
 
 export default function LoginForm({
     setAuthOpen,
@@ -23,63 +9,28 @@ export default function LoginForm({
     setAuthMode
 }: LoginFormProps)
 {
-    const [loginForm, setLoginForm] = useState<LoginFormState>({
-        identifier: "",
-        password: ""
-    })
+    const {
+        loginForm, 
+        reset, 
+        handleFieldChange,
+        login
+    } = useLoginForm()
 
-    const reset = () => {
-        setLoginForm({
-            identifier: "",
-            password: ""
-        })
-    }
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
-    const handleIdentifierChange = (e) => {
-        setLoginForm({
-            ...loginForm,
-            identifier: e.target.value
-        })
-    }
-
-    const handlePasswordChange = (e) => {
-        setLoginForm({
-            ...loginForm,
-            password: e.target.value
-        })
-    }
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const payload = { 
-            "username": loginForm.identifier, 
-            "password": loginForm.password
-        }
-
-        try {
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-            
-            const data = await res.json()
-
-            if (!res.ok)
-            {
-                throw new Error( data?.detail || "Login failed" )
-            }
-
-            reset()
-            alert(`Logged in as ${loginForm.identifier}`);
+        try
+        {
+            const data = await login(event);
+            reset();
+            alert(data.detail);
             setAuthOpen(false);
         }
-        catch
+
+        catch (error)
         {
-            alert( "Incorrect credentials" );
+            alert(error.message)
         }
-        
     }
 
     return (
@@ -95,7 +46,7 @@ export default function LoginForm({
                     type="text"
                     required
                     value={loginForm.identifier}
-                    onChange={handleIdentifierChange}
+                    onChange={e => handleFieldChange("identifier", e.target.value)}
                     className="rounded-none border-[3px] border-white bg-black px-3 py-2 text-xs text-white placeholder-white/50 outline-none"
                     placeholder=""
                 />
@@ -111,7 +62,7 @@ export default function LoginForm({
                         type={showPassword ? "text" : "password"}
                         required
                         value={loginForm.password}
-                        onChange={handlePasswordChange}
+                        onChange={e => handleFieldChange("password", e.target.value)}
                         className="w-full rounded-none border-[3px] border-white bg-black px-3 py-2 pr-16 text-xs text-white placeholder-white/50 outline-none"
                         placeholder="••••••••"
                     />
