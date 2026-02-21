@@ -35,9 +35,11 @@ export function useLoginForm() {
   }
 
   const login = async () => {
+    const identifier = loginForm.identifier;
+    const password = loginForm.password;
     const payload = { 
-        "username": loginForm.identifier, 
-        "password": loginForm.password
+        identifier, 
+        password
     }
 
     try
