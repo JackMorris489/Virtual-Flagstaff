@@ -20,7 +20,7 @@ export default function LoginForm({
         event.preventDefault();
         try
         {
-            const data = await login(event);
+            const data = await login();
             reset();
             alert(data.detail);
             setAuthOpen(false);

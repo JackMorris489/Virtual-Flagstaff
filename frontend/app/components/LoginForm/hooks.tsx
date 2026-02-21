@@ -34,7 +34,7 @@ export function useLoginForm() {
     setLoginForm(prev => ({ ...prev, [field]: value }))
   }
 
-  const login = async (event) => {
+  const login = async () => {
     const payload = { 
         "username": loginForm.identifier, 
         "password": loginForm.password
