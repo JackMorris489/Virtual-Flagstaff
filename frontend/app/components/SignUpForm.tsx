@@ -61,7 +61,7 @@ export default function SignUpForm({
                 survey: null
             };
 
-            const res = await fetch(`${API_BASE}/users`, {
+            const res = await fetch(`${API_BASE}/auth/sign-up`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
