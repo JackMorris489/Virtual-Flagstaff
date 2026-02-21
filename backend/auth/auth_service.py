@@ -40,11 +40,11 @@ class AuthService:
             )
         )
 
-        user = database_service.get_model_instance( session, query )
+        user = database_service.get_model_instance(session, query)
         if not user:
             raise HTTPException(401, "Invalid credentials")
 
         if not password_hash.verify(credentials.password, user.password):
             raise HTTPException(401, "Invalid credentials")
-        
+
         return {"detail":"Success"}
