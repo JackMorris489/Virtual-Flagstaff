@@ -1,7 +1,6 @@
 from database.database_service import SessionDep, database_service
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select, or_
-from database.models import User, UserCreate, UserPublic
+from fastapi import APIRouter
+from database.models import UserCreate, UserPublic
 from auth.auth_service import AuthService, LoginRequest
 
 auth_service = AuthService()
