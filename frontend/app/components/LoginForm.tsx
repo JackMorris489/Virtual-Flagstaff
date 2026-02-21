@@ -68,11 +68,6 @@ export default function LoginForm({
         })
     }
 
-    // const [loginEmail, setLoginEmail] = useState("");
-    // const [loginPhone, setLoginPhone] = useState("");
-    // const [loginPassword, setLoginPassword] = useState("");
-    // const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
-
     const reset = () => {
         setLoginForm({
             email: "",
@@ -158,8 +153,8 @@ export default function LoginForm({
 
         {loginForm.method === "email" ? (
             <label
-            htmlFor="login-email"
-            className="grid gap-2 text-[10px] uppercase tracking-widest"
+                htmlFor="login-email"
+                className="grid gap-2 text-[10px] uppercase tracking-widest"
             >
             <span>Email</span>
             <input
