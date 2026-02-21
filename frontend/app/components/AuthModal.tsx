@@ -59,7 +59,8 @@ export default function AuthModal({
 
         const identifier = loginMethod === "email" ? loginEmail : loginPhone;
 
-        const payload = { identifier, "password": loginPassword }
+        const payload = { "username": identifier, "password": loginPassword }
+        console.log(payload)
         try {
             const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
