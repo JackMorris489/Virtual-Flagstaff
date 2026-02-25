@@ -20,6 +20,9 @@ export class UiScene extends Phaser.Scene {
     skiscene;
     worldscene;
     #controls;
+    #pauseContainer;
+    #isPaused = false;
+    #volume = 1;
 
     constructor() {
         super({
@@ -100,10 +103,19 @@ export class UiScene extends Phaser.Scene {
         }).catch((error) => {
             console.error(error);
         });
-        
+        // Pause menu
+        this.createPauseMenu();
+
     }
 
     update() {
+
+            // ESC pause toggle
+        if (this.#controls.isEscapeJustDown) {
+            this.togglePause();
+            return;
+        }
+
         // TODO: REWORK SCENE TRANSITIONS
         if (this.skiscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
             // unpause the ski scene (so it can sleep)
@@ -122,6 +134,190 @@ export class UiScene extends Phaser.Scene {
 
             // close dialog
             this.closeDialog();
+        }
+    }
+
+    createPauseMenu() {
+
+        const { width, height } = this.scale;
+
+        this.#pauseContainer = this.add.container(width / 2, height / 2);
+
+        //  SCREEN DIM 
+        const dim = this.add.rectangle(
+            0, 0,
+            width,
+            height,
+            0x000000,
+            0.65
+        ).setOrigin(0.5);
+
+        //  PANEL WITH YELLOW BORDER 
+        const panel = this.add.rectangle(
+            0,
+            0,
+            460,
+            420,
+            0x111111,
+            0.95
+        )
+            .setStrokeStyle(4, 0xffd700) // ⭐ yellow border
+            .setOrigin(0.5);
+
+        //  TITLE 
+        const title = this.add.text(0, -170, 'PAUSED', {
+            fontSize: '42px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        //  CONTROLS  
+        const controlsTitle = this.add.text(0, -110, 'Controls', {
+            fontSize: '22px',
+            color: '#ffd700'
+        }).setOrigin(0.5);
+
+        const controlsText = this.add.text(
+            0,
+            -70,
+            'Arrows  -  Move\nX  -  Interact\nESC  -  Pause',
+            {
+                fontSize: '18px',
+                color: '#cccccc',
+                align: 'center'
+            }
+        ).setOrigin(0.5);
+
+        //  VOLUME 
+        const volumeLabel = this.add.text(0, -10, 'Volume', {
+            fontSize: '22px',
+            color: '#ffd700'
+        }).setOrigin(0.5);
+
+        const sliderWidth = 240;
+        const min = -sliderWidth / 2;
+        const max = sliderWidth / 2;
+
+        const currentVolume = this.sound.volume ?? 1;
+        const startX = min + (currentVolume * (max - min));
+
+        const sliderTrack = this.add.rectangle(
+            0,
+            30,
+            sliderWidth,
+            8,
+            0xffffff
+        ).setOrigin(0.5);
+
+        const sliderHandle = this.add.circle(
+            startX,
+            30,
+            12,
+            0xffd700
+        ).setInteractive({ draggable: true });
+
+        this.input.setDraggable(sliderHandle);
+
+        sliderHandle.on('drag', (pointer, dragX) => {
+
+            const clamped = Phaser.Math.Clamp(dragX, min, max);
+            sliderHandle.x = clamped;
+
+            const value = (clamped - min) / (max - min);
+
+            this.sound.volume = value;
+        });
+
+        //  RESUME BUTTON 
+        const resumeBtn = this.createButton(0, 110, 'Resume', () => {
+            this.togglePause();
+        });
+
+        //  EXIT BUTTON 
+        const exitBtn = this.createButton(0, 170, 'Exit to Menu', () => {
+
+            this.#isPaused = false;
+
+            if (this.worldscene) this.worldscene.scene.stop();
+            if (this.skiscene) this.skiscene.scene.stop();
+
+            window.location.href = '/';
+        });
+
+        this.#pauseContainer.add([
+            dim,
+            panel,
+            title,
+            controlsTitle,
+            controlsText,
+            volumeLabel,
+            sliderTrack,
+            sliderHandle,
+            resumeBtn,
+            exitBtn
+        ]);
+
+        this.#pauseContainer.setDepth(9999);
+        this.#pauseContainer.setVisible(false);
+    }
+
+    createButton(x, y, label, callback) {
+
+        const btn = this.add.text(x, y, label, {
+            fontSize: '22px',
+            color: '#ffffff',
+            backgroundColor: '#222222',
+            padding: { x: 14, y: 8 }
+        })
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true });
+
+        btn.on('pointerover', () => {
+            btn.setStyle({
+                backgroundColor: '#444444',
+                color: '#ffff00'
+            });
+        });
+
+        btn.on('pointerout', () => {
+            btn.setStyle({
+                backgroundColor: '#222222',
+                color: '#ffffff'
+            });
+        });
+
+        btn.on('pointerdown', callback);
+
+        return btn;
+    }
+
+    togglePause() {
+
+        this.#isPaused = !this.#isPaused;
+
+        if (this.#isPaused) {
+
+            if (!this.worldscene.scene.isPaused()) {
+                this.worldscene.scene.pause();
+            }
+
+            if (!this.skiscene.scene.isPaused()) {
+                this.skiscene.scene.pause();
+            }
+
+            this.#pauseContainer.setVisible(true);
+
+        } else {
+
+            if (this.worldscene.scene.isPaused()) {
+                this.worldscene.scene.resume();
+            }
+
+            if (this.skiscene.scene.isPaused()) {
+                this.skiscene.scene.resume();
+            }
+
+            this.#pauseContainer.setVisible(false);
         }
     }
 
