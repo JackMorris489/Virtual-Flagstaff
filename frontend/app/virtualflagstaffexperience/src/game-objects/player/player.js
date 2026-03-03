@@ -8,6 +8,7 @@ import { IdleState } from '../../components/state-machine/states/character/idle-
 import { MoveState } from '../../components/state-machine/states/character/move-state';
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
 import { InteractingObjectComponent } from '../../components/game-object/interacting-object-component';
+import { EVENT_BUS } from '../../common/event-bus';
 
 /**
     The overworld player character. This player class handles the animations, 
@@ -15,6 +16,8 @@ import { InteractingObjectComponent } from '../../components/game-object/interac
 **/
 export class Player extends CharacterGameObject {
     interactingObjectComponent;
+    #hasMoved = false;
+    #currentNearbyObject = null;
 
     constructor(config){
         // create the animation config for the component
@@ -67,6 +70,25 @@ export class Player extends CharacterGameObject {
         return this.body;
     }
 
+    closeToGameObject(gameObject){
+        if(this.#currentNearbyObject == gameObject) {
+            return;
+        }
+        this.#currentNearbyObject = gameObject;
+        if(gameObject && gameObject.interactionComponent) {
+            EVENT_BUS.emit('PLAYER_INTERACTION_CLOSE', gameObject.interactionComponent.type);
+        }
+    }
+
+    // not confident what the logic here should be
+    gameObjectGone(){
+        if (this.#currentNearbyObject)
+        {
+            // this.#currentNearbyObject = null;
+            // EVENT_BUS.emit('PLAYER_INTERACTION_GONE');
+        }
+    }
+    
     interactedWithGameObject(gameObject) {
         this.interactingObjectComponent.set(gameObject);
     }
@@ -85,5 +107,11 @@ export class Player extends CharacterGameObject {
 
     update() {
         super.update();
+
+        if(this.#hasMoved == false && this._stateMachine.isCurrentStateMoving('MOVE_STATE') == true)
+        {
+            this.#hasMoved = true;
+            EVENT_BUS.emit('PLAYER_MOVED');
+        }
     }
 }
