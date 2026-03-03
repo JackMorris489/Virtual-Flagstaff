@@ -28,6 +28,8 @@ export class PlayerInteractionZone extends CharacterGameObject {
 
         // update the size of the physics body
         this.physicsBody.setSize(8, 10, true).setOffset(this.width/2 - 8, this.height/2 - 7);
+
+        this.player = config.player;
     }
 
     get physicsBody() {
@@ -40,6 +42,15 @@ export class PlayerInteractionZone extends CharacterGameObject {
 
     update() {
         super.update();
+
+        const interactiveObject = this.#collidingObjectsComponent.objects.find(obj => obj.interactionComponent);
+
+        if(interactiveObject) {
+            this.player.closeToGameObject(interactiveObject);
+        } else {
+            this.player.gameObjectGone();
+        }
+        
         this.#collidingObjectsComponent.reset();
     }
 }
