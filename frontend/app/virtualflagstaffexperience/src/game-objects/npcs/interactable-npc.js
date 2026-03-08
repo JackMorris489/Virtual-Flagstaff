@@ -72,14 +72,16 @@ export class InteractiveNPC extends CharacterGameObject {
         this.scene.controls.isFrozen = true;
 
         // set dialog
-        const key = `${this.name}_${this.scene.currentDialogNumber}`;
-        const dialog = NPC_DIALOG[key];
+        // const key = `${this.name}_${this.scene.currentDialogNumber}`;
+        const dialogs = NPC_DIALOG[this.name];
+        const index = this.scene.currentDialogNumber;
+        const dialog = dialogs[index];
 
         // if that dialog doesn't exist
         if (dialog === undefined) {
             // reset the dialog counter, close dialog and unfreeze the user
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
-            this.scene.currentDialogNumber = 1;
+            this.scene.currentDialogNumber = 0;
             this.scene.controls.isFrozen = false;
             return;
         }
