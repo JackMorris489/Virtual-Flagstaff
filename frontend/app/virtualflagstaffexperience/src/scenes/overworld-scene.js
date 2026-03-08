@@ -25,7 +25,9 @@ export class Overworld extends Phaser.Scene {
     playerType;
     #interactiveNPCGroup;
     #interactiveSpider;
-    currentDialogNumber = 1;
+    #interactiveSkier;
+    #interactiveSnowboarder;
+    currentDialogNumber = 0;
     #allCollisionLayer;
     minigameinteractables;
     overlayImage;
@@ -108,6 +110,18 @@ export class Overworld extends Phaser.Scene {
                 position: {x: this.scale.width/2, y: this.scale.height/2 - 100},
                 id: `MAYOR`,
                 interactionType: `DIALOG`,
+            }),
+            this.#interactiveSkier = new InteractiveNPC({
+                scene: this,
+                position: {x: this.scale.width/2 + 50, y: this.scale.height/2 - 100},
+                id: "SKIER",
+                interactionType: "DIALOG",
+            }),
+            this.#interactiveSnowboarder = new InteractiveNPC({
+                scene: this,
+                position: {x: this.scale.width/2 + 100, y: this.scale.height/2 - 100},
+                id: "SNOWBOARDER",
+                interactionType: "DIALOG",
             }),
         ], {
             runChildUpdate: true
