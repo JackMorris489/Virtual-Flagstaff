@@ -33,6 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get( "/", include_in_schema = False )
+@app.get("/", include_in_schema = False)
 def read_root() -> RedirectResponse:
-    return RedirectResponse( url = "/docs" )
+    return RedirectResponse(url = "/docs")
