@@ -22,7 +22,8 @@ export default function LoginForm({
         {
             const data = await login();
             reset();
-            alert(data.detail);
+            console.log(data)
+            sessionStorage.setItem("token", data.access_token);
             setAuthOpen(false);
         }
 
