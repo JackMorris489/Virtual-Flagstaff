@@ -14,7 +14,7 @@ MAIL_SERVER = getenv( "MAIL_SERVER" )
 MAIL_FROM_NAME = getenv( "MAIL_FROM_NAME" )
 MAIL_TO = getenv( "MAIL_TO" )
 ADMIN_EMAIL_BROADCAST_KEY = getenv( "ADMIN_EMAIL_BROADCAST_KEY", "" )
-
+TOKEN_KEY = getenv("TOKEN_KEY")
 GAMES = [
     {"name": "snowboard."},
     {"name": "Ski Extreme"},
