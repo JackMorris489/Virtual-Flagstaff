@@ -1,1 +1,1 @@
-from .database_service import database_service
+from .database_service import database_service, SessionDep

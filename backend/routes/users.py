@@ -1,28 +1,32 @@
 # users.py
-
+from fastapi import Depends
 from database.models import User, UserCreate, UserPublic, UserUpdate
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from email_utilities import EmailService
 from sqlmodel import select
 from constants import ADMIN_EMAIL_BROADCAST_KEY
+from auth.dependencies import get_current_active_user
+from typing import Annotated
 
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
-@users_router.post("", response_model = UserPublic)
-def create_user(user: UserCreate, session: SessionDep) -> UserPublic:
-    return database_service.create_model_instance(User, session, user)
+# @users_router.post("", response_model = UserPublic)
+# def create_user(user: UserCreate, session: SessionDep) -> UserPublic:
+#     return database_service.create_model_instance(User, session, user)
 
 
-@users_router.get( "", response_model = list[UserPublic] )
-def read_users( session: SessionDep ):
-    return database_service.get_model_instances(User, session)
+# @users_router.get("", response_model = list[UserPublic])
+# def read_users(
+#     session: SessionDep
+# ):
+#     return database_service.get_model_instances(User, session)
 
 
-@users_router.get("/{user_id}", response_model = UserPublic)
-def read_user(user_id: int, session: SessionDep):
-    return database_service.get_model_instance_by_id(User, session, user_id)
+@users_router.get("/", response_model = UserPublic)
+def read_user(user: Annotated[User, Depends(get_current_active_user)]):
+    return user
 
 
 @users_router.patch("/{user_id}", response_model = UserPublic)
