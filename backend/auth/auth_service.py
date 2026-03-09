@@ -6,11 +6,13 @@ from sqlmodel import select, or_
 from fastapi import HTTPException
 from pydantic import BaseModel
 from pwdlib import PasswordHash
+from auth.token import create_access_token, Token, ACCESS_TOKEN_EXPIRE_MINUTES
+from datetime import timedelta
 
 password_hash = PasswordHash.recommended()
 
 class LoginRequest(BaseModel):
-    identifier: str
+    username: str
     password: str
 
 class AuthService:
@@ -32,20 +34,31 @@ class AuthService:
         return database_service.create_model_instance(User, dbSession, user)
     
 
-    def login_user(self, credentials: LoginRequest, session: SessionDep):
+    def login_user(
+        self,
+        credentials: LoginRequest,
+        session: SessionDep
+    ) -> Token:
+        exception = HTTPException(401, "Invalid credentials")
         query = select(User).where(
             or_(
-                User.username == credentials.identifier,
-                User.email == credentials.identifier,
-                User.phone_number == credentials.identifier
+                User.username == credentials.username,
+                User.email == credentials.username,
+                User.phone_number == credentials.username
             )
         )
 
         user = database_service.get_model_instance(session, query)
         if not user:
-            raise HTTPException(401, "Invalid credentials")
+            raise exception
 
         if not password_hash.verify(credentials.password, user.password):
-            raise HTTPException(401, "Invalid credentials")
+            raise exception
 
-        return {"detail":"Success"}
+        return Token(
+            access_token=create_access_token(
+                {"sub": user.username},
+                expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
+            token_type="bearer"
+        )
