@@ -26,7 +26,7 @@ class AuthService:
             )
         )
         
-        user_exists = database_service.get_model_instance(dbSession, query)
+        user_exists = database_service.get_query_result(dbSession, query)
         if user_exists:
             raise HTTPException(409, "User exists")
         
@@ -48,7 +48,7 @@ class AuthService:
             )
         )
 
-        user = database_service.get_model_instance(session, query)
+        user = database_service.get_query_result(session, query)
         if not user:
             raise exception
 

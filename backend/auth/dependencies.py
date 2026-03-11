@@ -26,7 +26,7 @@ async def get_current_user(
     except InvalidTokenError:
         raise exception
     query = select(User).where(User.username == token_data.username)
-    user = database_service.get_model_instance(session, query)
+    user = database_service.get_query_result(session, query)
     return user
 
 async def get_current_active_user(

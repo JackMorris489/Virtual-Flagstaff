@@ -51,7 +51,22 @@ class DatabaseService:
     def create_query( self, model_class: type[ SQLModel ], offset: int, limit: int ):
         query = select( model_class )
         return self.paginate_query( query, offset, limit )
-    
+
+
+    def get_query_result(self, session: Session, query):
+        return self.execute_query(session, query).first()
+
+
+    def get_query_results(
+        self, 
+        session: Session, 
+        query, 
+        offset: int = 0, 
+        limit: int = 25
+    ):
+        query = self.paginate_query(query, offset, limit)
+        return self.execute_query(session, query).all()
+
 
     def get_model_instances(
         self,
@@ -61,8 +76,7 @@ class DatabaseService:
         limit: int = 25
     ) -> list[SQLModel]:
         query = select(model_class)
-        query = self.paginate_query(query, offset, limit)
-        return self.execute_query(session, query).all()
+        return self.get_query_results(session, query, offset, limit)
     
 
     def raise_http_exception_if_none(
@@ -86,15 +100,15 @@ class DatabaseService:
         return model_data
 
 
-    def get_model_instance_by_id(
-        self,
-        model: SQLModel,
-        session: Session,
-        id: int
-    ) -> SQLModel:
-        model_instance = session.get( model, id )
-        self.raise_http_exception_if_none( model_instance )
-        return model_instance
+    # def get_model_instance_by_id(
+    #     self,
+    #     model: SQLModel,
+    #     session: Session,
+    #     id: int
+    # ) -> SQLModel:
+    #     model_instance = session.get( model, id )
+    #     self.raise_http_exception_if_none( model_instance )
+    #     return model_instance
     
     def set_model_instance_by_id(
         self,
@@ -124,15 +138,15 @@ class DatabaseService:
         return {"detail": f"{model.__name__} with id {model_instance_id} deleted"}
 
 
-    def get_model_instance(self, session: Session, query):
-        return self.execute_query(session, query).first()
+    # def get_model_instance(self, session: Session, query):
+    #     return self.get_query_result(session, query)
     
 
     def seed_games(self, games: list[dict[str, str]] = GAMES):
         with Session(self._engine) as session:
             for game in games:
                 query = select(Game).where(Game.name == game["name"])
-                existing = self.get_model_instance( session, query )
+                existing = self.get_query_result( session, query )
                 if not existing:
                     session.add(Game(**game))
             session.commit()
@@ -145,7 +159,7 @@ class DatabaseService:
         with Session(self._engine) as session:
             for npc in non_playable_characters:
                 query = select(Npc).where(Npc.name == npc["name"])
-                existing = self.get_model_instance(session, query)
+                existing = self.get_query_result(session, query)
                 if not existing:
                     session.add(Npc(**npc))
             session.commit()
@@ -159,14 +173,14 @@ class DatabaseService:
             try:
                 for quest in quests:
                     npc_query = select(Npc).where(Npc.name == quest["npc_name"])
-                    npc = self.get_model_instance(session, npc_query)
+                    npc = self.get_query_result(session, npc_query)
                     if not npc:
                         raise ValueError(
                             f"NPC '{quest['npc_name']}' referenced in 'quests.json' does not exist."
                         )
 
                     query = select(Quest).where(Quest.name == quest["name"])
-                    existing = self.get_model_instance(session, query)
+                    existing = self.get_query_result(session, query)
                     if not existing:
                         session.add(Quest(
                             name=quest["name"],
