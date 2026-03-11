@@ -20,10 +20,3 @@ from .user_quest import (
     UserQuestPublic,
     UserQuestUpdate
 )
-from .npc_quest import (
-    NpcQuest,
-    NpcQuestPublic,
-    NpcQuestCreate,
-    NpcQuestBase,
-    NpcQuestUpdate
-)

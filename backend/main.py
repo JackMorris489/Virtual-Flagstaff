@@ -10,14 +10,15 @@ from routes import (
     auth_router,
     weather_router,
     games_router,
-    npc_quest_router
+    npcs_router,
+    quests_router
 )
 from database import database_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     database_service.create_database_and_tables()
-    database_service.seed_games()
+    database_service.seed_all()
     yield
     
 app = FastAPI(lifespan=lifespan)
@@ -27,7 +28,8 @@ app.include_router(game_sessions_router)
 app.include_router(auth_router)
 app.include_router(weather_router)
 app.include_router(games_router)
-app.include_router(npc_quest_router)
+app.include_router(npcs_router)
+app.include_router(quests_router)
 
 app.add_middleware(
     CORSMiddleware,
