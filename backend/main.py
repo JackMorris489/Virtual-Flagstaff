@@ -8,7 +8,9 @@ from routes import (
     users_router, 
     game_sessions_router, 
     auth_router,
-    weather_router
+    weather_router,
+    games_router,
+    npc_quest_router
 )
 from database import database_service
 
@@ -24,6 +26,8 @@ app.include_router(users_router)
 app.include_router(game_sessions_router)
 app.include_router(auth_router)
 app.include_router(weather_router)
+app.include_router(games_router)
+app.include_router(npc_quest_router)
 
 app.add_middleware(
     CORSMiddleware,
