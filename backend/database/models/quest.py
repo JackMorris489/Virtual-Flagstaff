@@ -8,6 +8,7 @@ class QuestBase(SQLModel):
 
 class Quest(QuestBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    npc_id: int = Field(foreign_key="npc.id")
 
 class QuestPublic(QuestBase):
     pass

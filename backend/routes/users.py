@@ -5,7 +5,8 @@ from database.models import (
     UserPublic, 
     UserUpdate,
     UserQuest,
-    UserQuestPublic
+    UserQuestPublic,
+    Quest
 )
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
@@ -23,11 +24,11 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
 #     return database_service.create_model_instance(User, session, user)
 
 
-# @users_router.get("", response_model = list[UserPublic])
-# def read_users(
-#     session: SessionDep
-# ):
-#     return database_service.get_model_instances(User, session)
+@users_router.get("", response_model = list[UserPublic])
+def read_users(
+    session: SessionDep
+):
+    return database_service.get_model_instances(User, session)
 
 
 @users_router.get("/", response_model = UserPublic)
@@ -66,7 +67,13 @@ def create_user_quest(
     npc_id: int,
     session: SessionDep
 ):
-    user_quest = None
+    quest_query = select(Quest).where(Quest.npc_id == npc_id)
+    quest = database_service.get_model_instances(Quest, session)
+    user_quest = UserQuest(
+        user_id=user.id,
+        quest_id=quest.id,
+        is_complete=False
+    )
 
     database_service.create_model_instance(UserQuest, session, user_quest)
 
