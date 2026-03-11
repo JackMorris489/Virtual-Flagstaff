@@ -1,6 +1,12 @@
 # users.py
 from fastapi import Depends
-from database.models import User, UserCreate, UserPublic, UserUpdate
+from database.models import (
+    User, 
+    UserPublic, 
+    UserUpdate,
+    UserQuest,
+    UserQuestPublic
+)
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from email_utilities import EmailService
@@ -52,6 +58,18 @@ def update_user(
 @users_router.delete("/{user_id}")
 def delete_user(user_id: int, session: SessionDep):
     return database_service.delete_model_instance( User, session, user_id )
+
+
+@users_router.post("/me/quests", response_model=UserQuestPublic)
+def create_user_quest(
+    user: Annotated[User, Depends(get_current_active_user)],
+    npc_id: int,
+    session: SessionDep
+):
+    user_quest = None
+
+    database_service.create_model_instance(UserQuest, session, user_quest)
+
 
 @users_router.post("/notifications/broadcast")
 def broadcast_to_opted_in_users(
