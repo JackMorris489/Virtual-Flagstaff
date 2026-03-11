@@ -1,8 +1,29 @@
+# Characters
 from .user import User, UserBase, UserPublic, UserCreate, UserUpdate
-from .game import Game
+from .npc import Npc, NpcBase, NpcCreate, NpcPublic, NpcUpdate
+
+# Games
+from .game import GameBase, Game, GameCreate, GamePublic, GameUpdate
 from .game_session import (
-    GameSession, 
-    GameSessionBase, 
+    GameSession,
+    GameSessionBase,
     GameSessionCreate,
     GameSessionPublic
+)
+
+# Quests
+from .quest import QuestBase, Quest, QuestCreate, QuestPublic, QuestUpdate
+from .user_quest import (
+    UserQuestBase,
+    UserQuest,
+    UserQuestCreate,
+    UserQuestPublic,
+    UserQuestUpdate
+)
+from .npc_quest import (
+    NpcQuest,
+    NpcQuestPublic,
+    NpcQuestCreate,
+    NpcQuestBase,
+    NpcQuestUpdate
 )
