@@ -6,12 +6,13 @@ from database.models import (
     UserUpdate,
     UserQuest,
     UserQuestPublic,
-    Quest
+    UserQuestCreate,
+    UserQuestUpdate
 )
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from email_utilities import EmailService
-from sqlmodel import select
+from sqlmodel import select, and_
 from constants import ADMIN_EMAIL_BROADCAST_KEY
 from auth.dependencies import get_current_active_user
 from typing import Annotated
@@ -64,18 +65,39 @@ def delete_user(user_id: int, session: SessionDep):
 @users_router.post("/me/quests", response_model=UserQuestPublic)
 def create_user_quest(
     user: Annotated[User, Depends(get_current_active_user)],
-    npc_id: int,
+    user_quest: UserQuestCreate,
     session: SessionDep
 ):
-    quest_query = select(Quest).where(Quest.npc_id == npc_id)
-    quest = database_service.get_model_instances(Quest, session)
     user_quest = UserQuest(
         user_id=user.id,
-        quest_id=quest.id,
+        quest_id=user_quest.quest_id,
         is_complete=False
     )
 
-    database_service.create_model_instance(UserQuest, session, user_quest)
+    return database_service.create_model_instance(UserQuest, session, user_quest)
+
+
+@users_router.patch("/me/quests/{quest_id}", response_model=UserQuestPublic)
+def update_user_quest(
+    user: Annotated[User, Depends(get_current_active_user)],
+    quest_id: int,
+    session: SessionDep
+):
+    query = select(UserQuest).where(
+        and_(
+            UserQuest.user_id == user.id,
+            UserQuest.quest_id == quest_id
+        )
+    )
+    
+    user_quest: UserQuest = database_service.get_query_result(session, query)
+    updated_user_quest = UserQuestUpdate(is_complete=True)
+    return database_service.set_model_instance_by_id(
+        UserQuest, 
+        session, 
+        user_quest.id, 
+        updated_user_quest
+    )
 
 
 @users_router.post("/notifications/broadcast")

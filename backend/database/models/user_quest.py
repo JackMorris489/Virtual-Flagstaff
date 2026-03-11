@@ -14,7 +14,7 @@ class UserQuestPublic(UserQuestBase):
     pass
 
 class UserQuestCreate(UserQuestBase):
-    pass
+    quest_id: int
 
 class UserQuestUpdate(UserQuestBase):
     pass
