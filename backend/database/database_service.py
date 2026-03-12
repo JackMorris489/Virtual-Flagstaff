@@ -100,15 +100,15 @@ class DatabaseService:
         return model_data
 
 
-    # def get_model_instance_by_id(
-    #     self,
-    #     model: SQLModel,
-    #     session: Session,
-    #     id: int
-    # ) -> SQLModel:
-    #     model_instance = session.get( model, id )
-    #     self.raise_http_exception_if_none( model_instance )
-    #     return model_instance
+    def get_model_instance_by_id(
+        self,
+        model: SQLModel,
+        session: Session,
+        id: int
+    ) -> SQLModel:
+        model_instance = session.get( model, id )
+        self.raise_http_exception_if_none( model_instance )
+        return model_instance
     
     def set_model_instance_by_id(
         self,
