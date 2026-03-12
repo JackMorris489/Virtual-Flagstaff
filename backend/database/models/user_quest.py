@@ -3,18 +3,19 @@
 from sqlmodel import Field, SQLModel
 
 class UserQuestBase(SQLModel):
-    is_complete: bool | None
+    pass
 
 class UserQuest(UserQuestBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
     quest_id: int = Field(foreign_key="quest.id")
+    is_complete: bool | None
 
 class UserQuestPublic(UserQuestBase):
-    pass
+    is_complete: bool
 
 class UserQuestCreate(UserQuestBase):
     quest_id: int
 
 class UserQuestUpdate(UserQuestBase):
-    pass
+    is_complete: bool
