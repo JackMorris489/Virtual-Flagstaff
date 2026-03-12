@@ -25,10 +25,15 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
         super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
 
     async def __call__(self, request: Request) -> Optional[str]:
+        print("COOKIES:", request.cookies)
         authorization: str = request.cookies.get("access_token")  #changed to accept access token from httpOnly Cookie
         print("access_token is",authorization)
 
         scheme, param = get_authorization_scheme_param(authorization)
+
+        print("SCHEME:", scheme)
+        print("TOKEN:", param)
+
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
                 raise HTTPException(
@@ -59,4 +64,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     if not TOKEN_KEY:
         raise RuntimeError("TOKEN_KEY environment variable not set.")
     encoded_jwt = jwt.encode(to_encode, TOKEN_KEY, algorithm=ALGORITHM)
+
+
+
+    if isinstance(encoded_jwt, bytes):
+        encoded_jwt = encoded_jwt.decode("utf-8")
+
+
+
+        
     return encoded_jwt

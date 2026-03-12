@@ -18,6 +18,6 @@ async def login(
 ) -> dict:
     return auth_service.login_user(response, credentials, session)
 
-@auth_router.post("/sign-up", response_model=UserPublic, status_code=201)
-def sign_up(user: UserCreate, session: SessionDep):
-    return auth_service.register_user(user, session)
+@auth_router.post("/sign-up", response_model=dict, status_code=201)
+def sign_up(user: UserCreate, session: SessionDep, response: Response) -> dict:
+    return auth_service.register_user(user, session, response)

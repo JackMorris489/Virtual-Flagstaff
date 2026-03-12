@@ -16,7 +16,11 @@ class LoginRequest(BaseModel):
     password: str
 
 class AuthService:
-    def register_user(self, user: UserCreate, dbSession: SessionDep):
+    def register_user(
+            self, 
+            user: UserCreate, 
+            dbSession: SessionDep,
+            response: Response):
         identifier = user.email or user.phone_number
         query = select(User).where(
             or_(
@@ -31,8 +35,19 @@ class AuthService:
             raise HTTPException(409, "User exists")
         
         user.password = password_hash.hash(user.password)
-        return database_service.create_model_instance(User, dbSession, user)
-    
+
+        user = database_service.create_model_instance(User, dbSession, user)
+
+        access_token = create_access_token({"sub": user.username})
+        response.set_cookie(
+            key="access_token", 
+            value=f"Bearer {access_token}",
+            httponly=True,
+            samesite="lax",
+            secure=False # True in prod
+        ) 
+        
+        return {"detail": "Registered successfully"}
 
     def login_user(
         self,
@@ -53,9 +68,6 @@ class AuthService:
         if not user or not password_hash.verify(credentials.password, user.password):
             raise exception
 
-        # if not password_hash.verify(credentials.password, user.password):
-        #     raise exception
-
         access_token = create_access_token({"sub": user.username})
         response.set_cookie(
             key="access_token", 
@@ -63,10 +75,5 @@ class AuthService:
             httponly=True,
             samesite="lax",
             secure=False) # True in prod
-
-        # return Token(
-        #     access_token=access_token,
-        #     token_type="bearer"
-        # )
 
         return {"detail": "Logged in successfully"}
