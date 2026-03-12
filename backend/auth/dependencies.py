@@ -28,10 +28,3 @@ async def get_current_user(
     query = select(User).where(User.username == token_data.username)
     user = database_service.get_query_result(session, query)
     return user
-
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user

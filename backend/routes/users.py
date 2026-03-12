@@ -14,7 +14,7 @@ from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from email_utilities import EmailService
 from sqlmodel import select, and_
 from constants import ADMIN_EMAIL_BROADCAST_KEY
-from auth.dependencies import get_current_active_user
+from auth.dependencies import get_current_user
 from typing import Annotated
 
 email_service = EmailService()
@@ -25,36 +25,56 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
 #     return database_service.create_model_instance(User, session, user)
 
 
-@users_router.get("", response_model = list[UserPublic])
+@users_router.get("", response_model = list[User])
 def read_users(
     session: SessionDep
 ):
     return database_service.get_model_instances(User, session)
 
 
-@users_router.get("/", response_model = UserPublic)
-def read_user(user: Annotated[User, Depends(get_current_active_user)]):
+@users_router.get("/me", response_model = UserPublic)
+def read_user(user: Annotated[User, Depends(get_current_user)]):
     return user
 
 
-@users_router.patch("/{user_id}", response_model = UserPublic)
+# @users_router.patch("/{user_id}", response_model = UserPublic)
+# def update_user(
+#     background_tasks: BackgroundTasks, 
+#     user_id: int, 
+#     user: UserUpdate, 
+#     session: SessionDep
+# ):
+#     if user.survey is not None:
+#         user_db = database_service.get_model_instance_by_id(User, session, user_id)
+#         if user_db.receive_notifications:
+#             email_service.notify_client_of_new_user( 
+#                 background_tasks,
+#                 user_db.username, 
+#                 user_db.email or user_db.phone_number, 
+#                 user.survey
+#             )
+            
+#     return database_service.set_model_instance_by_id(User, session, user_id, user)
+
+
+@users_router.patch("/me", response_model = UserPublic)
 def update_user(
     background_tasks: BackgroundTasks, 
-    user_id: int, 
-    user: UserUpdate, 
+    user: Annotated[User, Depends(get_current_user)],
+    user_update: UserUpdate, 
     session: SessionDep
 ):
-    if user.survey is not None:
-        user_db = database_service.get_model_instance_by_id(User, session, user_id)
+    if user_update.survey is not None:
+        user_db = database_service.get_model_instance_by_id(User, session, user.id)
         if user_db.receive_notifications:
             email_service.notify_client_of_new_user( 
                 background_tasks,
                 user_db.username, 
                 user_db.email or user_db.phone_number, 
-                user.survey
+                user_update.survey
             )
             
-    return database_service.set_model_instance_by_id(User, session, user_id, user)
+    return database_service.set_model_instance_by_id(User, session, user.id, user_update)
 
 
 @users_router.delete("/{user_id}")
@@ -64,7 +84,7 @@ def delete_user(user_id: int, session: SessionDep):
 
 @users_router.post("/me/quests", response_model=UserQuestPublic)
 def create_user_quest(
-    user: Annotated[User, Depends(get_current_active_user)],
+    user: Annotated[User, Depends(get_current_user)],
     user_quest: UserQuestCreate,
     session: SessionDep
 ):
@@ -79,7 +99,7 @@ def create_user_quest(
 
 @users_router.patch("/me/quests/{quest_id}", response_model=UserQuestPublic)
 def update_user_quest(
-    user: Annotated[User, Depends(get_current_active_user)],
+    user: Annotated[User, Depends(get_current_user)],
     quest_id: int,
     session: SessionDep
 ):
