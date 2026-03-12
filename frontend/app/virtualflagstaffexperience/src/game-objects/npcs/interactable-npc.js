@@ -10,6 +10,8 @@ import { DIRECTION, INTERACTIVE_OBJECT_TYPE } from '../../common/common';
 import { InteractiveObjectComponent } from '../../components/game-object/interactive-object-component';
 import { NPC_DIALOG } from '../../common/npc-dialog';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../../common/event-bus';
+import apiFetch from "../../../../utils/apiFetch"
+
 
 /**
     Interactive NPC class, this class exists essentially as an extention (perhaps later literally)
@@ -20,7 +22,7 @@ export class InteractiveNPC extends CharacterGameObject {
     interactionType;
     interactionComponent;
 
-    constructor(config, name) {
+    constructor(config, name, questId) {
         // create animation config for the component
         const animconfig = {
             key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true
@@ -52,6 +54,7 @@ export class InteractiveNPC extends CharacterGameObject {
         this.interactionType = config.interactionType;
         this.name = name;
         this.id = config.id;
+        this.questId = questId
 
         // add components
         this.interactionComponent = new InteractiveObjectComponent(
@@ -110,6 +113,22 @@ export class InteractiveNPC extends CharacterGameObject {
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
             this.scene.currentDialogNumber = 0;
             this.unfreeze();
+            try
+            {
+                const data = apiFetch("/users/me/quests", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({"quest_id": this.questId}),
+                });
+
+                console.log(data)
+            }
+
+            catch (e) {
+                throw e
+            }
+
         }
     }
 }
