@@ -108,21 +108,21 @@ export class Overworld extends Phaser.Scene {
             this.#interactiveSpider = new InteractiveNPC({
                 scene: this,
                 position: {x: this.scale.width/2, y: this.scale.height/2 - 100},
-                id: `MAYOR`,
-                interactionType: `DIALOG`,
-            }),
+                id: 1,
+                interactionType: "DIALOG",
+            }, "MAYOR"),
             this.#interactiveSkier = new InteractiveNPC({
                 scene: this,
                 position: {x: this.scale.width/2 + 50, y: this.scale.height/2 - 100},
-                id: "SKIER",
+                id: 2,
                 interactionType: "DIALOG",
-            }),
+            }, "SKIER"),
             this.#interactiveSnowboarder = new InteractiveNPC({
                 scene: this,
                 position: {x: this.scale.width/2 + 100, y: this.scale.height/2 - 100},
-                id: "SNOWBOARDER",
+                id: 3,
                 interactionType: "DIALOG",
-            }),
+            }, "SNOWBOARDER"),
         ], {
             runChildUpdate: true
         })
