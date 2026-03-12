@@ -51,6 +51,7 @@ export class InteractiveNPC extends CharacterGameObject {
 
         this.interactionType = config.interactionType;
         this.name = name;
+        this.id = config.id;
 
         // add components
         this.interactionComponent = new InteractiveObjectComponent(
