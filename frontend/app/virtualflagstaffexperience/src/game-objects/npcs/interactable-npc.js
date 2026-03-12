@@ -20,7 +20,7 @@ export class InteractiveNPC extends CharacterGameObject {
     interactionType;
     interactionComponent;
 
-    constructor(config) {
+    constructor(config, name) {
         // create animation config for the component
         const animconfig = {
             key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true
@@ -46,20 +46,24 @@ export class InteractiveNPC extends CharacterGameObject {
             id: `${config.id}`,
             inputComponent: new InputComponent(),
             speed: NPC_SPEED,
-            isPlayer: false,
+            isPlayer: false
         })
 
         this.interactionType = config.interactionType;
+        this.name = name;
 
         // add components
-        this.interactionComponent = new InteractiveObjectComponent(this, INTERACTIVE_OBJECT_TYPE[this.interactionType], () => {
-            // check the interaction type
-            switch (this.interactionComponent.objectType) {
-                case 'DIALOG':
-                    this.dialog();
-                    break;
+        this.interactionComponent = new InteractiveObjectComponent(
+            this, 
+            INTERACTIVE_OBJECT_TYPE[this.interactionType], () => {
+                // check the interaction type
+                switch (this.interactionComponent.objectType) {
+                    case 'DIALOG':
+                        this.dialog();
+                        break;
+                }
             }
-        });
+        );
 
         // add state machine states
         this._stateMachine.addState(new IdleState(this));
@@ -67,29 +71,44 @@ export class InteractiveNPC extends CharacterGameObject {
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
     }
 
-    dialog() {
-        // disable the user's movement keys
+    freeze()
+    {
         this.scene.controls.isFrozen = true;
+    }
 
-        // set dialog
-        // const key = `${this.name}_${this.scene.currentDialogNumber}`;
+    unfreeze()
+    {
+        this.scene.controls.isFrozen = false;
+    }
+
+    get_current_dialog()
+    {
         const dialogs = NPC_DIALOG[this.name];
         const index = this.scene.currentDialogNumber;
-        const dialog = dialogs[index];
+        return dialogs[index];
+    }
 
-        // if that dialog doesn't exist
-        if (dialog === undefined) {
+    dialog() {
+
+        const dialog = this.get_current_dialog();
+
+        if (dialog) 
+        {
+            this.freeze()
+
+            // emit dialog through the event bus
+            EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
+
+            // increment the current dialog
+            this.scene.currentDialogNumber++;
+        }
+        
+        else
+        {
             // reset the dialog counter, close dialog and unfreeze the user
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
             this.scene.currentDialogNumber = 0;
-            this.scene.controls.isFrozen = false;
-            return;
+            this.unfreeze();
         }
-
-        // emit dialog through the event bus
-        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
-
-        // increment the current dialog
-        this.scene.currentDialogNumber++;
     }
 }
