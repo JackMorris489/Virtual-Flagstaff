@@ -6,9 +6,8 @@ class UserQuestBase(SQLModel):
     pass
 
 class UserQuest(UserQuestBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
-    quest_id: int = Field(foreign_key="quest.id")
+    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    quest_id: int = Field(foreign_key="quest.id", primary_key=True)
     is_complete: bool | None
 
 class UserQuestPublic(UserQuestBase):
