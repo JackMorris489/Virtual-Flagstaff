@@ -37,26 +37,6 @@ def read_user(user: Annotated[User, Depends(get_current_user)]):
     return user
 
 
-# @users_router.patch("/{user_id}", response_model = UserPublic)
-# def update_user(
-#     background_tasks: BackgroundTasks, 
-#     user_id: int, 
-#     user: UserUpdate, 
-#     session: SessionDep
-# ):
-#     if user.survey is not None:
-#         user_db = database_service.get_model_instance_by_id(User, session, user_id)
-#         if user_db.receive_notifications:
-#             email_service.notify_client_of_new_user( 
-#                 background_tasks,
-#                 user_db.username, 
-#                 user_db.email or user_db.phone_number, 
-#                 user.survey
-#             )
-            
-#     return database_service.set_model_instance_by_id(User, session, user_id, user)
-
-
 @users_router.patch("/me", response_model = UserPublic)
 def update_user(
     background_tasks: BackgroundTasks, 
@@ -80,6 +60,11 @@ def update_user(
 @users_router.delete("/{user_id}")
 def delete_user(user_id: int, session: SessionDep):
     return database_service.delete_model_instance( User, session, user_id )
+
+
+@users_router.get("/me/quests", response_model=list[UserQuest])
+def read_user_quests(session: SessionDep):
+    return database_service.get_model_instances(UserQuest, session)
 
 
 @users_router.post("/me/quests", response_model=UserQuestPublic)
