@@ -111,9 +111,10 @@ export default function SurveyModal({
 
 
     try {
-      const res = await fetch(`${API_BASE}/users/${storedUserId}`, {
+      const res = await fetch(`${API_BASE}/users/me`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(surveyPayload),
       });
 

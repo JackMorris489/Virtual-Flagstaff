@@ -1,6 +1,6 @@
 import {API_BASE} from "./constants";
 
-export default async function apiFetch(url: string, options={} )
+export default async function apiFetch(url: string, options={})
 {
     try
     {

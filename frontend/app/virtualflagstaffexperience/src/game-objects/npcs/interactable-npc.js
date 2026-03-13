@@ -10,6 +10,8 @@ import { DIRECTION, INTERACTIVE_OBJECT_TYPE } from '../../common/common';
 import { InteractiveObjectComponent } from '../../components/game-object/interactive-object-component';
 import { NPC_DIALOG } from '../../common/npc-dialog';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../../common/event-bus';
+import apiFetch from "../../../../utils/apiFetch"
+
 
 /**
     Interactive NPC class, this class exists essentially as an extention (perhaps later literally)
@@ -20,7 +22,7 @@ export class InteractiveNPC extends CharacterGameObject {
     interactionType;
     interactionComponent;
 
-    constructor(config) {
+    constructor(config, name, questId) {
         // create animation config for the component
         const animconfig = {
             key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true
@@ -46,20 +48,26 @@ export class InteractiveNPC extends CharacterGameObject {
             id: `${config.id}`,
             inputComponent: new InputComponent(),
             speed: NPC_SPEED,
-            isPlayer: false,
+            isPlayer: false
         })
 
         this.interactionType = config.interactionType;
+        this.name = name;
+        this.id = config.id;
+        this.questId = questId
 
         // add components
-        this.interactionComponent = new InteractiveObjectComponent(this, INTERACTIVE_OBJECT_TYPE[this.interactionType], () => {
-            // check the interaction type
-            switch (this.interactionComponent.objectType) {
-                case 'DIALOG':
-                    this.dialog();
-                    break;
+        this.interactionComponent = new InteractiveObjectComponent(
+            this, 
+            INTERACTIVE_OBJECT_TYPE[this.interactionType], () => {
+                // check the interaction type
+                switch (this.interactionComponent.objectType) {
+                    case 'DIALOG':
+                        this.dialog();
+                        break;
+                }
             }
-        });
+        );
 
         // add state machine states
         this._stateMachine.addState(new IdleState(this));
@@ -67,27 +75,60 @@ export class InteractiveNPC extends CharacterGameObject {
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
     }
 
-    dialog() {
-        // disable the user's movement keys
+    freeze()
+    {
         this.scene.controls.isFrozen = true;
+    }
 
-        // set dialog
-        const key = `${this.name}_${this.scene.currentDialogNumber}`;
-        const dialog = NPC_DIALOG[key];
+    unfreeze()
+    {
+        this.scene.controls.isFrozen = false;
+    }
 
-        // if that dialog doesn't exist
-        if (dialog === undefined) {
+    get_current_dialog()
+    {
+        const dialogs = NPC_DIALOG[this.name];
+        const index = this.scene.currentDialogNumber;
+        return dialogs[index];
+    }
+
+    async dialog() {
+
+        const dialog = this.get_current_dialog();
+
+        if (dialog) 
+        {
+            this.freeze()
+
+            // emit dialog through the event bus
+            EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
+
+            // increment the current dialog
+            this.scene.currentDialogNumber++;
+        }
+        
+        else
+        {
             // reset the dialog counter, close dialog and unfreeze the user
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
-            this.scene.currentDialogNumber = 1;
-            this.scene.controls.isFrozen = false;
-            return;
+            this.scene.currentDialogNumber = 0;
+            this.unfreeze();
+            try
+            {
+                const data = await apiFetch(`/users/me/quests/${this.questId}`, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({"quest_id": this.questId}),
+                });
+
+                console.log(data)
+            }
+
+            catch (e) {
+                throw e
+            }
+
         }
-
-        // emit dialog through the event bus
-        EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
-
-        // increment the current dialog
-        this.scene.currentDialogNumber++;
     }
 }

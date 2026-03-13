@@ -1,6 +1,7 @@
 # constants.py
 
 from os import getenv
+from utils import load_json
 
 HOURLY_FLAGSTAFF_WEATHER_API_URL = getenv( "HOURLY_FLAGSTAFF_WEATHER_API_URL" )
 
@@ -14,8 +15,9 @@ MAIL_SERVER = getenv( "MAIL_SERVER" )
 MAIL_FROM_NAME = getenv( "MAIL_FROM_NAME" )
 MAIL_TO = getenv( "MAIL_TO" )
 ADMIN_EMAIL_BROADCAST_KEY = getenv( "ADMIN_EMAIL_BROADCAST_KEY", "" )
+TOKEN_KEY = getenv("TOKEN_KEY")
 
-GAMES = [
-    {"name": "snowboard."},
-    {"name": "Ski Extreme"},
-]
+DB_SEED_FOLDER_PATH = "./database/seed/"
+GAMES = load_json(DB_SEED_FOLDER_PATH + "games.json")
+NON_PLAYABLE_CHARACTERS = load_json(DB_SEED_FOLDER_PATH + "non-playable-characters.json")
+QUESTS = load_json(DB_SEED_FOLDER_PATH + "quests.json")

@@ -63,6 +63,7 @@ export default function SignUpForm({
 
             const res = await fetch(`${API_BASE}/auth/sign-up`, {
                 method: "POST",
+                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
@@ -75,11 +76,12 @@ export default function SignUpForm({
 
             // Persist user id so we can show survey right after sign up
             try {
-                setUserId(data.id);
-                const idStr = String(userId);
-                window.localStorage.setItem("vf_user_id", idStr);
-                window.localStorage.setItem("vf_survey_completed", "false");
+                // setUserId(data.id);
+                // const idStr = String(userId);
+                // window.localStorage.setItem("vf_user_id", idStr);
+                // window.localStorage.setItem("vf_survey_completed", "false");
                 // setUserId(idStr);
+                alert(data.detail)
                 setSurveyCompleted(false);
             } catch {
                 // ignore

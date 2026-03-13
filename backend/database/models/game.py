@@ -2,6 +2,17 @@
 
 from sqlmodel import Field, SQLModel
 
-class Game(SQLModel, table=True):
-    id: int|None = Field(default=None, primary_key=True)
-    name: str = Field(index=True, unique=True)
+class GameBase(SQLModel):
+    name: str = Field(unique=True, index=True)
+
+class Game(GameBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+class GamePublic(GameBase):
+    pass
+
+class GameCreate(GameBase):
+    pass
+
+class GameUpdate(GameBase):
+    pass

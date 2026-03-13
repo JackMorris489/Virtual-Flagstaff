@@ -3,8 +3,13 @@
 from sqlmodel import Session, SQLModel, create_engine, select
 from typing import Annotated
 from fastapi import Depends, HTTPException
-from constants import DATABASE_URL, GAMES
-from database.models import Game
+from constants import (
+    DATABASE_URL, 
+    GAMES, 
+    NON_PLAYABLE_CHARACTERS, 
+    QUESTS,
+)
+from database.models import Game, Npc, Quest
 
 class DatabaseService:
     def __init__( self, database_url: str = DATABASE_URL ):
@@ -26,6 +31,10 @@ class DatabaseService:
         session.refresh( model_instance )
 
 
+    def execute_query(self, session: Session, query):
+        return session.exec(query)
+
+
     def offset_query( self, query, offset: int ):
         return query.offset( offset )
     
@@ -42,18 +51,32 @@ class DatabaseService:
     def create_query( self, model_class: type[ SQLModel ], offset: int, limit: int ):
         query = select( model_class )
         return self.paginate_query( query, offset, limit )
-    
+
+
+    def get_query_result(self, session: Session, query):
+        return self.execute_query(session, query).first()
+
+
+    def get_query_results(
+        self, 
+        session: Session, 
+        query, 
+        offset: int = 0, 
+        limit: int = 25
+    ):
+        query = self.paginate_query(query, offset, limit)
+        return self.execute_query(session, query).all()
+
 
     def get_model_instances(
         self,
-        model_class: type[ SQLModel ],
+        model_class: SQLModel,
         session: Session,
         offset: int = 0,
         limit: int = 25
-    ) -> list[ SQLModel ]:
-        query = select( model_class )
-        query = self.paginate_query( query, offset, limit )
-        return session.exec( query ).all()
+    ) -> list[SQLModel]:
+        query = select(model_class)
+        return self.get_query_results(session, query, offset, limit)
     
 
     def raise_http_exception_if_none(
@@ -108,25 +131,71 @@ class DatabaseService:
         session: Session,
         model_instance_id: int
     ):
-        model_instance = session.get( model, model_instance_id )
-        self.raise_http_exception_if_none( model_instance )
-        session.delete( model_instance )
+        model_instance = session.get(model, model_instance_id)
+        self.raise_http_exception_if_none(model_instance)
+        session.delete(model_instance)
         session.commit()
         return {"detail": f"{model.__name__} with id {model_instance_id} deleted"}
 
 
-    def get_model_instance(self, session: Session, query: str):
-        return session.exec( query ).first()
+    # def get_model_instance(self, session: Session, query):
+    #     return self.get_query_result(session, query)
     
 
     def seed_games(self, games: list[dict[str, str]] = GAMES):
         with Session(self._engine) as session:
             for game in games:
                 query = select(Game).where(Game.name == game["name"])
-                existing = self.get_model_instance( session, query )
+                existing = self.get_query_result( session, query )
                 if not existing:
                     session.add(Game(**game))
             session.commit()
 
+
+    def seed_non_playable_characters(
+        self, 
+        non_playable_characters: list[dict[str, str]] = NON_PLAYABLE_CHARACTERS
+    ):
+        with Session(self._engine) as session:
+            for npc in non_playable_characters:
+                query = select(Npc).where(Npc.name == npc["name"])
+                existing = self.get_query_result(session, query)
+                if not existing:
+                    session.add(Npc(**npc))
+            session.commit()
+
+
+    def seed_quests(
+        self,
+        quests: list[dict[str, str]] = QUESTS
+    ):
+        with Session(self._engine) as session:
+            try:
+                for quest in quests:
+                    npc_query = select(Npc).where(Npc.name == quest["npc_name"])
+                    npc = self.get_query_result(session, npc_query)
+                    if not npc:
+                        raise ValueError(
+                            f"NPC '{quest['npc_name']}' referenced in 'quests.json' does not exist."
+                        )
+
+                    query = select(Quest).where(Quest.name == quest["name"])
+                    existing = self.get_query_result(session, query)
+                    if not existing:
+                        session.add(Quest(
+                            name=quest["name"],
+                            description=quest["description"],
+                            npc_id=npc.id
+                        ))
+                session.commit()
+            
+            except ValueError as e:
+                print(e)
+
+    def seed_all(self):
+        self.seed_games()
+        self.seed_non_playable_characters()
+        self.seed_quests()
+
 database_service = DatabaseService()
-SessionDep = Annotated[ Session, Depends( database_service.get_session ) ]
+SessionDep = Annotated[Session, Depends(database_service.get_session)]
