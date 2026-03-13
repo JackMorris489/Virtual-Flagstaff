@@ -1,5 +1,5 @@
 # users.py
-from fastapi import Depends
+
 from database.models import (
     User, 
     UserPublic, 
@@ -7,7 +7,9 @@ from database.models import (
     UserQuest,
     UserQuestPublic,
     UserQuestCreate,
-    UserQuestUpdate
+    UserQuestUpdate,
+    Quest,
+    QuestPublic
 )
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
@@ -56,8 +58,24 @@ def delete_user(user_id: int, session: SessionDep):
 
 
 @users_router.get("/quests", response_model=list[UserQuest])
-def read_user_quests(session: SessionDep) -> list[UserQuest]:
+def read_all_user_quests(session: SessionDep) -> list[UserQuest]:
     return database_service.get_model_instances(UserQuest, session)
+
+
+@users_router.get("/me/quests", response_model=list[QuestPublic])
+def read_user_quests(
+    user: CurrentUser,
+    session: SessionDep
+) -> list[QuestPublic]:
+    query = select(Quest) \
+    .join(UserQuest, UserQuest.quest_id == Quest.id) \
+    .where(
+        and_(
+            UserQuest.user_id == user.id,
+            UserQuest.is_complete == False
+        )
+    )
+    return database_service.get_query_results(session, query)
 
 
 @users_router.get("/me/quests/{quest_id}", response_model=UserQuestPublic)

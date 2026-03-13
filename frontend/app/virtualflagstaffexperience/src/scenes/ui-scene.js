@@ -4,6 +4,7 @@ import { ASSET_KEYS } from '../common/assets';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
 import { KeyboardComponent } from '../components/input/keyboard-component';
+import apiFetch from '../../../utils/apiFetch';
 
 export class UiScene extends Phaser.Scene {
     #hudContainer;
@@ -23,6 +24,8 @@ export class UiScene extends Phaser.Scene {
 
     #questContainer;
     #questText;
+    #questNameText;
+    #questDescriptionText;
 
     constructor() {
         super({
@@ -107,13 +110,70 @@ export class UiScene extends Phaser.Scene {
         });
     }
 
+    async createQuestUi()
+    {
+        this.#questContainer = this.add.container(320, 0, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]);
+
+        this.#questText = this.add.text(
+            14,
+            10,
+            "Active Quest:",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questNameText = this.add.text(
+            14,
+            30,
+            "Name: None",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questDescriptionText = this.add.text(
+            14,
+            50,
+            "Description: None",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questContainer.add([
+            this.#questText,
+            this.#questNameText,
+            this.#questDescriptionText
+        ]);
+
+        try {
+            const quests = await apiFetch("/users/me/quests", {
+                method: "GET",
+                credentials: "include",
+                headers: {"Content-Type": "application/json"},
+            });
+
+            if (quests.length > 0) {
+                const quest = quests[0];
+
+                this.#questNameText.setText(`Name: ${quest.name}`);
+                this.#questDescriptionText.setText(
+                    `Description: ${quest.description}`
+                );
+            }
+
+        } catch (err) {
+            console.error(err);
+        }
+
+        this.#questContainer.setVisible(true);
+    }
+
     create() {
-        this.createDialogUi()
-        this.createWeatherUi()
-        this.setupEventListeners()
-        this.setupInput()
-        this.setupSceneReferences()
-        this.loadWeather()
+        this.createDialogUi();
+        this.createWeatherUi();
+        this.createQuestUi();
+        this.setupEventListeners();
+        this.setupInput();
+        this.setupSceneReferences();
+        this.loadWeather();
         this.createPauseMenu();
     }
 
