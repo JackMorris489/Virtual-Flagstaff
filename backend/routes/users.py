@@ -72,10 +72,10 @@ def read_user_quest(
     )
     existing = database_service.get_query_result(session, query)
 
-    if existing:
-        return existing
+    if not existing:
+        raise HTTPException(404, "Quest not assigned")
     
-    raise HTTPException(404, "Quest not assigned")
+    return existing
 
 
 @users_router.post("/me/quests/{quest_id}", response_model=UserQuestPublic)
