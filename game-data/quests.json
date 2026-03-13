@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1, 
+        "name": "Go Snowboard!",
+        "description": "Go tryout the snowboard mini-game!",
+        "npc_name": "Snowboarder"
+    },
+    {
+        "id": 2, 
+        "name": "Go Ski!",
+        "description": "Go tryout the ski mini-game!",
+        "npc_name": "Skier"
+    }
+]
