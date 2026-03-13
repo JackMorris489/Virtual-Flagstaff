@@ -121,6 +121,16 @@
     ]
   },
   {
+    "path": "assets/images/objects",
+    "files": [
+      {
+        "type": "image",
+        "key": "COIN",
+        "url": "coin.png"
+      }
+    ]
+  },
+  {
     "path": "assets/images",
     "files": [
       {
