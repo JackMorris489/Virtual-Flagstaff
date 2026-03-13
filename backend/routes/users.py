@@ -20,10 +20,6 @@ from typing import Annotated
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
-# @users_router.post("", response_model = UserPublic)
-# def create_user(user: UserCreate, session: SessionDep) -> UserPublic:
-#     return database_service.create_model_instance(User, session, user)
-
 
 @users_router.get("", response_model = list[User])
 def read_users(
@@ -67,16 +63,17 @@ def read_user_quests(session: SessionDep):
     return database_service.get_model_instances(UserQuest, session)
 
 
-@users_router.post("/me/quests", response_model=UserQuestPublic)
+@users_router.post("/me/quests/{quest_id}", response_model=UserQuestPublic)
 def create_user_quest(
     user: Annotated[User, Depends(get_current_user)],
-    user_quest: UserQuestCreate,
+    quest_id: int,
     session: SessionDep
 ):
-    user_quest = UserQuest(
+    print(user.id)
+    print(quest_id)
+    user_quest = UserQuestCreate(
         user_id=user.id,
-        quest_id=user_quest.quest_id,
-        is_complete=False
+        quest_id=quest_id
     )
 
     return database_service.create_model_instance(UserQuest, session, user_quest)
