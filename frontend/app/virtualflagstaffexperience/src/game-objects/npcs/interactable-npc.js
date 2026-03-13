@@ -155,7 +155,7 @@ export class InteractiveNPC extends CharacterGameObject {
             this.unfreeze();
             try
             {
-                const quest = getQuest();
+                const quest = await this.createQuest();
 
                 EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
             }
