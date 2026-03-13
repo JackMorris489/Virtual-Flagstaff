@@ -1,5 +1,9 @@
 import {API_BASE} from "./constants";
 
+interface ApiError extends Error {
+  status: number
+}
+
 export default async function apiFetch(url: string, options={})
 {
     try
@@ -8,7 +12,9 @@ export default async function apiFetch(url: string, options={})
         const data = await response.json();
         if (!response.ok)
         {
-            throw new Error(data?.detail);
+            const error = new Error(data?.detail || "Request failed") as ApiError;
+            error.status = response.status;
+            throw error
         }
 
         return data;
