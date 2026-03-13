@@ -21,14 +21,12 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @users_router.get("", response_model = list[User])
-def read_users(
-    session: SessionDep
-):
+def read_users(session: SessionDep) -> list[User]:
     return database_service.get_model_instances(User, session)
 
 
 @users_router.get("/me", response_model = UserPublic)
-def read_user(user: CurrentUser):
+def read_user(user: CurrentUser) -> UserPublic:
     return user
 
 
@@ -38,7 +36,7 @@ def update_user(
     user: CurrentUser,
     user_update: UserUpdate, 
     session: SessionDep
-):
+) -> UserPublic:
     if user_update.survey is not None:
         user_db = database_service.get_model_instance_by_id(User, session, user.id)
         if user_db.receive_notifications:
@@ -57,8 +55,8 @@ def delete_user(user_id: int, session: SessionDep):
     return database_service.delete_model_instance( User, session, user_id )
 
 
-@users_router.get("/me/quests", response_model=list[UserQuest])
-def read_user_quests(session: SessionDep):
+@users_router.get("/me/quests", response_model=list[UserQuestPublic])
+def read_user_quests(session: SessionDep) -> list[UserQuestPublic]:
     return database_service.get_model_instances(UserQuest, session)
 
 
@@ -67,7 +65,7 @@ def create_user_quest(
     user: CurrentUser,
     quest_id: int,
     session: SessionDep
-):
+) -> UserQuestPublic:
     query = select(UserQuest).where(
         UserQuest.user_id == user.id,
         UserQuest.quest_id == quest_id
@@ -92,7 +90,7 @@ def update_user_quest(
     user: CurrentUser,
     quest_id: int,
     session: SessionDep
-):
+) -> UserQuestPublic:
     query = select(UserQuest).where(
         and_(
             UserQuest.user_id == user.id,
@@ -104,6 +102,7 @@ def update_user_quest(
 
     if user_quest.is_complete:
         updated_user_quest = UserQuestUpdate(is_complete=True)
+
         returning_user_quest = database_service.set_model_instance_by_id(
             UserQuest, 
             session, 
