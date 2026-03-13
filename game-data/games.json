@@ -1,4 +1,4 @@
 [
-    {"name": "snowboard."},
-    {"name": "Ski Extreme"}
+    {"id": 1, "name": "snowboard."},
+    {"id": 2, "name": "Ski Extreme"}
 ]
