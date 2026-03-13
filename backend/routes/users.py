@@ -60,6 +60,24 @@ def read_user_quests(session: SessionDep) -> list[UserQuestPublic]:
     return database_service.get_model_instances(UserQuest, session)
 
 
+@users_router.get("/me/quests/{quest_id}", response_model=UserQuestPublic)
+def read_user_quest(
+    user: CurrentUser, 
+    quest_id: int, 
+    session: SessionDep
+) -> UserQuestPublic:
+    query = select(UserQuest).where(
+        UserQuest.user_id == user.id,
+        UserQuest.quest_id == quest_id
+    )
+    existing = database_service.get_query_result(session, query)
+
+    if existing:
+        return existing
+    
+    raise HTTPException(404, "Quest not assigned")
+
+
 @users_router.post("/me/quests/{quest_id}", response_model=UserQuestPublic)
 def create_user_quest(
     user: CurrentUser,
