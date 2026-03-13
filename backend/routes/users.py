@@ -15,7 +15,6 @@ from email_utilities import EmailService
 from sqlmodel import select, and_
 from constants import ADMIN_EMAIL_BROADCAST_KEY
 from auth.dependencies import CurrentUser
-from typing import Annotated
 
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
