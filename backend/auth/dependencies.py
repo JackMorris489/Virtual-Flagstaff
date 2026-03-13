@@ -28,3 +28,5 @@ async def get_current_user(
     query = select(User).where(User.username == token_data.username)
     user = database_service.get_query_result(session, query)
     return user
+
+CurrentUser = Annotated[User, Depends(get_current_user)]
