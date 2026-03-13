@@ -69,8 +69,15 @@ def create_user_quest(
     quest_id: int,
     session: SessionDep
 ):
-    print(user.id)
-    print(quest_id)
+    query = select(UserQuest).where(
+        UserQuest.user_id == user.id,
+        UserQuest.quest_id == quest_id
+    )
+    existing = database_service.get_query_result(session, query)
+
+    if existing:
+        return existing
+
     user_quest = UserQuestCreate(
         user_id=user.id,
         quest_id=quest_id
