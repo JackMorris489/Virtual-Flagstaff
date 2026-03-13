@@ -6,6 +6,7 @@ import { KeyboardComponent } from '../components/input/keyboard-component';
 import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 import { SkiPlayer } from '../game-objects/player/ski-player';
 import { ENABLE_LOGGING } from '../common/config';
+import apiFetch from "../../../utils/apiFetch"
 
 /**
     The Ski Mini-game scene, this scene is opened by interacting with the respective objects.
@@ -136,9 +137,38 @@ export class SkiGame extends Phaser.Scene {
         this.uiScene.showDialog("You Lost!\nPress C to play again. Or press Escape to Return to Flagstaff");
     }
 
-    #collideWithFinish() {
+    async #collideWithFinish() {
         // pause the current scene
         this.scene.pause();
+
+        let questId;
+        const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
+        // TODO: Finish server calls to update user quest completion status
+        if (playerModel === "SKIIER")
+        {
+            questId = 2;
+        }
+
+        else if (playerModel === "SNOWBOARDER")
+        {
+            questId = 1;
+        }
+
+        try
+        {
+            const data = await apiFetch(`/users/me/quests/${questId}`, {
+                method: "PATCH",
+                credentials: "include",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({"quest_id": questId}),
+            });
+
+            console.log(data)
+        }
+
+        catch (e) {
+            throw e
+        }
 
         // pull up UI scene for congradulations & restart or leave mini-game
         this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
