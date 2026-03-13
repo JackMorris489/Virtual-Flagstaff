@@ -156,12 +156,14 @@ export class InteractiveNPC extends CharacterGameObject {
             try
             {
                 const quest = await this.createQuest();
-
                 EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
             }
 
             catch (e) {
-                throw e
+                if (e.status === 401)
+                {
+                    console.log("Login or sign-up to receive quests!")
+                }
             }
 
         }

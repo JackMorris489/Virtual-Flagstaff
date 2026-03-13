@@ -275,7 +275,6 @@ export class SkiGame extends Phaser.Scene {
 
         let questId;
         const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
-        // TODO: Finish server calls to update user quest completion status
         if (playerModel === "SKIIER")
         {
             questId = 2;

@@ -122,6 +122,12 @@ export class UiScene extends Phaser.Scene {
         });
     }
 
+    setQuestContainerText(name, description)
+    {
+        this.#questNameText.setText(name);
+        this.#questDescriptionText.setText(description);
+    }
+
     async refreshQuestUi()
     {
         try {
@@ -130,22 +136,25 @@ export class UiScene extends Phaser.Scene {
             if (quests.length > 0) {
                 const quest = quests[0];
 
-                this.#questNameText.setText(`Name: ${quest.name}`);
-                this.#questDescriptionText.setText(
+                this.setQuestContainerText(
+                    `Name: ${quest.name}`, 
                     `Description: ${quest.description}`
                 );
             }
 
             else
             {
-                this.#questNameText.setText(`Name: None`);
-                this.#questDescriptionText.setText(
-                    `Description: None`
+                this.setQuestContainerText(
+                    "Name: None", 
+                    "Description: None"
                 );
             }
 
         } catch (err) {
-            console.error(err);
+            if (err.status === 401)
+            {
+                this.setQuestContainerText("Login/Sign-up to get quests!", "");
+            }
         }
     }
 
@@ -188,14 +197,17 @@ export class UiScene extends Phaser.Scene {
             if (quests.length > 0) {
                 const quest = quests[0];
 
-                this.#questNameText.setText(`Name: ${quest.name}`);
-                this.#questDescriptionText.setText(
+                this.setQuestContainerText(
+                    `Name: ${quest.name}`, 
                     `Description: ${quest.description}`
                 );
             }
 
         } catch (err) {
-            console.error(err);
+            if (err.status === 401)
+            {
+                this.setQuestContainerText("Login/Sign-up to get quests!", "");
+            }
         }
 
         this.#questContainer.setVisible(true);
