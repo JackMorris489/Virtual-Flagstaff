@@ -85,7 +85,16 @@ export class InteractiveNPC extends CharacterGameObject {
         this.scene.controls.isFrozen = false;
     }
 
-    async get_current_dialog()
+    async getQuest()
+    {
+        return await apiFetch(`/users/me/quests/${this.questId}`, {
+            method: "GET",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"}
+        });
+    }
+
+    async getCurrentDialog()
     {
         const dialogs = NPC_DIALOG[this.name];
         const index = this.scene.currentDialogNumber;
@@ -94,13 +103,9 @@ export class InteractiveNPC extends CharacterGameObject {
         {
             try
             {
-                const data = await apiFetch(`/users/me/quests/${this.questId}`, {
-                    method: "GET",
-                    credentials: "include",
-                    headers: {"Content-Type": "application/json"}
-                });
+                const quest = await this.getQuest();
 
-                if (data.is_complete)
+                if (quest.is_complete)
                 {
                     console.log("Use quest completion dialog")
                 }
@@ -134,7 +139,7 @@ export class InteractiveNPC extends CharacterGameObject {
 
     async dialog() {
 
-        const dialog = await this.get_current_dialog();
+        const dialog = await this.getCurrentDialog();
 
         if (dialog) 
         {
