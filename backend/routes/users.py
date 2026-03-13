@@ -14,7 +14,7 @@ from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from email_utilities import EmailService
 from sqlmodel import select, and_
 from constants import ADMIN_EMAIL_BROADCAST_KEY
-from auth.dependencies import get_current_user
+from auth.dependencies import CurrentUser
 from typing import Annotated
 
 email_service = EmailService()
@@ -29,14 +29,14 @@ def read_users(
 
 
 @users_router.get("/me", response_model = UserPublic)
-def read_user(user: Annotated[User, Depends(get_current_user)]):
+def read_user(user: CurrentUser):
     return user
 
 
 @users_router.patch("/me", response_model = UserPublic)
 def update_user(
     background_tasks: BackgroundTasks, 
-    user: Annotated[User, Depends(get_current_user)],
+    user: CurrentUser,
     user_update: UserUpdate, 
     session: SessionDep
 ):
@@ -65,7 +65,7 @@ def read_user_quests(session: SessionDep):
 
 @users_router.post("/me/quests/{quest_id}", response_model=UserQuestPublic)
 def create_user_quest(
-    user: Annotated[User, Depends(get_current_user)],
+    user: CurrentUser,
     quest_id: int,
     session: SessionDep
 ):
@@ -90,7 +90,7 @@ def create_user_quest(
 
 @users_router.patch("/me/quests/{quest_id}", response_model=UserQuestPublic)
 def update_user_quest(
-    user: Annotated[User, Depends(get_current_user)],
+    user: CurrentUser,
     quest_id: int,
     session: SessionDep
 ):
