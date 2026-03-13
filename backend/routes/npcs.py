@@ -4,6 +4,6 @@ from fastapi import APIRouter
 
 npcs_router = APIRouter(prefix="/npcs", tags=["NPCs"])
 
-@npcs_router.get("", response_model = list[NpcPublic])
-def read_games(session: SessionDep) -> list[NpcPublic]:
+@npcs_router.get("", response_model = list[Npc])
+def read_games(session: SessionDep) -> list[Npc]:
     return database_service.get_model_instances(Npc, session)
