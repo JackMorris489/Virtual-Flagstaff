@@ -76,15 +76,17 @@ def create_user_quest(
     existing = database_service.get_query_result(session, query)
 
     if existing:
-        return existing
+        returning_user_quest = existing
 
-    user_quest = UserQuestCreate(
-        user_id=user.id,
-        quest_id=quest_id
-    )
+    else:
+        user_quest = UserQuestCreate(
+            user_id=user.id,
+            quest_id=quest_id
+        )
 
-    return database_service.create_model_instance(UserQuest, session, user_quest)
+        returning_user_quest = database_service.create_model_instance(UserQuest, session, user_quest)
 
+    return returning_user_quest
 
 @users_router.patch("/me/quests/{quest_id}", response_model=UserQuestPublic)
 def update_user_quest(
@@ -100,13 +102,20 @@ def update_user_quest(
     )
     
     user_quest: UserQuest = database_service.get_query_result(session, query)
-    updated_user_quest = UserQuestUpdate(is_complete=True)
-    return database_service.set_model_instance_by_id(
-        UserQuest, 
-        session, 
-        user_quest.id, 
-        updated_user_quest
-    )
+
+    if user_quest.is_complete:
+        updated_user_quest = UserQuestUpdate(is_complete=True)
+        returning_user_quest = database_service.set_model_instance_by_id(
+            UserQuest, 
+            session, 
+            user_quest.id, 
+            updated_user_quest
+        )
+    
+    else:
+        returning_user_quest = user_quest
+
+    return returning_user_quest
 
 
 @users_router.post("/notifications/broadcast")
