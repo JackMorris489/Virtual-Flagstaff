@@ -7,6 +7,8 @@ class NpcBase(SQLModel):
 
 class Npc(NpcBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    x_pos: int
+    y_pos: int
 
 class NpcPublic(NpcBase):
     pass
