@@ -92,7 +92,7 @@ export class InteractiveNPC extends CharacterGameObject {
         return dialogs[index];
     }
 
-    dialog() {
+    async dialog() {
 
         const dialog = this.get_current_dialog();
 
@@ -115,7 +115,7 @@ export class InteractiveNPC extends CharacterGameObject {
             this.unfreeze();
             try
             {
-                const data = apiFetch("/users/me/quests", {
+                const data = await apiFetch(`/users/me/quests/${this.questId}`, {
                     method: "POST",
                     credentials: "include",
                     headers: {"Content-Type": "application/json"},
