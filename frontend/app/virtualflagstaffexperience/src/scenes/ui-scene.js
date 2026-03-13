@@ -21,13 +21,17 @@ export class UiScene extends Phaser.Scene {
     #enterKey;
     #escKey;
 
+    #questContainer;
+    #questText;
+
     constructor() {
         super({
             key: SCENE_KEYS.UI_SCENE,
         });
     }
 
-    create() {
+    createDialogUi()
+    {
         this.dialogBackground = this.add.image(0, 0, ASSET_KEYS.UI_DIALOG).setOrigin(0);
 
         this.#dialogueContainer = this.add.container(32, 142, [
@@ -42,7 +46,10 @@ export class UiScene extends Phaser.Scene {
 
         this.#dialogueContainer.add(this.#dialogueContainerText);
         this.#dialogueContainer.setVisible(false);
+    }
 
+    createWeatherUi()
+    {
         this.#weatherContainer = this.add.container(0, 0, [
             this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
         ]);
@@ -50,7 +57,10 @@ export class UiScene extends Phaser.Scene {
 
         this.#weatherContainer.add(this.#weatherContainerText);
         this.#weatherContainer.setVisible(true);
+    }
 
+    setupEventListeners()
+    {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
 
@@ -58,14 +68,23 @@ export class UiScene extends Phaser.Scene {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
         });
+    }
 
+    setupInput()
+    {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.#enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.#escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    }
 
+    setupSceneReferences()
+    {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
+    }
 
+    loadWeather()
+    {
         this.getWeatherData().then((result) => {
             this.weather = result;
             console.log(this.weather);
@@ -86,7 +105,15 @@ export class UiScene extends Phaser.Scene {
         }).catch((error) => {
             console.error(error);
         });
+    }
 
+    create() {
+        this.createDialogUi()
+        this.createWeatherUi()
+        this.setupEventListeners()
+        this.setupInput()
+        this.setupSceneReferences()
+        this.loadWeather()
         this.createPauseMenu();
     }
 
