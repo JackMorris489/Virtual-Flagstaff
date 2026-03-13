@@ -51,7 +51,34 @@ export class UiScene extends Phaser.Scene {
         this.#dialogueContainer.setVisible(false);
     }
 
-    createWeatherUi()
+
+    handleOverlaySelection(forecast)
+    {
+        const lowerCasedForecast = forecast.toLowerCase();
+
+        if (lowerCasedForecast.includes('sun')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0xFFFF00;
+        } 
+        
+        else if (lowerCasedForecast.includes('cloud')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0x808080;
+        } 
+        
+        else if (lowerCasedForecast.includes('snow')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0xFFFFFF;
+        } 
+        
+        else if (lowerCasedForecast.includes('rain')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0x0000FF;
+        }
+    }
+
+
+    async createWeatherUi()
     {
         this.#weatherContainer = this.add.container(0, 0, [
             this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
@@ -60,6 +87,22 @@ export class UiScene extends Phaser.Scene {
 
         this.#weatherContainer.add(this.#weatherContainerText);
         this.#weatherContainer.setVisible(true);
+
+        try
+        {
+            const {shortForecast, temperature, temperatureUnit} = await this.getWeather();
+
+            this.#weatherContainerText.setText(
+                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
+            );
+
+            this.handleOverlaySelection(shortForecast)
+        }
+
+        catch (err)
+        {
+            this.#weatherContainerText.setText("Weather unavailable");
+        }
     }
 
     setupEventListeners()
@@ -87,30 +130,6 @@ export class UiScene extends Phaser.Scene {
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
-    }
-
-    loadWeather()
-    {
-        this.getWeatherData().then((result) => {
-            this.weather = result;
-            console.log(this.weather);
-
-            const lowerCasedWeather = this.weather.toLowerCase();
-
-            if (lowerCasedWeather.includes('sun')) {
-                this.worldscene.overlayImage.fillColor = 0xFFFF00;
-            } else if (lowerCasedWeather.includes('cloud')) {
-                this.worldscene.overlayImage.fillColor = 0x808080;
-            } else if (lowerCasedWeather.includes('snow')) {
-                this.worldscene.overlayImage.fillColor = 0xFFFFFF;
-            } else if (lowerCasedWeather.includes('rain')) {
-                this.worldscene.overlayImage.fillColor = 0x0000FF;
-            }
-
-            console.log(this.worldscene.overlayImage.fillColor.toString(16));
-        }).catch((error) => {
-            console.error(error);
-        });
     }
 
     async getUserQuests()
@@ -220,7 +239,6 @@ export class UiScene extends Phaser.Scene {
         this.setupEventListeners();
         this.setupInput();
         this.setupSceneReferences();
-        this.loadWeather();
         this.createPauseMenu();
     }
 
@@ -443,36 +461,27 @@ export class UiScene extends Phaser.Scene {
         }
     }
 
-    async getWeatherData() {
-        const url = 'http://localhost:8000/weather';
+    async getWeather() {
+        return await apiFetch("/weather", {
+            method: "GET",
+            headers: {"Content-Type": "application/json"},
+        });
 
-        try {
-            this.#weatherContainerText.setText('Loading Weather...');
+        //     const {
+        //         shortForecast,
+        //         temperature,
+        //         temperatureUnit,
+        //     } = weather;
 
-            const response = await fetch(url);
+        //     this.#weatherContainerText.setText(
+        //         `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
+        //     );
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
-            }
-
-            const weather = await response.json();
-
-            const {
-                shortForecast,
-                temperature,
-                temperatureUnit,
-            } = weather;
-
-            this.#weatherContainerText.setText(
-                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
-            );
-
-            return shortForecast;
-        }
-        catch (error) {
-            console.error('Fetch problem:', error);
-            this.#weatherContainerText.setText('Weather unavailable');
-        }
+        //     return shortForecast;
+        // }
+        // catch (error) {
+        //     this.#weatherContainerText.setText('Weather unavailable');
+        // }
     }
 
     showDialog(message) {
