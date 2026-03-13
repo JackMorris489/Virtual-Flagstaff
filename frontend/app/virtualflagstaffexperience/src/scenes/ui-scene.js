@@ -466,22 +466,6 @@ export class UiScene extends Phaser.Scene {
             method: "GET",
             headers: {"Content-Type": "application/json"},
         });
-
-        //     const {
-        //         shortForecast,
-        //         temperature,
-        //         temperatureUnit,
-        //     } = weather;
-
-        //     this.#weatherContainerText.setText(
-        //         `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
-        //     );
-
-        //     return shortForecast;
-        // }
-        // catch (error) {
-        //     this.#weatherContainerText.setText('Weather unavailable');
-        // }
     }
 
     showDialog(message) {
