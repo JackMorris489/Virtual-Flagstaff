@@ -291,7 +291,6 @@ export class SkiGame extends Phaser.Scene {
                 method: "PATCH",
                 credentials: "include",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({"quest_id": questId}),
             });
 
             console.log(data)
