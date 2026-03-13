@@ -123,6 +123,15 @@ export class InteractiveNPC extends CharacterGameObject {
         return dialogs[index];
     }
 
+    async getQuest()
+    {
+        return await apiFetch(`/users/me/quests/${this.questId}`, {
+            method: "POST",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+        });
+    }
+
     async dialog() {
 
         const dialog = await this.get_current_dialog();
@@ -146,13 +155,9 @@ export class InteractiveNPC extends CharacterGameObject {
             this.unfreeze();
             try
             {
-                const data = await apiFetch(`/users/me/quests/${this.questId}`, {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {"Content-Type": "application/json"},
-                });
+                const quest = getQuest();
 
-                console.log(data)
+                EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
             }
 
             catch (e) {

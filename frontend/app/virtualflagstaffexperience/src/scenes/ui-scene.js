@@ -66,10 +66,13 @@ export class UiScene extends Phaser.Scene {
     {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
+        EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+        // EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_WEATHER, this.refreshWeatherUi, this);
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
+            EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
         });
     }
 
@@ -110,6 +113,42 @@ export class UiScene extends Phaser.Scene {
         });
     }
 
+    async getUserQuests()
+    {
+        return await apiFetch("/users/me/quests", {
+            method: "GET",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+        });
+    }
+
+    async refreshQuestUi()
+    {
+        try {
+            const quests = await this.getUserQuests();
+
+            if (quests.length > 0) {
+                const quest = quests[0];
+
+                this.#questNameText.setText(`Name: ${quest.name}`);
+                this.#questDescriptionText.setText(
+                    `Description: ${quest.description}`
+                );
+            }
+
+            else
+            {
+                this.#questNameText.setText(`Name: None`);
+                this.#questDescriptionText.setText(
+                    `Description: None`
+                );
+            }
+
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     async createQuestUi()
     {
         this.#questContainer = this.add.container(320, 0, [
@@ -144,11 +183,7 @@ export class UiScene extends Phaser.Scene {
         ]);
 
         try {
-            const quests = await apiFetch("/users/me/quests", {
-                method: "GET",
-                credentials: "include",
-                headers: {"Content-Type": "application/json"},
-            });
+            const quests = await this.getUserQuests();
 
             if (quests.length > 0) {
                 const quest = quests[0];

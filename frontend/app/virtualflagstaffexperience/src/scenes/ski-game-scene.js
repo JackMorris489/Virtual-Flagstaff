@@ -6,6 +6,7 @@ import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 import { SkiPlayer } from '../game-objects/player/ski-player';
 import { ENABLE_LOGGING } from '../common/config';
 import apiFetch from "../../../utils/apiFetch"
+import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 
 /**
     The Ski Mini-game scene, this scene is opened by interacting with the respective objects.
@@ -294,6 +295,7 @@ export class SkiGame extends Phaser.Scene {
             });
 
             console.log(data)
+            EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
         }
 
         catch (e) {
