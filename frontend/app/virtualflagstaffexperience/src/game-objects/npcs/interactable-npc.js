@@ -123,7 +123,7 @@ export class InteractiveNPC extends CharacterGameObject {
         return dialogs[index];
     }
 
-    async getQuest()
+    async createQuest()
     {
         return await apiFetch(`/users/me/quests/${this.questId}`, {
             method: "POST",
