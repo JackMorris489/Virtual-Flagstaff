@@ -55,8 +55,8 @@ def delete_user(user_id: int, session: SessionDep):
     return database_service.delete_model_instance( User, session, user_id )
 
 
-@users_router.get("/me/quests", response_model=list[UserQuestPublic])
-def read_user_quests(session: SessionDep) -> list[UserQuestPublic]:
+@users_router.get("/quests", response_model=list[UserQuest])
+def read_user_quests(session: SessionDep) -> list[UserQuest]:
     return database_service.get_model_instances(UserQuest, session)
 
 
@@ -118,7 +118,7 @@ def update_user_quest(
     
     user_quest: UserQuest = database_service.get_query_result(session, query)
 
-    if user_quest.is_complete:
+    if not user_quest.is_complete:
         updated_user_quest = UserQuestUpdate(is_complete=True)
 
         returning_user_quest = database_service.set_model_instance_by_id(
