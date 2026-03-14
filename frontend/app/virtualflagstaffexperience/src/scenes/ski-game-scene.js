@@ -292,7 +292,6 @@ export class SkiGame extends GameScene {
             const data = await apiFetch(`/users/me/quests/${questId}`, {
                 method: "PATCH",
                 credentials: "include",
-                headers: {"Content-Type": "application/json"},
             });
 
             console.log(data)
@@ -300,7 +299,7 @@ export class SkiGame extends GameScene {
         }
 
         catch (e) {
-            throw e
+            console.error(e)
         }
 
         this.uiScene.showDialog(this.buildEndDialogText('CONGRATS! YOU WIN!!'));
