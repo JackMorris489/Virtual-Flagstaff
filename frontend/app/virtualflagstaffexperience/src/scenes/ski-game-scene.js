@@ -277,6 +277,9 @@ export class SkiGame extends GameScene {
 
         let questId;
         const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
+
+
+        // TODO: Refactor this section of conditionals
         if (playerModel === "SKIIER")
         {
             questId = 2;
@@ -286,6 +289,7 @@ export class SkiGame extends GameScene {
         {
             questId = 1;
         }
+        ///////////////////////////////////////////////
 
         try
         {
