@@ -113,7 +113,7 @@ export class Overworld extends Phaser.Scene {
             const npcQuests = await apiFetch(`/npcs/${npc.id}/quests`);
             console.log(npcQuests);
 
-            const questId = npcQuests.length > 0 ? npcQuests[0].id : null;
+            const questId = npcQuests.id;
 
             const npcObject = new InteractiveNPC(
                 {
