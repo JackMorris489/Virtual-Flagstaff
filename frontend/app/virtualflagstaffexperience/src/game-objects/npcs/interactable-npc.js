@@ -18,12 +18,10 @@ import apiFetch from "../../../../utils/apiFetch"
     of the base NPC class. This one has additional code to allow it to be interacted with.
 **/ 
 // TODO: OVERHAUL AND MAKE IT EXTEND THE BASE NPC CLASS
-export class InteractiveNPC extends CharacterGameObject {
-    interactionType;
-    interactionComponent;
-
-    constructor(config, name, questId) {
-        // create animation config for the component
+export class NPC extends CharacterGameObject
+{
+    constructor(config)
+    {
         const animconfig = {
             key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true
         }
@@ -50,6 +48,52 @@ export class InteractiveNPC extends CharacterGameObject {
             speed: NPC_SPEED,
             isPlayer: false
         })
+    }
+
+    freeze()
+    {
+        this.scene.controls.isFrozen = true;
+    }
+
+    unfreeze()
+    {
+        this.scene.controls.isFrozen = false;
+    }
+
+    getCurrentDialog()
+    {
+        const dialogs = NPC_DIALOG[this.name];
+        const index = this.scene.currentDialogNumber;
+        return dialogs[index];
+    }
+
+    dialog() {
+        const dialog = this.getCurrentDialog();
+
+        if (dialog)
+        {
+            this.freeze()
+            EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
+            this.scene.currentDialogNumber++;
+        }
+        
+        else
+        {
+            // reset the dialog counter, close dialog and unfreeze the user
+            EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
+            this.scene.currentDialogNumber = 0;
+            this.unfreeze();
+
+        }
+    }
+}
+
+export class InteractiveNPC extends NPC {
+    interactionType;
+    interactionComponent;
+
+    constructor(config, name, questId) {
+        super(config)
 
         this.interactionType = config.interactionType;
         this.name = name;
@@ -75,22 +119,11 @@ export class InteractiveNPC extends CharacterGameObject {
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
     }
 
-    freeze()
-    {
-        this.scene.controls.isFrozen = true;
-    }
-
-    unfreeze()
-    {
-        this.scene.controls.isFrozen = false;
-    }
-
     async getQuest()
     {
         return await apiFetch(`/users/me/quests/${this.questId}`, {
-            method: "GET",
             credentials: "include",
-            headers: {"Content-Type": "application/json"}
+            // headers: {"Content-Type": "application/json"}
         });
     }
 
@@ -133,7 +166,7 @@ export class InteractiveNPC extends CharacterGameObject {
         return await apiFetch(`/users/me/quests/${this.questId}`, {
             method: "POST",
             credentials: "include",
-            headers: {"Content-Type": "application/json"},
+            // headers: {"Content-Type": "application/json"},
         });
     }
 
