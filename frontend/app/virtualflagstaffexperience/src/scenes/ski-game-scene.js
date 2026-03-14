@@ -7,13 +7,14 @@ import { SkiPlayer } from '../game-objects/player/ski-player';
 import { ENABLE_LOGGING } from '../common/config';
 import apiFetch from "../../../utils/apiFetch"
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
+import { GameScene } from './game-scene';
 
 /**
     The Ski Mini-game scene, this scene is opened by interacting with the respective objects.
     This scene stores the player, map, and obstacle data and handles collisions between the
     player and obstacles and between the player and the finish line.
 **/
-export class SkiGame extends Phaser.Scene {
+export class SkiGame extends GameScene {
     #controls;
     player;
     #collisionLayer;
@@ -30,7 +31,8 @@ export class SkiGame extends Phaser.Scene {
 
     constructor() {
         super({
-            key: SCENE_KEYS.SKI_GAME,
+            sceneKey: SCENE_KEYS.SKI_GAME,
+            gameKey: "SKI_GAME"
         });
     }
 
