@@ -35,10 +35,7 @@ export class GameScene extends Phaser.Scene {
         
         catch (err)
         {
-            if (err.status === 401)
-            {
-                console.log("Login/Sign-up to save scores!")
-            }
+            console.error(err)
         }
     }
 }
