@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Skier", 
+        "x_pos": 50,
+        "y_pos": -100
+    },
+    {
+        "name": "Snowboarder", 
+        "x_pos": 100,
+        "y_pos": -100
+    }
+]

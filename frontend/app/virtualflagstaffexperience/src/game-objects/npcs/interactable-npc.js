@@ -18,12 +18,10 @@ import apiFetch from "../../../../utils/apiFetch"
     of the base NPC class. This one has additional code to allow it to be interacted with.
 **/ 
 // TODO: OVERHAUL AND MAKE IT EXTEND THE BASE NPC CLASS
-export class InteractiveNPC extends CharacterGameObject {
-    interactionType;
-    interactionComponent;
-
-    constructor(config, name, questId) {
-        // create animation config for the component
+export class NPC extends CharacterGameObject
+{
+    constructor(config)
+    {
         const animconfig = {
             key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true
         }
@@ -50,6 +48,52 @@ export class InteractiveNPC extends CharacterGameObject {
             speed: NPC_SPEED,
             isPlayer: false
         })
+    }
+
+    freeze()
+    {
+        this.scene.controls.isFrozen = true;
+    }
+
+    unfreeze()
+    {
+        this.scene.controls.isFrozen = false;
+    }
+
+    getCurrentDialog()
+    {
+        const dialogs = NPC_DIALOG[this.name];
+        const index = this.scene.currentDialogNumber;
+        return dialogs[index];
+    }
+
+    dialog() {
+        const dialog = this.getCurrentDialog();
+
+        if (dialog)
+        {
+            this.freeze()
+            EVENT_BUS.emit(CUSTOM_EVENTS.SHOW_DIALOG, dialog);
+            this.scene.currentDialogNumber++;
+        }
+        
+        else
+        {
+            // reset the dialog counter, close dialog and unfreeze the user
+            EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
+            this.scene.currentDialogNumber = 0;
+            this.unfreeze();
+
+        }
+    }
+}
+
+export class InteractiveNPC extends NPC {
+    interactionType;
+    interactionComponent;
+
+    constructor(config, name, questId) {
+        super(config)
 
         this.interactionType = config.interactionType;
         this.name = name;
@@ -75,26 +119,60 @@ export class InteractiveNPC extends CharacterGameObject {
         this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
     }
 
-    freeze()
+    async getQuest()
     {
-        this.scene.controls.isFrozen = true;
+        return await apiFetch(`/users/me/quests/${this.questId}`, {
+            credentials: "include",
+            // headers: {"Content-Type": "application/json"}
+        });
     }
 
-    unfreeze()
-    {
-        this.scene.controls.isFrozen = false;
-    }
-
-    get_current_dialog()
+    async getCurrentDialog()
     {
         const dialogs = NPC_DIALOG[this.name];
         const index = this.scene.currentDialogNumber;
+
+        if (index === 0)
+        {
+            try
+            {
+                const quest = await this.getQuest();
+
+                if (quest.is_complete)
+                {
+                    console.log("Use quest completion dialog")
+                }
+
+                else
+                {
+                    console.log("Use quest in progress dialog")
+                }
+            }
+
+            catch (e) {
+                console.error(e)
+                if (e.status === 404)
+                {
+                    console.log("Use quest assigning dialog")
+                }
+            }
+        }
+
         return dialogs[index];
+    }
+
+    async createQuest()
+    {
+        return await apiFetch(`/users/me/quests/${this.questId}`, {
+            method: "POST",
+            credentials: "include",
+            // headers: {"Content-Type": "application/json"},
+        });
     }
 
     async dialog() {
 
-        const dialog = this.get_current_dialog();
+        const dialog = await this.getCurrentDialog();
 
         if (dialog) 
         {
@@ -115,18 +193,15 @@ export class InteractiveNPC extends CharacterGameObject {
             this.unfreeze();
             try
             {
-                const data = await apiFetch(`/users/me/quests/${this.questId}`, {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({"quest_id": this.questId}),
-                });
-
-                console.log(data)
+                const quest = await this.createQuest();
+                EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
             }
 
             catch (e) {
-                throw e
+                if (e.status === 401)
+                {
+                    console.log("Login or sign-up to receive quests!")
+                }
             }
 
         }

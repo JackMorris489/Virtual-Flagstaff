@@ -1,9 +1,16 @@
-from database.models import Npc, NpcPublic
+from database.models import Npc, NpcPublic, Quest
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter
+from sqlmodel import select
 
 npcs_router = APIRouter(prefix="/npcs", tags=["NPCs"])
 
-@npcs_router.get("", response_model = list[NpcPublic])
-def read_games(session: SessionDep) -> list[NpcPublic]:
+@npcs_router.get("", response_model = list[Npc])
+def read_npcs(session: SessionDep) -> list[Npc]:
     return database_service.get_model_instances(Npc, session)
+
+
+@npcs_router.get("/{npc_id}/quests", response_model=Quest)
+def read_npc_quest(npc_id: int, session: SessionDep) -> Quest:
+    query = select(Quest).where(Quest.npc_id == npc_id)
+    return database_service.get_query_result(session, query)

@@ -6,6 +6,7 @@ import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 import { SkiPlayer } from '../game-objects/player/ski-player';
 import { ENABLE_LOGGING } from '../common/config';
 import apiFetch from "../../../utils/apiFetch"
+import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 
 /**
     The Ski Mini-game scene, this scene is opened by interacting with the respective objects.
@@ -274,7 +275,6 @@ export class SkiGame extends Phaser.Scene {
 
         let questId;
         const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
-        // TODO: Finish server calls to update user quest completion status
         if (playerModel === "SKIIER")
         {
             questId = 2;
@@ -291,10 +291,10 @@ export class SkiGame extends Phaser.Scene {
                 method: "PATCH",
                 credentials: "include",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({"quest_id": questId}),
             });
 
             console.log(data)
+            EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
         }
 
         catch (e) {

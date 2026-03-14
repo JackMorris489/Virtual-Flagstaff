@@ -4,6 +4,6 @@ from fastapi import APIRouter
 
 quests_router = APIRouter(prefix="/quests", tags=["Quests"])
 
-@quests_router.get("", response_model = list[QuestPublic])
-def read_games(session: SessionDep) -> list[QuestPublic]:
+@quests_router.get("", response_model = list[Quest])
+def read_games(session: SessionDep) -> list[Quest]:
     return database_service.get_model_instances(Quest, session)

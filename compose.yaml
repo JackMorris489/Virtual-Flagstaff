@@ -10,6 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/code
+      - ./game-data:/code/game-data
   frontend:
     build:
       context: ./frontend
@@ -19,6 +20,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
+      - ./game-data:/app/game-data
   database:
     container_name: postgres-database
     image: postgres:16

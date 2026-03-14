@@ -23,14 +23,6 @@ async def lifespan(app: FastAPI):
     
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(users_router)
-app.include_router(game_sessions_router)
-app.include_router(auth_router)
-app.include_router(weather_router)
-app.include_router(games_router)
-app.include_router(npcs_router)
-app.include_router(quests_router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -38,6 +30,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(users_router)
+app.include_router(game_sessions_router)
+app.include_router(auth_router)
+app.include_router(weather_router)
+app.include_router(games_router)
+app.include_router(npcs_router)
+app.include_router(quests_router)
 
 @app.get("/", include_in_schema = False)
 def read_root() -> RedirectResponse:

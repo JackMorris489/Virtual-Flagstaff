@@ -4,6 +4,7 @@ import { ASSET_KEYS } from '../common/assets';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
 import { KeyboardComponent } from '../components/input/keyboard-component';
+import apiFetch from '../../../utils/apiFetch';
 
 export class UiScene extends Phaser.Scene {
     #hudContainer;
@@ -21,13 +22,19 @@ export class UiScene extends Phaser.Scene {
     #enterKey;
     #escKey;
 
+    #questContainer;
+    #questText;
+    #questNameText;
+    #questDescriptionText;
+
     constructor() {
         super({
             key: SCENE_KEYS.UI_SCENE,
         });
     }
 
-    create() {
+    createDialogUi()
+    {
         this.dialogBackground = this.add.image(0, 0, ASSET_KEYS.UI_DIALOG).setOrigin(0);
 
         this.#dialogueContainer = this.add.container(32, 142, [
@@ -42,7 +49,37 @@ export class UiScene extends Phaser.Scene {
 
         this.#dialogueContainer.add(this.#dialogueContainerText);
         this.#dialogueContainer.setVisible(false);
+    }
 
+
+    handleOverlaySelection(forecast)
+    {
+        const lowerCasedForecast = forecast.toLowerCase();
+
+        if (lowerCasedForecast.includes('sun')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0xFFFF00;
+        } 
+        
+        else if (lowerCasedForecast.includes('cloud')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0x808080;
+        } 
+        
+        else if (lowerCasedForecast.includes('snow')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0xFFFFFF;
+        } 
+        
+        else if (lowerCasedForecast.includes('rain')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0x0000FF;
+        }
+    }
+
+
+    async createWeatherUi()
+    {
         this.#weatherContainer = this.add.container(0, 0, [
             this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
         ]);
@@ -51,42 +88,157 @@ export class UiScene extends Phaser.Scene {
         this.#weatherContainer.add(this.#weatherContainerText);
         this.#weatherContainer.setVisible(true);
 
+        try
+        {
+            const {shortForecast, temperature, temperatureUnit} = await this.getWeather();
+
+            this.#weatherContainerText.setText(
+                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
+            );
+
+            this.handleOverlaySelection(shortForecast)
+        }
+
+        catch (err)
+        {
+            this.#weatherContainerText.setText("Weather unavailable");
+        }
+    }
+
+    setupEventListeners()
+    {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
+        EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+        // EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_WEATHER, this.refreshWeatherUi, this);
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
+            EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
         });
+    }
 
+    setupInput()
+    {
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.#enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.#escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    }
 
+    setupSceneReferences()
+    {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
+    }
 
-        this.getWeatherData().then((result) => {
-            this.weather = result;
-            console.log(this.weather);
+    async getUserQuests()
+    {
+        return await apiFetch("/users/me/quests", {
+            method: "GET",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+        });
+    }
 
-            const lowerCasedWeather = this.weather.toLowerCase();
+    setQuestContainerText(name, description)
+    {
+        this.#questNameText.setText(name);
+        this.#questDescriptionText.setText(description);
+    }
 
-            if (lowerCasedWeather.includes('sun')) {
-                this.worldscene.overlayImage.fillColor = 0xFFFF00;
-            } else if (lowerCasedWeather.includes('cloud')) {
-                this.worldscene.overlayImage.fillColor = 0x808080;
-            } else if (lowerCasedWeather.includes('snow')) {
-                this.worldscene.overlayImage.fillColor = 0xFFFFFF;
-            } else if (lowerCasedWeather.includes('rain')) {
-                this.worldscene.overlayImage.fillColor = 0x0000FF;
+    async refreshQuestUi()
+    {
+        try {
+            const quests = await this.getUserQuests();
+
+            if (quests.length > 0) {
+                const quest = quests[0];
+
+                this.setQuestContainerText(
+                    `Name: ${quest.name}`, 
+                    `Description: ${quest.description}`
+                );
             }
 
-            console.log(this.worldscene.overlayImage.fillColor.toString(16));
-        }).catch((error) => {
-            console.error(error);
-        });
+            else
+            {
+                this.setQuestContainerText(
+                    "Name: None", 
+                    "Description: None"
+                );
+            }
 
+        } catch (err) {
+            if (err.status === 401)
+            {
+                this.setQuestContainerText("Login/Sign-up to get quests!", "");
+            }
+        }
+    }
+
+    async createQuestUi()
+    {
+        this.#questContainer = this.add.container(320, 0, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]);
+
+        this.#questText = this.add.text(
+            14,
+            10,
+            "Active Quest:",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questNameText = this.add.text(
+            14,
+            30,
+            "Name: None",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questDescriptionText = this.add.text(
+            14,
+            50,
+            "Description: None",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questContainer.add([
+            this.#questText,
+            this.#questNameText,
+            this.#questDescriptionText
+        ]);
+
+        try {
+            const quests = await this.getUserQuests();
+
+            if (quests.length > 0) {
+                const quest = quests[0];
+
+                this.setQuestContainerText(
+                    `Name: ${quest.name}`, 
+                    `Description: ${quest.description}`
+                );
+            }
+
+        } catch (err) {
+            if (err.status === 401)
+            {
+                this.setQuestContainerText("Login/Sign-up to get quests!", "");
+            }
+        }
+
+        this.#questContainer.setVisible(true);
+    }
+
+    create() {
+        this.createDialogUi();
+        this.createWeatherUi();
+        this.createQuestUi();
+        this.setupEventListeners();
+        this.setupInput();
+        this.setupSceneReferences();
         this.createPauseMenu();
     }
 
@@ -309,36 +461,11 @@ export class UiScene extends Phaser.Scene {
         }
     }
 
-    async getWeatherData() {
-        const url = 'http://localhost:8000/weather';
-
-        try {
-            this.#weatherContainerText.setText('Loading Weather...');
-
-            const response = await fetch(url);
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
-            }
-
-            const weather = await response.json();
-
-            const {
-                shortForecast,
-                temperature,
-                temperatureUnit,
-            } = weather;
-
-            this.#weatherContainerText.setText(
-                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
-            );
-
-            return shortForecast;
-        }
-        catch (error) {
-            console.error('Fetch problem:', error);
-            this.#weatherContainerText.setText('Weather unavailable');
-        }
+    async getWeather() {
+        return await apiFetch("/weather", {
+            method: "GET",
+            headers: {"Content-Type": "application/json"},
+        });
     }
 
     showDialog(message) {
