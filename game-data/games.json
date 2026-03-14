@@ -1,3 +1,6 @@
 [
-    {"name": "Ski/Snowboard Extereme"}
+    {
+        "name": "Ski/Snowboard Extereme",
+        "game_key": "SKI_GAME"
+    }
 ]
