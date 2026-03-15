@@ -85,21 +85,13 @@ export class UiScene extends Phaser.Scene {
 
     createTutorialUi()
     {
-        // create tutorial boxes
-        this.#tutorialContainer = this.add.container(32, 300, [
-            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
-        ]);
 
-        this.#tutorialContainerText = this.add.text(14, 14, 'Welcome to Virtual Flagstaff! Press The Arrow Keys To Move!', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
-        this.#tutorialContainer.add(this.#tutorialContainerText);
-        this.#tutorialContainer.setVisible(true);
-
-        this.#interactPopup = this.add.container(32, 300, [
-            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
-        ]); 
-        this.#interactPopupText = this.add.text(14, 14, '', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
-        this.#interactPopup.add(this.#interactPopupText);
-        this.#interactPopup.setVisible(false);
+        this.showDialog(
+            'Welcome to Virtual Flagstaff!\n' +
+            'Press the arrow keys To Move!\n' +
+            'Press \'X\' to interact!\n' +
+            'Press \'Esc\' to pause!\n\n' +
+            'Move your character to exit this tutorial.')
     }
 
 
@@ -135,22 +127,13 @@ export class UiScene extends Phaser.Scene {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
-        EVENT_BUS.on('PLAYER_MOVED', () => {
-            this.#tutorialContainer.setVisible(false);
-        })
-        EVENT_BUS.on('PLAYER_INTERACTION_CLOSE', this.showInteractPopup, this);
-        EVENT_BUS.on('PLAYER_INTERACTION_GONE', this.hideInteractPopup, this);
-        // EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_WEATHER, this.refreshWeatherUi, this);
+        EVENT_BUS.on("PLAYER_MOVED", this.closeDialog, this);
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
-            EVENT_BUS.off('PLAYER_MOVED', () => {
-                this.#tutorialContainer.setVisible(false);
-            })
-            EVENT_BUS.off('PLAYER_INTERACTION_CLOSE', this.showInteractPopup, this);
-            EVENT_BUS.off('PLAYER_INTERACTION_GONE', this.hideInteractPopup, this);
+            EVENT_BUS.off("PLAYER_MOVED", this.closeDialog, this);
         });
     }
 
