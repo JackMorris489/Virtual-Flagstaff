@@ -9,6 +9,7 @@ import { MoveState } from '../../components/state-machine/states/character/move-
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component';
 import { InteractingObjectComponent } from '../../components/game-object/interacting-object-component';
 import { EVENT_BUS } from '../../common/event-bus';
+import apiFetch from '../../../../utils/apiFetch';
 
 /**
     The overworld player character. This player class handles the animations, 
@@ -16,7 +17,6 @@ import { EVENT_BUS } from '../../common/event-bus';
 **/
 export class Player extends CharacterGameObject {
     interactingObjectComponent;
-    #hasMoved = false;
     #currentNearbyObject = null;
 
     constructor(config){
@@ -110,13 +110,46 @@ export class Player extends CharacterGameObject {
         return this._stateMachine.currentState instanceof MoveState;
     }
 
-    update() 
+    completedTutorial()
+    {
+        return localStorage.getItem("playerCompletedTutorial") === "true";
+    }
+
+
+    loggedIn()
+    {
+        return localStorage.getItem("playerLoggedIn") === "true";
+    }
+
+
+    async update() 
     {
         super.update();
-        if (!this.#hasMoved && this.isMoving())
+
+        if (!this.completedTutorial() && this.isMoving())
         {
-            this.#hasMoved = true;
             EVENT_BUS.emit('PLAYER_MOVED');
+            if (this.loggedIn())
+            {
+                console.log("Player is logged in")
+                const res = await apiFetch(
+                    "/users/me",
+                    {
+                        method: "PATCH",
+                        headers: {"Content-Type": "application/json"},
+                        credentials: "include",
+                        body: JSON.stringify({completed_tutorial: true})
+                    }
+                )
+                console.log(res)
+                localStorage.setItem("playerCompletedTutorial", res.completed_tutorial.toString())
+            }
+
+            else
+            {
+                localStorage.setItem("playerCompletedTutorial", "true")
+            }
+            
         }
     }
 }
