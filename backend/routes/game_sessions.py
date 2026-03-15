@@ -28,6 +28,4 @@ def get_game_leaderboard(game_key: str, session: SessionDep) -> list[Leaderboard
     
     results = database_service.get_query_results(session, query, limit=5)
 
-    leaderboard = [LeaderboardEntry(username=r[0], score=r[1]) for r in results]
-
-    return leaderboard
+    return [LeaderboardEntry(username=r[0], score=r[1]) for r in results]
