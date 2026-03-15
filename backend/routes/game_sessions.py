@@ -1,7 +1,7 @@
 from database.models import GameSession, GameSessionPublic, User, Game
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter
-from sqlalchemy import select
+from sqlalchemy import select, func
 from pydantic import BaseModel
 
 class LeaderboardEntry(BaseModel):
@@ -18,11 +18,12 @@ def get_game_sessions(session: SessionDep) -> list[GameSessionPublic]:
 @game_sessions_router.get("/{game_key}/leaderboard")
 def get_game_leaderboard(game_key: str, session: SessionDep):
     query = (
-        select(User.username, GameSession.score)
+        select(User.username, func.max(GameSession.score).label("score"))
         .join(GameSession, GameSession.user_id == User.id)
         .join(Game, Game.id == GameSession.game_id)
         .where(Game.key == game_key)
-        .order_by(GameSession.score.desc())
+        .group_by(User.username)
+        .order_by(func.max(GameSession.score).desc())
     )
     
     results = database_service.get_query_results(session, query, limit=5)
