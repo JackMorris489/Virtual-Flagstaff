@@ -15,8 +15,8 @@ def get_game_sessions(session: SessionDep) -> list[GameSessionPublic]:
     return database_service.get_model_instances(GameSession, session)
 
 
-@game_sessions_router.get("/{game_key}/leaderboard")
-def get_game_leaderboard(game_key: str, session: SessionDep):
+@game_sessions_router.get("/{game_key}/leaderboard", response_model=list[LeaderboardEntry])
+def get_game_leaderboard(game_key: str, session: SessionDep) -> list[LeaderboardEntry]:
     query = (
         select(User.username, func.max(GameSession.score).label("score"))
         .join(GameSession, GameSession.user_id == User.id)
