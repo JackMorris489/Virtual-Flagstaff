@@ -105,13 +105,15 @@ export class Player extends CharacterGameObject {
         }
     }
 
-    update() {
-        super.update();
+    isMoving()
+    {
+        return this._stateMachine.currentState instanceof MoveState;
+    }
 
-        if (
-            !this.#hasMoved && 
-            this._stateMachine.isCurrentStateMoving('MOVE_STATE')
-        )
+    update() 
+    {
+        super.update();
+        if (!this.#hasMoved && this.isMoving())
         {
             this.#hasMoved = true;
             EVENT_BUS.emit('PLAYER_MOVED');
