@@ -35,7 +35,7 @@ export class SkiGame extends GameScene {
         });
     }
 
-    create() {
+    async create() {
         this.isStartScreen = true;
         this.hasEnded = false;
 
@@ -95,7 +95,7 @@ export class SkiGame extends GameScene {
 
         /* ========== START SCREEN ========== */
         this.scene.pause();
-        this.uiScene.showDialog(this.buildStartDialogText());
+        this.uiScene.showDialog(await this.buildStartDialogText());
     }
 
     update() {
@@ -187,18 +187,20 @@ export class SkiGame extends GameScene {
         this.scene.restart();
     }
 
-    buildStartDialogText() {
+    async buildStartDialogText() {
         return (
             'SKI MINI GAME\n\n' +
             'Collect coins for points\n' +
             'Avoid obstacles\n\n' +
             'Press Enter to start\n' +
             'Press Escape to return to Flagstaff\n\n' +
-            this.getLeaderboardText()
+            await this.getLeaderboardText()
         );
     }
 
-    getLeaderboard() {
+    async getLeaderboard() {
+        const leaderboard = await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`)
+        console.log(leaderboard)
         try {
             const raw = window.localStorage.getItem('virtual_flagstaff_ski_leaderboard');
             const parsed = raw ? JSON.parse(raw) : [];
@@ -213,9 +215,9 @@ export class SkiGame extends GameScene {
         }
     }
 
-    saveScoreToLeaderboard(score) {
+    async saveScoreToLeaderboard(score) {
         try {
-            const leaderboard = this.getLeaderboard();
+            const leaderboard = await this.getLeaderboard();
             leaderboard.push(score);
 
             const trimmed = leaderboard
@@ -232,8 +234,8 @@ export class SkiGame extends GameScene {
         }
     }
 
-    getLeaderboardText() {
-        const leaderboard = this.getLeaderboard();
+    async getLeaderboardText() {
+        const leaderboard = await this.getLeaderboard();
 
         if (leaderboard.length === 0) {
             return 'Leaderboard:\nNo scores yet';
@@ -246,32 +248,32 @@ export class SkiGame extends GameScene {
         return text.trimEnd();
     }
 
-    buildEndDialogText(titleText) {
+    async buildEndDialogText(titleText) {
         return (
             `${titleText}\n` +
             `Score: ${this.score}\n\n` +
             'Press Enter to play again\n' +
             'Press Escape to return to Flagstaff\n\n' +
-            this.getLeaderboardText()
+            await this.getLeaderboardText()
         );
     }
 
-    #collideWithObstacle() {
+    async #collideWithObstacle() {
         if (this.hasEnded) return;
 
         this.hasEnded = true;
-        this.saveScoreToLeaderboard(this.score);
+        // this.saveScoreToLeaderboard(this.score);
         this.submitGameSession()
         this.scene.pause();
 
-        this.uiScene.showDialog(this.buildEndDialogText('You Lost!'));
+        this.uiScene.showDialog(await this.buildEndDialogText('You Lost!'));
     }
 
     async #collideWithFinish() {
         if (this.hasEnded) return;
 
         this.hasEnded = true;
-        this.saveScoreToLeaderboard(this.score);
+        // this.saveScoreToLeaderboard(this.score);
         this.submitGameSession()
         this.scene.pause();
 
@@ -306,7 +308,7 @@ export class SkiGame extends GameScene {
             console.error(e)
         }
 
-        this.uiScene.showDialog(this.buildEndDialogText('CONGRATS! YOU WIN!!'));
+        this.uiScene.showDialog(await this.buildEndDialogText('CONGRATS! YOU WIN!!'));
     }
 
     #registerColliders() {
