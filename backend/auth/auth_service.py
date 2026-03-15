@@ -65,6 +65,7 @@ class AuthService:
         )
 
         user = database_service.get_query_result(session, query)
+        
         if not user or not password_hash.verify(credentials.password, user.password):
             raise exception
 
@@ -74,6 +75,7 @@ class AuthService:
             value=f"Bearer {access_token}",
             httponly=True,
             samesite="lax",
-            secure=False) # True in prod
+            secure=False # True in prod
+        ) 
 
         return {"detail": "Logged in successfully"}

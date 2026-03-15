@@ -3,7 +3,7 @@
 from sqlmodel import Field, SQLModel
 
 class GameSessionBase(SQLModel):
-    score: int = Field(default=0)
+    score: int
 
 class GameSession(GameSessionBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -14,5 +14,4 @@ class GameSessionPublic(GameSessionBase):
     game_id: int
 
 class GameSessionCreate(GameSessionBase):
-    user_id: int
-    game_id: int
+    game_key: str

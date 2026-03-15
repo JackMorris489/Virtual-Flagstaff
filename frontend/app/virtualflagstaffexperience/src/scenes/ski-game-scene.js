@@ -7,13 +7,14 @@ import { SkiPlayer } from '../game-objects/player/ski-player';
 import { ENABLE_LOGGING } from '../common/config';
 import apiFetch from "../../../utils/apiFetch"
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
+import { GameScene } from './game-scene';
 
 /**
     The Ski Mini-game scene, this scene is opened by interacting with the respective objects.
     This scene stores the player, map, and obstacle data and handles collisions between the
     player and obstacles and between the player and the finish line.
 **/
-export class SkiGame extends Phaser.Scene {
+export class SkiGame extends GameScene {
     #controls;
     player;
     #collisionLayer;
@@ -22,7 +23,6 @@ export class SkiGame extends Phaser.Scene {
     #obstacles;
     uiScene;
 
-    score = 0;
     coins;
     scoreText;
     isStartScreen = true;
@@ -30,14 +30,15 @@ export class SkiGame extends Phaser.Scene {
 
     constructor() {
         super({
-            key: SCENE_KEYS.SKI_GAME,
+            sceneKey: SCENE_KEYS.SKI_GAME,
+            gameKey: "SKI_GAME"
         });
     }
 
-    create() {
-        this.score = 0;
+    async create() {
         this.isStartScreen = true;
         this.hasEnded = false;
+        this.resetScore();
 
         /* ========== MAP ========== */
         this.add.image(-224, 0, ASSET_KEYS.SKI_GAME_BACKGROUND, 0).setOrigin(0);
@@ -95,7 +96,7 @@ export class SkiGame extends Phaser.Scene {
 
         /* ========== START SCREEN ========== */
         this.scene.pause();
-        this.uiScene.showDialog(this.buildStartDialogText());
+        this.uiScene.showDialog(await this.buildStartDialogText());
     }
 
     update() {
@@ -187,94 +188,68 @@ export class SkiGame extends Phaser.Scene {
         this.scene.restart();
     }
 
-    buildStartDialogText() {
+    async buildStartDialogText() {
         return (
             'SKI MINI GAME\n\n' +
             'Collect coins for points\n' +
             'Avoid obstacles\n\n' +
             'Press Enter to start\n' +
             'Press Escape to return to Flagstaff\n\n' +
-            this.getLeaderboardText()
+            await this.getLeaderboardText()
         );
     }
 
-    getLeaderboard() {
-        try {
-            const raw = window.localStorage.getItem('virtual_flagstaff_ski_leaderboard');
-            const parsed = raw ? JSON.parse(raw) : [];
-            if (!Array.isArray(parsed)) return [];
-            return parsed
-                .filter((value) => Number.isFinite(value))
-                .sort((a, b) => b - a)
-                .slice(0, 5);
-        } catch (error) {
-            console.error('Failed to read ski leaderboard:', error);
-            return [];
-        }
+    async getLeaderboard() {
+        return await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`)
     }
 
-    saveScoreToLeaderboard(score) {
-        try {
-            const leaderboard = this.getLeaderboard();
-            leaderboard.push(score);
-
-            const trimmed = leaderboard
-                .filter((value) => Number.isFinite(value))
-                .sort((a, b) => b - a)
-                .slice(0, 5);
-
-            window.localStorage.setItem(
-                'virtual_flagstaff_ski_leaderboard',
-                JSON.stringify(trimmed)
-            );
-        } catch (error) {
-            console.error('Failed to save ski leaderboard:', error);
-        }
-    }
-
-    getLeaderboardText() {
-        const leaderboard = this.getLeaderboard();
+    async getLeaderboardText() {
+        const leaderboard = await this.getLeaderboard();
 
         if (leaderboard.length === 0) {
             return 'Leaderboard:\nNo scores yet';
         }
 
         let text = 'Leaderboard:\n';
-        leaderboard.forEach((score, index) => {
-            text += `${index + 1}. ${score}\n`;
+        leaderboard.forEach((entry, index) => {
+            text += `${index + 1}. ${entry.username}: ${entry.score}\n`;
         });
         return text.trimEnd();
     }
 
-    buildEndDialogText(titleText) {
+    async buildEndDialogText(titleText) {
         return (
             `${titleText}\n` +
             `Score: ${this.score}\n\n` +
             'Press Enter to play again\n' +
             'Press Escape to return to Flagstaff\n\n' +
-            this.getLeaderboardText()
+            await this.getLeaderboardText()
         );
     }
 
-    #collideWithObstacle() {
+    async #collideWithObstacle() {
         if (this.hasEnded) return;
 
         this.hasEnded = true;
-        this.saveScoreToLeaderboard(this.score);
         this.scene.pause();
 
-        this.uiScene.showDialog(this.buildEndDialogText('You Lost!'));
+        await this.submitGameSession()
+
+        this.uiScene.showDialog(await this.buildEndDialogText('You Lost!'));
     }
 
     async #collideWithFinish() {
         if (this.hasEnded) return;
 
         this.hasEnded = true;
-        this.saveScoreToLeaderboard(this.score);
+        this.submitGameSession()
         this.scene.pause();
 
         let questId;
         const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
+
+
+        // TODO: Refactor this section of conditionals
         if (playerModel === "SKIIER")
         {
             questId = 2;
@@ -284,13 +259,13 @@ export class SkiGame extends Phaser.Scene {
         {
             questId = 1;
         }
+        ///////////////////////////////////////////////
 
         try
         {
             const data = await apiFetch(`/users/me/quests/${questId}`, {
                 method: "PATCH",
                 credentials: "include",
-                headers: {"Content-Type": "application/json"},
             });
 
             console.log(data)
@@ -298,10 +273,10 @@ export class SkiGame extends Phaser.Scene {
         }
 
         catch (e) {
-            throw e
+            console.error(e)
         }
 
-        this.uiScene.showDialog(this.buildEndDialogText('CONGRATS! YOU WIN!!'));
+        this.uiScene.showDialog(await this.buildEndDialogText('CONGRATS! YOU WIN!!'));
     }
 
     #registerColliders() {

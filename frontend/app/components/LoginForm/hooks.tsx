@@ -47,6 +47,7 @@ export function useLoginForm() {
         const data = await apiFetch("/auth/login", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
+            credentials: "include",
             body: JSON.stringify(payload),
         });
 

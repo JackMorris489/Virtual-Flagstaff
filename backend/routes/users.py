@@ -9,7 +9,11 @@ from database.models import (
     UserQuestCreate,
     UserQuestUpdate,
     Quest,
-    QuestPublic
+    QuestPublic,
+    GameSession,
+    GameSessionPublic,
+    GameSessionCreate,
+    Game
 )
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
@@ -150,6 +154,29 @@ def update_user_quest(
         returning_user_quest = user_quest
 
     return returning_user_quest
+
+
+@users_router.post("/me/game-sessions", response_model=GameSessionPublic)
+def create_game_session(
+    user: CurrentUser,
+    game_session_args: GameSessionCreate,
+    session: SessionDep
+) -> GameSessionPublic:
+    
+    query = select(Game).where(Game.key == game_session_args.game_key)
+    game: Game = database_service.get_query_result(session, query)
+
+    game_session = GameSession(
+        score=game_session_args.score, 
+        user_id=user.id, 
+        game_id=game.id
+    )
+
+    return database_service.create_model_instance(
+        GameSession, 
+        session, 
+        game_session
+    )
 
 
 @users_router.post("/notifications/broadcast")
