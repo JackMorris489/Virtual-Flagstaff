@@ -23,7 +23,6 @@ export class SkiGame extends GameScene {
     #obstacles;
     uiScene;
 
-    score = 0;
     coins;
     scoreText;
     isStartScreen = true;
@@ -37,7 +36,6 @@ export class SkiGame extends GameScene {
     }
 
     create() {
-        this.score = 0;
         this.isStartScreen = true;
         this.hasEnded = false;
 
@@ -263,6 +261,7 @@ export class SkiGame extends GameScene {
 
         this.hasEnded = true;
         this.saveScoreToLeaderboard(this.score);
+        this.submitGameSession()
         this.scene.pause();
 
         this.uiScene.showDialog(this.buildEndDialogText('You Lost!'));
@@ -273,6 +272,7 @@ export class SkiGame extends GameScene {
 
         this.hasEnded = true;
         this.saveScoreToLeaderboard(this.score);
+        this.submitGameSession()
         this.scene.pause();
 
         let questId;
