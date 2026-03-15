@@ -267,10 +267,20 @@ export class UiScene extends Phaser.Scene {
         this.#questContainer.setVisible(true);
     }
 
+    playerCompletedTutorial()
+    {
+        return localStorage.getItem("playerCompletedTutorial") === "true";
+    }
+
     create() {
         this.createDialogUi();
         this.createWeatherUi();
-        this.createTutorialUi();
+
+        if (!this.playerCompletedTutorial())
+        {
+            this.createTutorialUi();
+        }
+
         this.createQuestUi();
         this.setupEventListeners();
         this.setupInput();
