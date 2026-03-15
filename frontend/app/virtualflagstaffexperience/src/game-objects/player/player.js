@@ -131,7 +131,6 @@ export class Player extends CharacterGameObject {
             EVENT_BUS.emit('PLAYER_MOVED');
             if (this.loggedIn())
             {
-                console.log("Player is logged in")
                 const res = await apiFetch(
                     "/users/me",
                     {
@@ -141,7 +140,6 @@ export class Player extends CharacterGameObject {
                         body: JSON.stringify({completed_tutorial: true})
                     }
                 )
-                console.log(res)
                 localStorage.setItem("playerCompletedTutorial", res.completed_tutorial.toString())
             }
 
