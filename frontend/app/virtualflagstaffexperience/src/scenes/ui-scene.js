@@ -270,6 +270,7 @@ export class UiScene extends Phaser.Scene {
     create() {
         this.createDialogUi();
         this.createWeatherUi();
+        this.createTutorialUi();
         this.createQuestUi();
         this.setupEventListeners();
         this.setupInput();
