@@ -83,16 +83,8 @@ export class UiScene extends Phaser.Scene {
     }
 
 
-    async createWeatherUi()
+    createTutorialUi()
     {
-        this.#weatherContainer = this.add.container(0, 0, [
-            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
-        ]);
-        this.#weatherContainerText = this.add.text(14, 14, 'Loading Weather...', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
-
-        this.#weatherContainer.add(this.#weatherContainerText);
-        this.#weatherContainer.setVisible(true);
-
         // create tutorial boxes
         this.#tutorialContainer = this.add.container(32, 300, [
             this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
@@ -108,6 +100,18 @@ export class UiScene extends Phaser.Scene {
         this.#interactPopupText = this.add.text(14, 14, '', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
         this.#interactPopup.add(this.#interactPopupText);
         this.#interactPopup.setVisible(false);
+    }
+
+
+    async createWeatherUi()
+    {
+        this.#weatherContainer = this.add.container(0, 0, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]);
+        this.#weatherContainerText = this.add.text(14, 14, 'Loading Weather...', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
+
+        this.#weatherContainer.add(this.#weatherContainerText);
+        this.#weatherContainer.setVisible(true);
        
         try
         {
@@ -493,10 +497,7 @@ export class UiScene extends Phaser.Scene {
     }
 
     async getWeather() {
-        return await apiFetch("/weather", {
-            method: "GET",
-            headers: {"Content-Type": "application/json"},
-        });
+        return await apiFetch("/weather");
     }
 
     showDialog(message) {
