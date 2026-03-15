@@ -199,39 +199,7 @@ export class SkiGame extends GameScene {
     }
 
     async getLeaderboard() {
-        const leaderboard = await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`)
-        console.log(leaderboard)
-        try {
-            const raw = window.localStorage.getItem('virtual_flagstaff_ski_leaderboard');
-            const parsed = raw ? JSON.parse(raw) : [];
-            if (!Array.isArray(parsed)) return [];
-            return parsed
-                .filter((value) => Number.isFinite(value))
-                .sort((a, b) => b - a)
-                .slice(0, 5);
-        } catch (error) {
-            console.error('Failed to read ski leaderboard:', error);
-            return [];
-        }
-    }
-
-    async saveScoreToLeaderboard(score) {
-        try {
-            const leaderboard = await this.getLeaderboard();
-            leaderboard.push(score);
-
-            const trimmed = leaderboard
-                .filter((value) => Number.isFinite(value))
-                .sort((a, b) => b - a)
-                .slice(0, 5);
-
-            window.localStorage.setItem(
-                'virtual_flagstaff_ski_leaderboard',
-                JSON.stringify(trimmed)
-            );
-        } catch (error) {
-            console.error('Failed to save ski leaderboard:', error);
-        }
+        return await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`)
     }
 
     async getLeaderboardText() {
@@ -242,8 +210,8 @@ export class SkiGame extends GameScene {
         }
 
         let text = 'Leaderboard:\n';
-        leaderboard.forEach((score, index) => {
-            text += `${index + 1}. ${score}\n`;
+        leaderboard.forEach((entry, index) => {
+            text += `${index + 1}. ${entry.username}: ${entry.score}\n`;
         });
         return text.trimEnd();
     }
@@ -262,7 +230,6 @@ export class SkiGame extends GameScene {
         if (this.hasEnded) return;
 
         this.hasEnded = true;
-        // this.saveScoreToLeaderboard(this.score);
         this.submitGameSession()
         this.scene.pause();
 
@@ -273,7 +240,6 @@ export class SkiGame extends GameScene {
         if (this.hasEnded) return;
 
         this.hasEnded = true;
-        // this.saveScoreToLeaderboard(this.score);
         this.submitGameSession()
         this.scene.pause();
 
