@@ -75,10 +75,6 @@ export class StateMachine {
         }
         return this.#currentState.name === name;
     }
-    
-    isCurrentStateMoving(name) {
-        return this.#isCurrentState(name);
-    }
 
     #log(methodName, message) {
         if (ENABLE_LOGGING) {
@@ -88,5 +84,10 @@ export class StateMachine {
 
     get userId() {
         return this.#id;
+    }
+
+    get currentState()
+    {
+        return this.#currentState;
     }
 }

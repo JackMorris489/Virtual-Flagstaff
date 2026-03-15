@@ -268,7 +268,6 @@ export class SkiGame extends GameScene {
                 credentials: "include",
             });
 
-            console.log(data)
             EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
         }
 

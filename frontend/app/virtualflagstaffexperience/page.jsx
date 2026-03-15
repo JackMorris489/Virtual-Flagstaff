@@ -10,6 +10,7 @@ import { PreloadScene } from './src/scenes/preload-scene';
 import { Overworld } from './src/scenes/overworld-scene';
 import { UiScene } from './src/scenes/ui-scene';
 import { SkiGame } from './src/scenes/ski-game-scene';
+import apiFetch from '../utils/apiFetch';
 
 export default function VirtualFlagstaff() {
     const gameRef = useRef(null)
@@ -18,19 +19,43 @@ export default function VirtualFlagstaff() {
         if (typeof window === 'undefined') return
         if (gameRef.current) return // prevent double init (StrictMode)
 
-        const game = new Phaser.Game(gameConfig)
+        let game;
 
-        game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene)
-        game.scene.add(SCENE_KEYS.GAME_SCENE, Overworld)
-        game.scene.add(SCENE_KEYS.SKI_GAME, SkiGame)
-        game.scene.add(SCENE_KEYS.UI_SCENE, UiScene)
-        game.scene.start(SCENE_KEYS.PRELOAD_SCENE)
+        const startGame = async () => {
+            try {
+                const player = await apiFetch("/users/me", {credentials: "include"})
+                localStorage.setItem("playerLoggedIn", "true")
+                localStorage.setItem(
+                    "playerCompletedTutorial",
+                    player.completed_tutorial.toString()
+                )
+            } 
 
-        gameRef.current = game
+            catch 
+            {
+                localStorage.setItem("playerLoggedIn", "false")
+                localStorage.setItem("playerCompletedTutorial", "false")
+            }
+
+            game = new Phaser.Game(gameConfig)
+
+            game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene)
+            game.scene.add(SCENE_KEYS.GAME_SCENE, Overworld)
+            game.scene.add(SCENE_KEYS.SKI_GAME, SkiGame)
+            game.scene.add(SCENE_KEYS.UI_SCENE, UiScene)
+
+            game.scene.start(SCENE_KEYS.PRELOAD_SCENE)
+
+            gameRef.current = game
+        }
+
+        startGame();
 
         return () => {
-            game.destroy(true)
-            gameRef.current = null
+            if (game) {
+                game.destroy(true)
+                gameRef.current = null
+            }
         }
     }, [])
 
