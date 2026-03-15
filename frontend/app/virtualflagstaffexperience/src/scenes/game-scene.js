@@ -2,6 +2,9 @@ import * as Phaser from 'phaser';
 import apiFetch from "../../../utils/apiFetch"
 
 export class GameScene extends Phaser.Scene {
+    gameKey;
+    score;
+
     constructor(config) {
         const {sceneKey, gameKey} = config;
 
@@ -23,10 +26,11 @@ export class GameScene extends Phaser.Scene {
         {
             const game_session = await apiFetch("/users/me/game-sessions", {
                 method: "POST",
-                header: {"Content-Type": "application/json"},
+                headers: {"Content-Type": "application/json"},
+                credentials: "include",
                 body: JSON.stringify({
-                    "game_key": this.gameKey,
-                    "score": this.score
+                    game_key: this.gameKey,
+                    score: this.score
                 })
             })
 
