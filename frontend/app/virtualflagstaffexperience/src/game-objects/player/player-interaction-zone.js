@@ -1,4 +1,3 @@
-import * as Phaser from 'phaser'
 import { CharacterGameObject } from '../common/character-game-object';
 import { PLAYER_SPEED } from '../../common/config';
 import { ASSET_KEYS, PLAYER_ANIMATION_KEYS } from '../../common/assets';
