@@ -38,6 +38,7 @@ export class SkiGame extends GameScene {
     async create() {
         this.isStartScreen = true;
         this.hasEnded = false;
+        this.resetScore();
 
         /* ========== MAP ========== */
         this.add.image(-224, 0, ASSET_KEYS.SKI_GAME_BACKGROUND, 0).setOrigin(0);
@@ -230,8 +231,9 @@ export class SkiGame extends GameScene {
         if (this.hasEnded) return;
 
         this.hasEnded = true;
-        this.submitGameSession()
         this.scene.pause();
+
+        await this.submitGameSession()
 
         this.uiScene.showDialog(await this.buildEndDialogText('You Lost!'));
     }

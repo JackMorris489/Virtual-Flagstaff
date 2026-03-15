@@ -15,9 +15,14 @@ export class GameScene extends Phaser.Scene {
         this.score = 0;
     }
 
+    resetScore()
+    {
+        this.score = 0;
+    }
+
     addScore(points)
     {
-        this.score += points
+        this.score += points;
     }
 
     async submitGameSession()
