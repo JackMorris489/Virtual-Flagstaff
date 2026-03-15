@@ -38,7 +38,7 @@ export class PlayerInteractionZone extends CharacterGameObject {
     }
 
     update() {
-        super.update();
+        super.update(); 
         this.#collidingObjectsComponent.reset();
     }
 }

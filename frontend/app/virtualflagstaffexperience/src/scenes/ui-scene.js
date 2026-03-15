@@ -19,6 +19,11 @@ export class UiScene extends Phaser.Scene {
     #controls;
     #pauseContainer;
     #isPaused = false;
+    #volume = 1;
+    #tutorialContainer;
+    #tutorialContainerText;
+    #interactPopup;
+    #interactPopupText;
     #enterKey;
     #escKey;
 
@@ -88,6 +93,22 @@ export class UiScene extends Phaser.Scene {
         this.#weatherContainer.add(this.#weatherContainerText);
         this.#weatherContainer.setVisible(true);
 
+        // create tutorial boxes
+        this.#tutorialContainer = this.add.container(32, 300, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]);
+
+        this.#tutorialContainerText = this.add.text(14, 14, 'Welcome to Virtual Flagstaff! Press The Arrow Keys To Move!', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
+        this.#tutorialContainer.add(this.#tutorialContainerText);
+        this.#tutorialContainer.setVisible(true);
+
+        this.#interactPopup = this.add.container(32, 300, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]); 
+        this.#interactPopupText = this.add.text(14, 14, '', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
+        this.#interactPopup.add(this.#interactPopupText);
+        this.#interactPopup.setVisible(false);
+       
         try
         {
             const {shortForecast, temperature, temperatureUnit} = await this.getWeather();
@@ -110,12 +131,22 @@ export class UiScene extends Phaser.Scene {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+        EVENT_BUS.on('PLAYER_MOVED', () => {
+            this.#tutorialContainer.setVisible(false);
+        })
+        EVENT_BUS.on('PLAYER_INTERACTION_CLOSE', this.showInteractPopup, this);
+        EVENT_BUS.on('PLAYER_INTERACTION_GONE', this.hideInteractPopup, this);
         // EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_WEATHER, this.refreshWeatherUi, this);
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+            EVENT_BUS.off('PLAYER_MOVED', () => {
+                this.#tutorialContainer.setVisible(false);
+            })
+            EVENT_BUS.off('PLAYER_INTERACTION_CLOSE', this.showInteractPopup, this);
+            EVENT_BUS.off('PLAYER_INTERACTION_GONE', this.hideInteractPopup, this);
         });
     }
 
@@ -500,5 +531,35 @@ export class UiScene extends Phaser.Scene {
     closeDialog() {
         this.#dialogueContainerText.setText('');
         this.#dialogueContainer.setVisible(false);
+    }
+
+    showInteractPopup(type) {
+        let message = '';
+
+        switch(type)
+        {
+            // adjust to proper interact buttons
+            case INTERACTIVE_OBJECT_TYPE.PICKUP:
+                message = 'X';
+                break;
+            case INTERACTIVE_OBJECT_TYPE.OPEN:
+                message = 'Z';
+                break;
+            case INTERACTIVE_OBJECT_TYPE.DIALOG:
+                message = 'X';
+                break;
+            case INTERACTIVE_OBJECT_TYPE.MINI_GAME:
+                message = 'C';
+                break;
+            default: 
+                message = 'X';
+        }
+        this.#interactPopupText.setText(message);
+        this.#interactPopup.setVisible(true);
+    }
+
+    hideInteractPopup()
+    {
+        this.#interactPopup.setVisible(false);
     }
 }

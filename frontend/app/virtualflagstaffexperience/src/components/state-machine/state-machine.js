@@ -75,6 +75,10 @@ export class StateMachine {
         }
         return this.#currentState.name === name;
     }
+    
+    isCurrentStateMoving(name) {
+        return this.#isCurrentState(name);
+    }
 
     #log(methodName, message) {
         if (ENABLE_LOGGING) {
