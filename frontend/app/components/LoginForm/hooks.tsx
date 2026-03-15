@@ -35,10 +35,10 @@ export function useLoginForm() {
   }
 
   const login = async () => {
-    const identifier = loginForm.identifier;
+    const username = loginForm.identifier;
     const password = loginForm.password;
     const payload = { 
-        identifier, 
+        username, 
         password
     }
 
@@ -47,6 +47,7 @@ export function useLoginForm() {
         const data = await apiFetch("/auth/login", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
+            credentials: "include",
             body: JSON.stringify(payload),
         });
 

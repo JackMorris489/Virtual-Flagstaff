@@ -1,4 +1,3 @@
-import * as Phaser from 'phaser';
 import { ASSET_KEYS } from "./assets"
 
 /** 

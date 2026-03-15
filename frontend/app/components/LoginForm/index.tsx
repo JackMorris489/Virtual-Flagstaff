@@ -22,7 +22,7 @@ export default function LoginForm({
         {
             const data = await login();
             reset();
-            alert(data.detail);
+            alert(data.detail)
             setAuthOpen(false);
         }
 
