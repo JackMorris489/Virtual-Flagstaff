@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
+import { hover, motion } from "framer-motion"
 import PixelButton from "./PixelButton"
 import { API_BASE } from "../utils/constants";
 
@@ -36,8 +36,11 @@ export default function MainMenu({
         clickSfxRef.current.preload = "auto";
 
         // Adjust volume
-        hoverSfxRef.current.volume = 0.35;
-        clickSfxRef.current.volume = 0.35;
+        hoverSfxRef.current.volume = Number(localStorage.getItem("globalVolume")) ?? 0.35;
+        clickSfxRef.current.volume = Number(localStorage.getItem("globalVolume")) ?? 0.35;
+
+        console.log(hoverSfxRef.current.volume);
+        console.log(clickSfxRef.current.volume);
 
         return () => {
         hoverSfxRef.current = null;
