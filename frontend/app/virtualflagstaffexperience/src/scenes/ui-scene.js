@@ -359,24 +359,24 @@ export class UiScene extends Phaser.Scene {
             this.skiscene.scene.switch(SCENE_KEYS.GAME_SCENE);
         }
 
-        if (this.skiendlessscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
-            // unpause the ski scene (so it can sleep)
-            this.skiendlessscene.scene.resume();
+        // if (this.skiendlessscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
+        //     // unpause the ski scene (so it can sleep)
+        //     this.skiendlessscene.scene.resume();
 
-            // switch to the overworld scene
-            this.skiendlessscene.scene.switch(this.worldscene);
+        //     // switch to the overworld scene
+        //     this.skiendlessscene.scene.switch(this.worldscene);
 
-            // close dialog
-            this.closeDialog();
-        }
+        //     // close dialog
+        //     this.closeDialog();
+        // }
 
-        if (this.skiendlessscene.scene.isPaused() && this.#controls.isEnterJustDown) {
-            // restart the game
-            this.skiendlessscene.scene.restart();
+        // if (this.skiendlessscene.scene.isPaused() && this.#controls.isEnterJustDown) {
+        //     // restart the game
+        //     this.skiendlessscene.scene.restart();
 
-            // close dialog
-            this.closeDialog();
-        }
+        //     // close dialog
+        //     this.closeDialog();
+        // }
     }
 
     createPauseMenu() {
