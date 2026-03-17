@@ -2,6 +2,7 @@ import {useState} from "react"
 import isValidPhone from "../utils/isValidPhone";
 import {API_BASE} from "../utils/constants";
 import PixelButton from "./PixelButton"
+import { useSfx } from "../hooks";
 
 type SignUpFormProps = {
     userId: number | null
@@ -34,6 +35,8 @@ export default function SignUpForm({
     const [receiveNotifications, setReceiveNotifications] = useState(true);
 
     const [signupLoading, setSignupLoading] = useState(false);
+
+    const {playClickSfx, playHoverSfx} = useSfx();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -105,23 +108,35 @@ export default function SignUpForm({
               <span className="text-white/70">Use</span>
               <button
                 type="button"
-                onClick={() => setSignupMethod("email")}
+                onClick={() => {
+                  playClickSfx()
+                  setSignupMethod("email")
+                }}
                 className={`flex-1 border-[3px] px-3 py-2 ${
                   signupMethod === "email"
                     ? "border-white bg-white text-black"
                     : "border-white bg-black text-white"
                 }`}
+                onMouseEnter={playHoverSfx}
+                onPointerEnter={playHoverSfx}
+                onFocus={playHoverSfx}
               >
                 Email
               </button>
               <button
                 type="button"
-                onClick={() => setSignupMethod("phone")}
+                onClick={() => {
+                  setSignupMethod("phone");
+                  playClickSfx();
+                }}
                 className={`flex-1 border-[3px] px-3 py-2 ${
                   signupMethod === "phone"
                     ? "border-white bg-white text-black"
                     : "border-white bg-black text-white"
                 }`}
+                onMouseEnter={playHoverSfx}
+                onPointerEnter={playHoverSfx}
+                onFocus={playHoverSfx}
               >
                 Phone
               </button>
@@ -214,13 +229,23 @@ export default function SignUpForm({
             </p>
 
             <div className="mt-2 flex items-center gap-3">
-              <PixelButton type="submit" ariaLabel="Submit sign up form">
+              <PixelButton 
+                type="submit" 
+                ariaLabel="Submit sign up form"
+                onClick={playClickSfx}
+              >
                 Create Account
               </PixelButton>
               <button
                 type="button"
-                onClick={() => setAuthOpen(false)}
+                onClick={() => {
+                  playClickSfx();
+                  setAuthOpen(false)
+                }}
                 className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
+                onMouseEnter={playHoverSfx}
+                onPointerEnter={playHoverSfx}
+                onFocus={playHoverSfx}
               >
                 Cancel
               </button>
