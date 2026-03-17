@@ -39,9 +39,6 @@ export default function MainMenu({
         hoverSfxRef.current.volume = Number(localStorage.getItem("globalVolume")) ?? 0.35;
         clickSfxRef.current.volume = Number(localStorage.getItem("globalVolume")) ?? 0.35;
 
-        console.log(hoverSfxRef.current.volume);
-        console.log(clickSfxRef.current.volume);
-
         return () => {
         hoverSfxRef.current = null;
         clickSfxRef.current = null;
