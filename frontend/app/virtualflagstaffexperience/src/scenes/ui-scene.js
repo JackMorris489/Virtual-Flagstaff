@@ -39,6 +39,12 @@ export class UiScene extends Phaser.Scene {
         });
     }
 
+    init(args)
+    {
+        this.playerContainer = args.playerContainer
+    }
+
+
     preload()
     {
         this.load.audio("hoverSfx", "/sfx/menu-hover.wav")
@@ -92,7 +98,9 @@ export class UiScene extends Phaser.Scene {
 
     createTutorialUi()
     {
-        this.scene.launch(SCENE_KEYS.TUTORIAL_SCENE);
+        this.scene.launch(SCENE_KEYS.TUTORIAL_SCENE, {
+            playerContainer: this.playerContainer
+        });
     }
 
 

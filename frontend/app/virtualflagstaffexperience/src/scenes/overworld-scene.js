@@ -117,6 +117,7 @@ export class Overworld extends Phaser.Scene {
         });
         this.playerIcon = this.add.circle(this.player.x, this.player.y, 20, 0xFF0000, 1);
 
+
         /* ========== Cameras ========== */
         // lock the camera to the player
         this.cameras.main.setName('main')
@@ -225,7 +226,20 @@ export class Overworld extends Phaser.Scene {
         this.#registerCustomEvents();
 
         // register the UI Scene with this game scene
-        this.scene.launch(SCENE_KEYS.UI_SCENE);
+        this.scene.launch(
+            SCENE_KEYS.UI_SCENE,
+            {
+                playerContainer: this.#playerContainer
+            } 
+        );
+
+        this.physics.add.overlap(
+            this.#playerInteractionZone,
+            this.#interactiveNPCGroup,
+            this.handlePlayerInRangeOfNpc,
+            null,
+            this
+        )
 
 
         this.cameras.main.ignore(this.playerIcon);
@@ -234,7 +248,15 @@ export class Overworld extends Phaser.Scene {
             this.cameras.main.ignore(npcIcon)
         }
         this.cameras.main.ignore(this.interactablesIcons);
+
     };
+
+
+    handlePlayerInRangeOfNpc()
+    {
+        EVENT_BUS.emit("PLAYER_IN_RANGE_OF_NPC")
+    }
+
 
     update() {
         this.#playerContainer.moveInteractZone();
