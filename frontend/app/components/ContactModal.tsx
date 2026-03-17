@@ -1,6 +1,7 @@
 import PixelModal from "./PixelModal"
 import PixelButton from "./PixelButton"
 import { useState, useRef } from "react"
+import { useSfx } from "../hooks"
 
 type ContactModalProps = {
     contactOpen: boolean
@@ -21,11 +22,16 @@ export default function ContactModal({
     // Refs for initial focus
     const contactFirstRef = useRef<HTMLInputElement>(null);
 
+    const {playClickSfx, playHoverSfx} = useSfx();
+
     return (
         <PixelModal
             open={contactOpen}
             title="Contact Us"
-            onClose={() => setContactOpen(false)}
+            onClose={() => {
+                playClickSfx();
+                setContactOpen(false)
+            }}
         >
             <form
             onSubmit={(e) => {
@@ -103,13 +109,23 @@ export default function ContactModal({
             </label>
 
             <div className="mt-2 flex items-center gap-3">
-                <PixelButton type="submit" ariaLabel="Submit contact form">
+                <PixelButton
+                    onClick={playClickSfx}
+                    type="submit" 
+                    ariaLabel="Submit contact form"
+                >
                 Send
                 </PixelButton>
                 <button
-                type="button"
-                onClick={() => setContactOpen(false)}
-                className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
+                    type="button"
+                    onClick={() => {
+                        playClickSfx();
+                        setContactOpen(false)
+                    }}
+                    className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
+                    onMouseEnter={playHoverSfx}
+                    onPointerEnter={playHoverSfx}
+                    onFocus={playHoverSfx}
                 >
                 Cancel
                 </button>

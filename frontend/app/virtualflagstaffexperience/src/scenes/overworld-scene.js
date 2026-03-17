@@ -11,6 +11,8 @@ import { PlayerInteractionZone } from '../game-objects/player/player-interaction
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { NPC_DIALOG } from '../common/npc-dialog';
 import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
+import apiFetch from '../../../utils/apiFetch';
+
 
 /** 
     The overworld game scene, where players move across the Flagstaff map and can interact with NPCs and Objects.
@@ -27,7 +29,9 @@ export class Overworld extends Phaser.Scene {
     #interactiveNPCGroup;
     #interactiveSpider;
     mayorIcon;
-    currentDialogNumber = 1;
+    #interactiveSkier;
+    #interactiveSnowboarder;
+    currentDialogNumber = 0;
     #allCollisionLayer;
     minigameinteractables;
     snowboardInteractable
@@ -46,7 +50,7 @@ export class Overworld extends Phaser.Scene {
         });
     }
 
-    create() {
+    async create() {
         /* ========== MAP ========== */
         // TODO: ADD MIDDLEGROUND FOR DETAILED ITEMS
         // load in the tilemap data
@@ -162,7 +166,36 @@ export class Overworld extends Phaser.Scene {
         })
         */
 
+        const npcs = await apiFetch("/npcs");
+        console.log(npcs)
+
+        let npcGroup = [];
+        for (const npc of npcs) {
+
+            const npcQuests = await apiFetch(`/npcs/${npc.id}/quests`);
+            console.log(npcQuests);
+
+            const questId = npcQuests.id;
+
+            const npcObject = new InteractiveNPC(
+                {
+                    scene: this,
+                    position: {
+                        x: this.scale.width / 2 + npc.x_pos,
+                        y: this.scale.height / 2 + npc.y_pos
+                    },
+                    id: npc.id,
+                    interactionType: "DIALOG",
+                },
+                npc.name,
+                questId
+            );
+
+            npcGroup.push(npcObject);
+        }
+
         // create the interactable npc group
+      /*
         this.#interactiveNPCGroup = this.add.group([
             // create an interactable npc
             this.#interactiveSpider = new InteractiveNPC({
@@ -174,8 +207,10 @@ export class Overworld extends Phaser.Scene {
         ], {
             runChildUpdate: true
         });
-
-        // create the icon group
+        */
+      
+        this.#interactiveNPCGroup = this.add.group(npcGroup, {runChildUpdate: true})
+       // create the icon group
         this.#npcIconGroup = this.add.group([
             this.mayorIcon = this.add.circle(this.#interactiveSpider.x, this.#interactiveSpider.y, 20, 0xFFFF00, 1)
         ]);

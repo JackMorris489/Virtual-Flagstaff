@@ -1,26 +1,37 @@
 import * as Phaser from 'phaser';
 import { SCENE_KEYS } from './scene-keys';
-import { ASSET_KEYS, ASSET_PACK_KEYS } from '../common/assets';
+import { ASSET_KEYS } from '../common/assets';
 import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
 import { KeyboardComponent } from '../components/input/keyboard-component';
+import apiFetch from '../../../utils/apiFetch';
 
-/** 
-    The UI scene is where all the dialog and user interfaces are stored. This allows them
-    to be carried over between scenes. The UI scene also is where scene transition 
-    commands occur (for now). 
-**/
 export class UiScene extends Phaser.Scene {
     #hudContainer;
     #dialogueContainer;
     #dialogueContainerText;
     #weatherContainer;
     #weatherContainerText;
-    weather
+    dialogBackground;
+    weather;
     skiscene;
     skiendlessscene;
     worldscene;
     #controls;
+    #pauseContainer;
+    #isPaused = false;
+    #volume = 1;
+    #tutorialContainer;
+    #tutorialContainerText;
+    #interactPopup;
+    #interactPopupText;
+    #enterKey;
+    #escKey;
+
+    #questContainer;
+    #questText;
+    #questNameText;
+    #questDescriptionText;
 
     constructor() {
         super({
@@ -28,16 +39,71 @@ export class UiScene extends Phaser.Scene {
         });
     }
 
-    create() {
-        // create the dialog box
+    preload()
+    {
+        this.load.audio("hoverSfx", "/sfx/menu-hover.wav")
+        this.load.audio("clickSfx", "/sfx/menu-click.wav")
+    }
+
+    createDialogUi()
+    {
+        this.dialogBackground = this.add.image(0, 0, ASSET_KEYS.UI_DIALOG).setOrigin(0);
+
         this.#dialogueContainer = this.add.container(32, 142, [
-            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+            this.dialogBackground
         ]);
-        this.#dialogueContainerText = this.add.text(14, 14, '', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
+
+        this.#dialogueContainerText = this.add.text(20, 20, '', {
+            ...DEFAULT_UI_TEXT_STYLE,
+            wordWrap: { width: 360 },
+            align: 'center'
+        }).setOrigin(0);
 
         this.#dialogueContainer.add(this.#dialogueContainerText);
         this.#dialogueContainer.setVisible(false);
+    }
 
+
+    handleOverlaySelection(forecast)
+    {
+        const lowerCasedForecast = forecast.toLowerCase();
+
+        if (lowerCasedForecast.includes('sun')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0xFFFF00;
+        } 
+        
+        else if (lowerCasedForecast.includes('cloud')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0x808080;
+        } 
+        
+        else if (lowerCasedForecast.includes('snow')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0xFFFFFF;
+        } 
+        
+        else if (lowerCasedForecast.includes('rain')) 
+        {
+            this.worldscene.overlayImage.fillColor = 0x0000FF;
+        }
+    }
+
+
+    createTutorialUi()
+    {
+
+        this.showDialog(
+            'Welcome to Virtual Flagstaff!\n' +
+            'Press the arrow keys To Move!\n' +
+            'Press \'X\' to interact!\n' +
+            'Press \'Esc\' to pause!\n\n' +
+            'Move your character to exit this tutorial.')
+    }
+
+
+    async createWeatherUi()
+    {
         this.#weatherContainer = this.add.container(0, 0, [
             this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
         ]);
@@ -45,17 +111,48 @@ export class UiScene extends Phaser.Scene {
 
         this.#weatherContainer.add(this.#weatherContainerText);
         this.#weatherContainer.setVisible(true);
-        
-        // register event listeners
+       
+        try
+        {
+            const {shortForecast, temperature, temperatureUnit} = await this.getWeather();
+
+            this.#weatherContainerText.setText(
+                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
+            );
+
+            this.handleOverlaySelection(shortForecast)
+        }
+
+        catch (err)
+        {
+            this.#weatherContainerText.setText("Weather unavailable");
+        }
+    }
+
+    setupEventListeners()
+    {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
+        EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+        EVENT_BUS.on("PLAYER_MOVED", this.closeDialog, this);
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
-        })
+            EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+            EVENT_BUS.off("PLAYER_MOVED", this.closeDialog, this);
+        });
+    }
 
+    setupInput()
+    {
         this.#controls = new KeyboardComponent(this.input.keyboard);
+        this.#enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+        this.#escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    }
+
+    setupSceneReferences()
+    {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.skiendlessscene = this.scene.get(SCENE_KEYS.SKI_GAME_ENDLESS);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
@@ -88,25 +185,178 @@ export class UiScene extends Phaser.Scene {
         */
     }
 
-    update() {
-        // TODO: REWORK SCENE TRANSITIONS
-        if (this.skiscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
-            // unpause the ski scene (so it can sleep)
-            this.skiscene.scene.resume();
+    async getUserQuests()
+    {
+        return await apiFetch("/users/me/quests", {
+            method: "GET",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+        });
+    }
 
-            // switch to the overworld scene
-            this.skiscene.scene.switch(this.worldscene);
+    setQuestContainerText(name, description)
+    {
+        this.#questNameText.setText(name);
+        this.#questDescriptionText.setText(description);
+    }
 
-            // close dialog
-            this.closeDialog();
+    async refreshQuestUi()
+    {
+        try {
+            const quests = await this.getUserQuests();
+
+            if (quests.length > 0) {
+                const quest = quests[0];
+
+                this.setQuestContainerText(
+                    `Name: ${quest.name}`, 
+                    `Description: ${quest.description}`
+                );
+            }
+
+            else
+            {
+                this.setQuestContainerText(
+                    "Name: None", 
+                    "Description: None"
+                );
+            }
+
+        } catch (err) {
+            if (err.status === 401)
+            {
+                this.setQuestContainerText("Login/Sign-up to get quests!", "");
+            }
+        }
+    }
+
+    async createQuestUi()
+    {
+        this.#questContainer = this.add.container(320, 0, [
+            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
+        ]);
+
+        this.#questText = this.add.text(
+            14,
+            10,
+            "Active Quest:",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questNameText = this.add.text(
+            14,
+            30,
+            "Name: None",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questDescriptionText = this.add.text(
+            14,
+            50,
+            "Description: None",
+            DEFAULT_UI_TEXT_STYLE
+        ).setOrigin(0);
+
+        this.#questContainer.add([
+            this.#questText,
+            this.#questNameText,
+            this.#questDescriptionText
+        ]);
+
+        try {
+            const quests = await this.getUserQuests();
+
+            if (quests.length > 0) {
+                const quest = quests[0];
+
+                this.setQuestContainerText(
+                    `Name: ${quest.name}`, 
+                    `Description: ${quest.description}`
+                );
+            }
+
+        } catch (err) {
+            if (err.status === 401)
+            {
+                this.setQuestContainerText("Login/Sign-up to get quests!", "");
+            }
         }
 
-        if (this.skiscene.scene.isPaused() && this.#controls.isEnterJustDown) {
-            // restart the game
-            this.skiscene.scene.restart();
+        this.#questContainer.setVisible(true);
+    }
 
-            // close dialog
-            this.closeDialog();
+    playerCompletedTutorial()
+    {
+        return localStorage.getItem("playerCompletedTutorial") === "true";
+    }
+
+    create() {
+        this.hoverSfx = this.sound.add("hoverSfx", { volume: this.sound.volume ?? 1 });
+        this.clickSfx = this.sound.add("clickSfx", { volume: this.sound.volume ?? 1 });
+
+        this.createDialogUi();
+        this.createWeatherUi();
+
+        if (!this.playerCompletedTutorial())
+        {
+            this.createTutorialUi();
+        }
+
+        this.createQuestUi();
+        this.setupEventListeners();
+        this.setupInput();
+        this.setupSceneReferences();
+        this.createPauseMenu();
+    }
+
+    update() {
+        const enterJustDown = Phaser.Input.Keyboard.JustDown(this.#enterKey);
+        const escJustDown = Phaser.Input.Keyboard.JustDown(this.#escKey);
+        const skiPaused = this.skiscene && this.skiscene.scene.isPaused();
+        const dialogVisible = this.#dialogueContainer.visible;
+
+        // Handle ski dialog controls FIRST so ESC does not open the pause menu.
+        if (skiPaused && dialogVisible) {
+            if (enterJustDown) {
+                if (typeof this.skiscene.onEnterPressed === 'function') {
+                    this.skiscene.onEnterPressed();
+                } else {
+                    this.skiscene.scene.restart();
+                }
+
+                this.closeDialog();
+                return;
+            }
+
+            if (escJustDown) {
+                this.returnToWorldFromSki();
+                return;
+            }
+
+            return;
+        }
+
+        // Normal pause toggle only when not using ski dialog.
+        if (escJustDown) {
+            this.togglePause();
+            return;
+        }
+    }
+
+    returnToWorldFromSki() {
+        this.closeDialog();
+
+        this.#isPaused = false;
+        if (this.#pauseContainer) {
+            this.#pauseContainer.setVisible(false);
+        }
+
+        if (this.skiscene && this.skiscene.scene.isPaused()) {
+            this.skiscene.scene.resume();
+        }
+
+        if (this.skiscene) {
+            this.skiscene.scene.switch(SCENE_KEYS.GAME_SCENE);
         }
 
         if (this.skiendlessscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
@@ -129,51 +379,245 @@ export class UiScene extends Phaser.Scene {
         }
     }
 
-    async getWeatherData() {
-        const url = 'http://localhost:8000/weather';
+    createPauseMenu() {
+        const { width, height } = this.scale;
 
-        try {
-            this.#weatherContainerText.setText('Loading Weather...');
+        this.#pauseContainer = this.add.container(width / 2, height / 2);
 
-            const response = await fetch(url);
-    
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
+        const dim = this.add.rectangle(
+            0, 0,
+            width,
+            height,
+            0x000000,
+            0.65
+        ).setOrigin(0.5);
+
+        const panel = this.add.rectangle(
+            0,
+            0,
+            460,
+            420,
+            0x111111,
+            0.95
+        )
+            .setStrokeStyle(4, 0xffd700)
+            .setOrigin(0.5);
+
+        const title = this.add.text(0, -170, 'PAUSED', {
+            fontSize: '42px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        const controlsTitle = this.add.text(0, -110, 'Controls', {
+            fontSize: '22px',
+            color: '#ffd700'
+        }).setOrigin(0.5);
+
+        const controlsText = this.add.text(
+            0,
+            -70,
+            'Arrows  -  Move\nX  -  Interact\nESC  -  Pause',
+            {
+                fontSize: '18px',
+                color: '#cccccc',
+                align: 'center'
             }
-    
-            const weather = await response.json();
+        ).setOrigin(0.5);
 
-            const {
-                shortForecast,
-                temperature,
-                temperatureUnit,
-            } = weather
+        const volumeLabel = this.add.text(0, -10, 'Volume', {
+            fontSize: '22px',
+            color: '#ffd700'
+        }).setOrigin(0.5);
 
-            this.#weatherContainerText.setText(
-                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
-            );
+        const sliderWidth = 240;
+        const min = -sliderWidth / 2;
+        const max = sliderWidth / 2;
 
-            return shortForecast;
-        } 
-        catch (error) {
-            console.error('Fetch problem:', error);
-            this.#weatherContainerText.setText('Weather unavailable');
+        const currentVolume = Number(localStorage.getItem("globalVolume")) ?? 1;
+        const startX = min + (currentVolume * (max - min));
+
+        const sliderTrack = this.add.rectangle(
+            0,
+            30,
+            sliderWidth,
+            8,
+            0xffffff
+        ).setOrigin(0.5);
+
+        const sliderHandle = this.add.circle(
+            startX,
+            30,
+            12,
+            0xffd700
+        ).setInteractive({ draggable: true });
+
+        this.input.setDraggable(sliderHandle);
+
+        sliderHandle.on('drag', (pointer, dragX) => {
+            const clamped = Phaser.Math.Clamp(dragX, min, max);
+            sliderHandle.x = clamped;
+
+            const value = (clamped - min) / (max - min);
+            this.sound.setVolume(value);
+            localStorage.setItem("globalVolume", this.sound.volume.toString())
+        });
+
+        const resumeBtn = this.createButton(0, 110, 'Resume', () => {
+            this.togglePause();
+        });
+
+        const exitBtn = this.createButton(0, 170, 'Exit to Menu', () => {
+            this.#isPaused = false;
+
+            if (this.worldscene) this.worldscene.scene.stop();
+            if (this.skiscene) this.skiscene.scene.stop();
+
+            window.location.href = '/';
+        });
+
+        this.#pauseContainer.add([
+            dim,
+            panel,
+            title,
+            controlsTitle,
+            controlsText,
+            volumeLabel,
+            sliderTrack,
+            sliderHandle,
+            resumeBtn,
+            exitBtn
+        ]);
+
+        this.#pauseContainer.setDepth(9999);
+        this.#pauseContainer.setVisible(false);
+    }
+
+    createButton(x, y, label, callback) {
+        const btn = this.add.text(x, y, label, {
+            fontSize: '22px',
+            color: '#ffffff',
+            backgroundColor: '#222222',
+            padding: { x: 14, y: 8 }
+        })
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true });
+
+        btn.on('pointerover', () => {
+            btn.setStyle({
+                backgroundColor: '#444444',
+                color: '#ffff00'
+            });
+
+            this.hoverSfx.play();
+        });
+
+        btn.on('pointerout', () => {
+            btn.setStyle({
+                backgroundColor: '#222222',
+                color: '#ffffff'
+            });
+        });
+
+        btn.on('pointerdown', () => {
+            this.clickSfx.play();
+            callback();
+        });
+
+        return btn;
+    }
+
+    togglePause() {
+        this.#isPaused = !this.#isPaused;
+
+        if (this.#isPaused) {
+            if (!this.worldscene.scene.isPaused()) {
+                this.worldscene.scene.pause();
+            }
+
+            if (!this.skiscene.scene.isPaused()) {
+                this.skiscene.scene.pause();
+            }
+
+            this.#pauseContainer.setVisible(true);
+        } else {
+            if (this.worldscene.scene.isPaused()) {
+                this.worldscene.scene.resume();
+            }
+
+            if (this.skiscene.scene.isPaused()) {
+                this.skiscene.scene.resume();
+            }
+
+            this.#pauseContainer.setVisible(false);
         }
     }
 
+    async getWeather() {
+        return await apiFetch("/weather");
+    }
+
     showDialog(message) {
-        // set the text
         this.#dialogueContainerText.setText(message);
 
-        // set the visability
+        if (!this.dialogBackground) {
+            console.error('dialogBackground is not initialized');
+            this.#dialogueContainer.setVisible(true);
+            return;
+        }
+
+        const paddingX = 40;
+        const paddingY = 40;
+
+        const textWidth = this.#dialogueContainerText.width;
+        const textHeight = this.#dialogueContainerText.height;
+
+        const targetWidth = textWidth + paddingX;
+        const targetHeight = textHeight + paddingY;
+
+        const baseWidth = this.dialogBackground.width;
+        const baseHeight = this.dialogBackground.height;
+
+        this.dialogBackground.setScale(
+            Math.max(1, targetWidth / baseWidth),
+            Math.max(1, targetHeight / baseHeight)
+        );
+
         this.#dialogueContainer.setVisible(true);
     }
 
     closeDialog() {
-        // set the text
         this.#dialogueContainerText.setText('');
-
-        // set the visability
         this.#dialogueContainer.setVisible(false);
+    }
+
+    showInteractPopup(type) {
+        let message = '';
+
+        switch(type)
+        {
+            // adjust to proper interact buttons
+            case INTERACTIVE_OBJECT_TYPE.PICKUP:
+                message = 'X';
+                break;
+            case INTERACTIVE_OBJECT_TYPE.OPEN:
+                message = 'Z';
+                break;
+            case INTERACTIVE_OBJECT_TYPE.DIALOG:
+                message = 'X';
+                break;
+            case INTERACTIVE_OBJECT_TYPE.MINI_GAME:
+                message = 'C';
+                break;
+            default: 
+                message = 'X';
+        }
+        this.#interactPopupText.setText(message);
+        this.#interactPopup.setVisible(true);
+    }
+
+    hideInteractPopup()
+    {
+        this.#interactPopup.setVisible(false);
     }
 }

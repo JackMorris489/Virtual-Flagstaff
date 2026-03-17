@@ -20,7 +20,7 @@ class WeatherService:
         return raw_forecasts[period]
 
 
-    def get_forecast_summary(self, period: int = CURRENT_HOUR) -> dict:
+    def get_weather(self, period: int = CURRENT_HOUR) -> dict:
         forecast = self.get_forecast(period)
         return {
             "shortForecast": forecast["shortForecast"],

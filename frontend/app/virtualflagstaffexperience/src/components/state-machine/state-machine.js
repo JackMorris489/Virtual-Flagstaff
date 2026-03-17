@@ -85,4 +85,9 @@ export class StateMachine {
     get userId() {
         return this.#id;
     }
+
+    get currentState()
+    {
+        return this.#currentState;
+    }
 }

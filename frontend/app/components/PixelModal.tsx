@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useSfx } from "../hooks";
 
 export default function PixelModal({
   open,
@@ -15,6 +16,8 @@ export default function PixelModal({
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const hasFocused = useRef(false);
+
+  const {playClickSfx, playHoverSfx} = useSfx();
 
   useEffect(() => {
     // When closed, reset so next open can focus again
@@ -65,6 +68,9 @@ export default function PixelModal({
             onClick={onClose}
             aria-label="Close"
             className="rounded-none border-[3px] border-white px-2 py-1 text-[10px] uppercase tracking-widest"
+            onMouseEnter={playHoverSfx}
+            onPointerEnter={playHoverSfx}
+            onFocus={playHoverSfx}
           >
             Close
           </button>

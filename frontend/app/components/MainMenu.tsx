@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
+import { hover, motion } from "framer-motion"
 import PixelButton from "./PixelButton"
 import { API_BASE } from "../utils/constants";
+import {useSfx} from "../hooks"
 
 type MainMenuProps = {
     setAuthMode: React.Dispatch<React.SetStateAction<string>>
@@ -23,48 +24,7 @@ export default function MainMenu({
     const [weatherLoading, setWeatherLoading] = useState(false);
 
     // Menu SFX
-    const hoverSfxRef = useRef<HTMLAudioElement | null>(null);
-    const clickSfxRef = useRef<HTMLAudioElement | null>(null);
-    const lastHoverAtRef = useRef<number>(0);
-
-    useEffect(() => {
-        // Preload to avoid first hover lag
-        hoverSfxRef.current = new Audio("/sfx/menu-hover.wav");
-        clickSfxRef.current = new Audio("/sfx/menu-click.wav");
-
-        hoverSfxRef.current.preload = "auto";
-        clickSfxRef.current.preload = "auto";
-
-        // Adjust volume
-        hoverSfxRef.current.volume = 0.35;
-        clickSfxRef.current.volume = 0.35;
-
-        return () => {
-        hoverSfxRef.current = null;
-        clickSfxRef.current = null;
-        };
-    }, []);
-
-    const playSfx = async (a: HTMLAudioElement | null) => {
-        if (!a) return;
-        try {
-        a.currentTime = 0;
-        await a.play();
-        } catch {
-        
-        }
-    };
-
-    const menuHover = () => {
-        const now = Date.now();
-        if (now - lastHoverAtRef.current < 80) return; // throttle hover spam
-        lastHoverAtRef.current = now;
-        void playSfx(hoverSfxRef.current);
-    };
-
-    const menuClick = () => {
-        void playSfx(clickSfxRef.current);
-    };
+    const {playClickSfx} = useSfx();
 
     // Fetch weather data
     async function fetchWeather() {
@@ -113,23 +73,17 @@ export default function MainMenu({
             <PixelButton 
                 href="/virtualflagstaffexperience"
                 ariaLabel="Start"
-                onMouseEnter={menuHover}
-                onPointerEnter={menuHover}
-                onFocus={menuHover}
-                onClick={menuClick}
+                onClick={playClickSfx}
             >
                 Start
             </PixelButton>
 
             {/* Combined Sign Up / Log In button */}
             <PixelButton
-                onMouseEnter={menuHover}
-                onPointerEnter={menuHover}
-                onFocus={menuHover}
                 onClick={() => {
                 setAuthMode("signup");
                 setAuthOpen(true);
-                menuClick();
+                playClickSfx();
                 }}
                 ariaLabel="Open sign up or log in modal"
             >
@@ -137,12 +91,9 @@ export default function MainMenu({
             </PixelButton>
 
             <PixelButton 
-                onMouseEnter={menuHover}
-                onPointerEnter={menuHover}
-                onFocus={menuHover}
                 onClick={() => {
                 setSurveyOpen(true);
-                menuClick();
+                playClickSfx();
                 }}
             ariaLabel="Open survey">
                 Survey
@@ -150,11 +101,8 @@ export default function MainMenu({
 
 
             <PixelButton
-                onMouseEnter={menuHover}
-                onPointerEnter={menuHover}
-                onFocus={menuHover}
                 onClick={() => {
-                menuClick();
+                playClickSfx();
                 setContactOpen(true);
                 }}
                 ariaLabel="Open contact modal"

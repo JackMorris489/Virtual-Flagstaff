@@ -3,6 +3,7 @@ import PixelModal from "./PixelModal";
 import PixelButton from "./PixelButton";
 import { API_BASE } from "../utils/constants";
 import toggleMulti from "../utils/toggleMulti";
+import { useSfx } from "../hooks";
 
 type SurveyModalProps = {
   surveyOpen: boolean;
@@ -25,7 +26,7 @@ const SURVEY_RELATIONSHIP = ["Single", "Partnered", "Married", "Divorced"] as co
 
 const SURVEY_WORK_MODE = ["Remotely", "Semi-remotely", "In-Office"] as const;
 
-const SURVEY_AGE = ["-30", "31-50", "50+"] as const;
+const SURVEY_AGE = ["<31", "31-50", "50+"] as const;
 
 const SURVEY_REGION = ["East Coast", "West Coast", "Mid-west", "South", "North"] as const;
 
@@ -60,6 +61,8 @@ export default function SurveyModal({
 
   const [surveyLoading, setSurveyLoading] = useState(false);
   const [surveyErr, setSurveyErr] = useState<string | null>(null);
+
+  const {playClickSfx, playHoverSfx} = useSfx();
 
   // Load persisted user + survey completion
   useEffect(() => {
@@ -111,9 +114,10 @@ export default function SurveyModal({
 
 
     try {
-      const res = await fetch(`${API_BASE}/users/${storedUserId}`, {
+      const res = await fetch(`${API_BASE}/users/me`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(surveyPayload),
       });
 
@@ -143,6 +147,7 @@ export default function SurveyModal({
       open={surveyOpen}
       title="Quick Survey"
       onClose={() => {
+        playClickSfx();
         setSurveyOpen(false);
       }}
     >
@@ -329,20 +334,27 @@ export default function SurveyModal({
 
         {/* ✅ Sticky footer with buttons */}
         <div className="sticky bottom-0 bg-black pt-3 border-t-[3px] border-white flex items-center gap-3">
-          <PixelButton type="submit" ariaLabel="Submit survey">
+          <PixelButton 
+            onClick={playClickSfx}
+            type="submit" ariaLabel="Submit survey">
             {surveyLoading ? "Submitting..." : "Submit"}
           </PixelButton>
 
           <button
             type="button"
             onClick={() => {
+              playClickSfx();
               if (userId && !surveyCompleted) {
                 alert("Please complete the quick survey to continue.");
                 return;
               }
               setSurveyOpen(false);
+              
             }}
             className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
+            onMouseEnter={playHoverSfx}
+            onPointerEnter={playHoverSfx}
+            onFocus={playHoverSfx}
           >
             Cancel
           </button>

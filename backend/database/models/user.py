@@ -14,15 +14,18 @@ class User(UserBase, table=True):
     phone_number: str | None = Field(default=None, unique=True, index=True)
     receive_notifications: bool = Field(default=False)
     survey: dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
+    completed_tutorial: bool
 
 class UserPublic(UserBase):
     id: int
+    completed_tutorial: bool
 
 class UserCreate(UserBase):
     password: str
     email: str | None = None
     phone_number: str | None = None
     receive_notifications: bool = False
+    completed_tutorial: bool = False
 
 class UserUpdate(UserBase):
     username: str | None = None
@@ -31,3 +34,4 @@ class UserUpdate(UserBase):
     password: str | None = None
     receive_notifications: bool | None = None
     survey: dict[str, Any] | None = None
+    completed_tutorial: bool | None = None
