@@ -4,9 +4,6 @@ import { useSfx } from "../hooks";
 export default function PixelButton({
   href,
   onClick,
-  onMouseEnter,
-  onPointerEnter,
-  onFocus,
   children,
   ariaLabel,
   type = "button",
