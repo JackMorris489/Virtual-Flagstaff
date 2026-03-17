@@ -20,3 +20,13 @@ from .user_quest import (
     UserQuestPublic,
     UserQuestUpdate
 )
+
+
+# Rewards
+from .reward import (
+    RewardBase, 
+    Reward, 
+    RewardCreate, 
+    RewardPublic, 
+    RewardUpdate
+)
