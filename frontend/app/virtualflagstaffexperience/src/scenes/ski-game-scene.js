@@ -279,7 +279,6 @@ export class SkiGame extends GameScene {
         try
         {
             rewards = await apiFetch(`/quests/${questId}/rewards`);
-            console.log(data)
         }
 
         catch (err)
