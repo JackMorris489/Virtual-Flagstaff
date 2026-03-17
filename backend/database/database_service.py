@@ -1,6 +1,6 @@
 # database_utitlities.py
 
-from sqlmodel import Session, SQLModel, create_engine, select
+from sqlmodel import Session, SQLModel, create_engine, select, and_
 from typing import Annotated
 from fastapi import Depends, HTTPException
 from constants import (
@@ -8,9 +8,10 @@ from constants import (
     GAMES, 
     NON_PLAYABLE_CHARACTERS, 
     QUESTS,
-    REWARDS
+    REWARDS,
+    QUEST_REWARDS
 )
-from database.models import Game, Npc, Quest, Reward
+from database.models import Game, Npc, Quest, Reward, QuestReward
 
 class DatabaseService:
     def __init__( self, database_url: str = DATABASE_URL ):
@@ -211,11 +212,41 @@ class DatabaseService:
             session.commit()
 
 
+    def seed_quest_rewards(
+        self,
+        quest_rewards: list[dict[str, str]] = QUEST_REWARDS
+    ):
+        with Session(self._engine) as session:
+            for quest_reward in quest_rewards:
+                quest_id_query = select(Quest.id).where(Quest.name == quest_reward["questName"])
+                quest_id = self.get_query_result(session, quest_id_query)
+
+                reward_id_query = select(Reward.id).where(Reward.key == quest_reward["rewardKey"])
+                reward_id = self.get_query_result(session, reward_id_query)
+
+                query = select(QuestReward).where(
+                    and_(
+                        QuestReward.quest_id == quest_id,
+                        QuestReward.reward_id == reward_id
+                    )
+                )
+                existing = self.get_query_result(session, query)
+
+                if not existing:
+                    session.add(QuestReward(
+                        quest_id=quest_id,
+                        reward_id=reward_id
+                    ))
+
+            session.commit()
+
+
     def seed_all(self):
         self.seed_games()
         self.seed_non_playable_characters()
         self.seed_quests()
         self.seed_rewards()
+        self.seed_quest_rewards()
 
 database_service = DatabaseService()
 SessionDep = Annotated[Session, Depends(database_service.get_session)]
