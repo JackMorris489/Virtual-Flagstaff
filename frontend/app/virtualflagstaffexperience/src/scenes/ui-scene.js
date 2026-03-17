@@ -377,7 +377,7 @@ export class UiScene extends Phaser.Scene {
         const min = -sliderWidth / 2;
         const max = sliderWidth / 2;
 
-        const currentVolume = this.sound.volume ?? 1;
+        const currentVolume = Number(localStorage.getItem("globalVolume")) ?? 1;
         const startX = min + (currentVolume * (max - min));
 
         const sliderTrack = this.add.rectangle(
@@ -402,7 +402,8 @@ export class UiScene extends Phaser.Scene {
             sliderHandle.x = clamped;
 
             const value = (clamped - min) / (max - min);
-            this.sound.volume = value;
+            this.sound.setVolume(value);
+            localStorage.setItem("globalVolume", this.sound.volume.toString())
         });
 
         const resumeBtn = this.createButton(0, 110, 'Resume', () => {
