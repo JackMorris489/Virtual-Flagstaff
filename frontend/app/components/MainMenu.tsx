@@ -24,7 +24,7 @@ export default function MainMenu({
     const [weatherLoading, setWeatherLoading] = useState(false);
 
     // Menu SFX
-    const {playHoverSfx, playClickSfx} = useSfx();
+    const {playClickSfx} = useSfx();
 
     // Fetch weather data
     async function fetchWeather() {
@@ -73,9 +73,6 @@ export default function MainMenu({
             <PixelButton 
                 href="/virtualflagstaffexperience"
                 ariaLabel="Start"
-                onMouseEnter={playHoverSfx}
-                onPointerEnter={playHoverSfx}
-                onFocus={playHoverSfx}
                 onClick={playClickSfx}
             >
                 Start
@@ -83,9 +80,6 @@ export default function MainMenu({
 
             {/* Combined Sign Up / Log In button */}
             <PixelButton
-                onMouseEnter={playHoverSfx}
-                onPointerEnter={playHoverSfx}
-                onFocus={playHoverSfx}
                 onClick={() => {
                 setAuthMode("signup");
                 setAuthOpen(true);
@@ -97,9 +91,6 @@ export default function MainMenu({
             </PixelButton>
 
             <PixelButton 
-                onMouseEnter={playHoverSfx}
-                onPointerEnter={playHoverSfx}
-                onFocus={playHoverSfx}
                 onClick={() => {
                 setSurveyOpen(true);
                 playClickSfx();
@@ -110,9 +101,6 @@ export default function MainMenu({
 
 
             <PixelButton
-                onMouseEnter={playHoverSfx}
-                onPointerEnter={playHoverSfx}
-                onFocus={playHoverSfx}
                 onClick={() => {
                 playClickSfx();
                 setContactOpen(true);
