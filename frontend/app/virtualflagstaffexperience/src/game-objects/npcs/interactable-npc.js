@@ -16,7 +16,6 @@ import apiFetch from "../../../../utils/apiFetch"
     Interactive NPC class, this class exists essentially as an extention (perhaps later literally)
     of the base NPC class. This one has additional code to allow it to be interacted with.
 **/ 
-// TODO: OVERHAUL AND MAKE IT EXTEND THE BASE NPC CLASS
 export class NPC extends CharacterGameObject
 {
     constructor(config)
@@ -120,10 +119,10 @@ export class InteractiveNPC extends NPC {
 
     async getQuest()
     {
-        return await apiFetch(`/users/me/quests/${this.questId}`, {
-            credentials: "include",
-            // headers: {"Content-Type": "application/json"}
-        });
+        return await apiFetch(
+            `/users/me/quests/${this.questId}`, 
+            {credentials: "include"}
+        );
     }
 
     async getCurrentDialog()
@@ -149,25 +148,39 @@ export class InteractiveNPC extends NPC {
             }
 
             catch (e) {
-                console.error(e)
-                if (e.status === 404)
-                {
-                    console.log("Use quest assigning dialog")
-                }
+                console.log("Use quest assigning dialog")
             }
         }
 
         return dialogs[index];
     }
 
-    async createQuest()
+    async assignQuest()
     {
-        return await apiFetch(`/users/me/quests/${this.questId}`, {
-            method: "POST",
-            credentials: "include",
-            // headers: {"Content-Type": "application/json"},
-        });
+        return await apiFetch(
+            `/users/me/quests/${this.questId}`, 
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        );
     }
+
+
+    async handleAssigningQuest()
+    {
+        try
+        {
+            await this.assignQuest();
+            EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
+        }
+
+        catch (e)
+        {
+
+        }
+    }
+
 
     async dialog() {
 
@@ -190,18 +203,7 @@ export class InteractiveNPC extends NPC {
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
             this.scene.currentDialogNumber = 0;
             this.unfreeze();
-            try
-            {
-                const quest = await this.createQuest();
-                EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
-            }
-
-            catch (e) {
-                if (e.status === 401)
-                {
-                    console.log("Login or sign-up to receive quests!")
-                }
-            }
+            await this.handleAssigningQuest();
 
         }
     }
