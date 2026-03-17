@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useSfx } from "../hooks";
 
 export default function PixelButton({
   href,
@@ -19,6 +20,8 @@ export default function PixelButton({
   ariaLabel?: string;
   type?: "button" | "submit";
 }) {
+  const {playClickSfx, playHoverSfx} = useSfx();
+
   const base = (
     <span
       className="relative block select-none rounded-none border-[4px] border-white px-6 py-4 text-center text-sm uppercase tracking-widest transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-white/60 active:translate-y-[2px]"
@@ -43,9 +46,9 @@ export default function PixelButton({
         aria-label={ariaLabel}
         className="outline-none"
         onClick={onClick as any}
-        onMouseEnter={onMouseEnter as any}
-        onPointerEnter={onPointerEnter as any}
-        onFocus={onFocus as any}
+        onMouseEnter={playHoverSfx as any}
+        onPointerEnter={playHoverSfx as any}
+        onFocus={playHoverSfx as any}
       >
         {base}
       </Link>
@@ -56,9 +59,9 @@ export default function PixelButton({
     <button
       aria-label={ariaLabel}
       onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onPointerEnter={onPointerEnter}
-      onFocus={onFocus}
+      onMouseEnter={playHoverSfx}
+      onPointerEnter={playHoverSfx}
+      onFocus={playHoverSfx}
       type={type}
       className="outline-none"
     >
