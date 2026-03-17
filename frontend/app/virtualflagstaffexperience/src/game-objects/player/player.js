@@ -123,34 +123,4 @@ export class Player extends CharacterGameObject {
     {
         return localStorage.getItem("playerLoggedIn") === "true";
     }
-
-
-    async update() 
-    {
-        super.update();
-
-        if (!this.completedTutorial() && this.isMoving())
-        {
-            EVENT_BUS.emit('PLAYER_MOVED');
-            if (this.loggedIn())
-            {
-                const res = await apiFetch(
-                    "/users/me",
-                    {
-                        method: "PATCH",
-                        headers: {"Content-Type": "application/json"},
-                        credentials: "include",
-                        body: JSON.stringify({completed_tutorial: true})
-                    }
-                )
-                localStorage.setItem("playerCompletedTutorial", res.completed_tutorial.toString())
-            }
-
-            else
-            {
-                localStorage.setItem("playerCompletedTutorial", "true")
-            }
-            
-        }
-    }
 }
