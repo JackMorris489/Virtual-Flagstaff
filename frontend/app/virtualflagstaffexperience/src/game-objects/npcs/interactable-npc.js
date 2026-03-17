@@ -120,10 +120,10 @@ export class InteractiveNPC extends NPC {
 
     async getQuest()
     {
-        return await apiFetch(`/users/me/quests/${this.questId}`, {
-            credentials: "include",
-            // headers: {"Content-Type": "application/json"}
-        });
+        return await apiFetch(
+            `/users/me/quests/${this.questId}`, 
+            {credentials: "include"}
+        );
     }
 
     async getCurrentDialog()
@@ -149,7 +149,6 @@ export class InteractiveNPC extends NPC {
             }
 
             catch (e) {
-                console.error(e)
                 if (e.status === 404)
                 {
                     console.log("Use quest assigning dialog")
@@ -162,11 +161,13 @@ export class InteractiveNPC extends NPC {
 
     async createQuest()
     {
-        return await apiFetch(`/users/me/quests/${this.questId}`, {
-            method: "POST",
-            credentials: "include",
-            // headers: {"Content-Type": "application/json"},
-        });
+        return await apiFetch(
+            `/users/me/quests/${this.questId}`, 
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        );
     }
 
     async dialog() {

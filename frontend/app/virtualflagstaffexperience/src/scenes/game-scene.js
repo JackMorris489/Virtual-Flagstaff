@@ -44,7 +44,7 @@ export class GameScene extends Phaser.Scene {
         
         catch (err)
         {
-            console.error(err)
+        
         }
     }
 }

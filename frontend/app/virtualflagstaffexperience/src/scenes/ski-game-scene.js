@@ -317,7 +317,7 @@ export class SkiGame extends GameScene {
         }
 
         catch (e) {
-            console.error(e)
+            
         }
 
         let rewards;
