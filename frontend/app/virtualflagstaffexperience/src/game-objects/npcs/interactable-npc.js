@@ -148,10 +148,7 @@ export class InteractiveNPC extends NPC {
             }
 
             catch (e) {
-                if (e.status === 404)
-                {
-                    console.log("Use quest assigning dialog")
-                }
+                console.log("Use quest assigning dialog")
             }
         }
 
