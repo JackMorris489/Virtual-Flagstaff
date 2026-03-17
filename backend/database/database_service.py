@@ -8,6 +8,7 @@ from constants import (
     GAMES, 
     NON_PLAYABLE_CHARACTERS, 
     QUESTS,
+    REWARDS
 )
 from database.models import Game, Npc, Quest
 
@@ -191,6 +192,14 @@ class DatabaseService:
             
             except ValueError as e:
                 print(e)
+
+
+    def seed_rewards(
+        self,
+        rewards: list[dict[str, str]] = REWARDS
+    ):
+        pass
+
 
     def seed_all(self):
         self.seed_games()
