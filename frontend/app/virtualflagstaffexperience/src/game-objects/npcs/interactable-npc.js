@@ -132,6 +132,7 @@ export class InteractiveNPC extends NPC {
 
         if (index === 0)
         {
+            EVENT_BUS.emit("NPC_INTERACTION_START")
             try
             {
                 const quest = await this.getQuest();
@@ -201,6 +202,7 @@ export class InteractiveNPC extends NPC {
         {
             // reset the dialog counter, close dialog and unfreeze the user
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
+            EVENT_BUS.emit("NPC_INTERACTION_END")
             this.scene.currentDialogNumber = 0;
             this.unfreeze();
             await this.handleAssigningQuest();
