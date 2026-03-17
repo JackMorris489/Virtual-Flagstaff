@@ -97,11 +97,13 @@ export class Overworld extends Phaser.Scene {
         }
         this.controls = new KeyboardComponent(this.input.keyboard);
 
+        const spawnPoint = {x: groundLayer.width/2 + 300, y: groundLayer.height/2 + 600}
+
         /* ========== PLAYER ========== */
         // create the player container to hold the player and interaction zone
         this.player = new Player({
             scene: this,
-            position: {x: 1248, y: 1608},
+            position: {x: spawnPoint.x, y: spawnPoint.y},
             controls: this.controls,
         });
         this.#playerInteractionZone = new PlayerInteractionZone({
@@ -143,37 +145,17 @@ export class Overworld extends Phaser.Scene {
             false, 
             'minimap'
         ).setZoom(0.1);
-        this.miniMapCamera.ignore(this.player);
+        this.miniMapCamera.ignore(this.#playerContainer);
         this.miniMapCamera.ignore(this.overlayImage);
         this.miniMapCamera.ignore(groundLayer2);
 
         /* ========== NPCs ========== */
-        /*
-        // create the npc group
-        this.#npcGroup = this.add.group([
-            // create an NPC (spider)
-            this.#spider = new Spider({
-                scene: this,
-                position: {x: this.scale.width/2, y: this.scale.height/2 + 50},
-            }),
-            // create an NPC (spider)
-            this.#spider2 = new Spider({
-                scene: this,
-                position: {x: this.scale.width/2, y: this.scale.height/2 + 50},
-            }),
-        ], {
-            runChildUpdate: true
-        })
-        */
-
         const npcs = await apiFetch("/npcs");
-        console.log(npcs)
 
         let npcGroup = [];
         for (const npc of npcs) {
 
             const npcQuests = await apiFetch(`/npcs/${npc.id}/quests`);
-            console.log(npcQuests);
 
             const questId = npcQuests.id;
 
@@ -181,8 +163,8 @@ export class Overworld extends Phaser.Scene {
                 {
                     scene: this,
                     position: {
-                        x: this.scale.width / 2 + npc.x_pos,
-                        y: this.scale.height / 2 + npc.y_pos
+                        x: spawnPoint.x + npc.x_pos,
+                        y: spawnPoint.y + npc.y_pos
                     },
                     id: npc.id,
                     interactionType: "DIALOG",
@@ -195,25 +177,12 @@ export class Overworld extends Phaser.Scene {
         }
 
         // create the interactable npc group
-      /*
-        this.#interactiveNPCGroup = this.add.group([
-            // create an interactable npc
-            this.#interactiveSpider = new InteractiveNPC({
-                scene: this,
-                position: {x: 1248, y: 1480},
-                id: `MAYOR`,
-                interactionType: `DIALOG`,
-            }),
-        ], {
-            runChildUpdate: true
-        });
-        */
-      
         this.#interactiveNPCGroup = this.add.group(npcGroup, {runChildUpdate: true})
+
        // create the icon group
-        this.#npcIconGroup = this.add.group([
-            this.mayorIcon = this.add.circle(this.#interactiveSpider.x, this.#interactiveSpider.y, 20, 0xFFFF00, 1)
-        ]);
+        // this.#npcIconGroup = this.add.group([
+        //     this.mayorIcon = this.add.circle(this.#interactiveSpider.x, this.#interactiveSpider.y, 20, 0xFFFF00, 1)
+        // ]);
 
         /* ========== INTERACTABLES ========== */
         // TODO: Rework how the snowboard and ski interactable objects work
@@ -241,32 +210,6 @@ export class Overworld extends Phaser.Scene {
             }
         }, null, this);
 
-        /*
-        this.snowborderinteractables = this.physics.add.group();
-        this.snowborderinteractables.create(0, 0, '').setDepth(-1);
-        this.snowborderinteractables.create(32, 0, '').setDepth(-1);
-        this.snowborderinteractables.getChildren().forEach((interactable) => {
-            this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
-                if(this.controls.isActionJustDown) {
-                    this.#minigameInteraction('SNOWBOARDER');
-                }
-            }, null, this);
-        });
-
-        // skiier interactables to start the ski/snowboard minigame
-        this.skiierinteractables = this.physics.add.group();
-        this.skiierinteractables.create(128, 0, '').setDepth(-1);
-        this.skiierinteractables.create(160, 0, '').setDepth(-1);
-        this.skiierinteractables.getChildren().forEach((interactable) => {
-            console.log(interactable.x);
-            console.log(interactable.y);
-            this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
-                if(this.controls.isActionJustDown) {
-                    this.#minigameInteraction('SKIIER');
-                }
-            }, null, this);
-        });
-        */
 
         // create the icon group
         this.interactablesIcons = this.add.group([
@@ -284,7 +227,7 @@ export class Overworld extends Phaser.Scene {
 
 
         this.cameras.main.ignore(this.playerIcon);
-        this.cameras.main.ignore(this.mayorIcon);
+        // this.cameras.main.ignore(this.mayorIcon);
         this.cameras.main.ignore(this.interactablesIcons);
     };
 
@@ -311,14 +254,7 @@ export class Overworld extends Phaser.Scene {
     }
 
     #registerColiders() {
-        /*
-        // regular npc group colliders
-        this.#npcGroup.getChildren().forEach((npc) => {
-            npc.setCollideWorldBounds(true);
-            this.physics.add.collider(this.#player, npc, this.#collideObjects, null, this)
-        });
-        */
-        
+
         // interactive npc group colliders
         this.#interactiveNPCGroup.getChildren().forEach((npc) => {
             npc.setCollideWorldBounds(false);
