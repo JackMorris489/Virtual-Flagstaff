@@ -6,6 +6,7 @@ class RewardBase(SQLModel):
 class Reward(RewardBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
+    key: str
 
 class RewardPublic(RewardBase):
     pass
