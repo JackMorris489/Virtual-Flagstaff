@@ -30,3 +30,10 @@ from .reward import (
     RewardPublic, 
     RewardUpdate
 )
+from .quest_reward import (
+    QuestReward,
+    QuestRewardBase,
+    QuestRewardCreate,
+    QuestRewardPublic,
+    QuestRewardUpdate
+)
