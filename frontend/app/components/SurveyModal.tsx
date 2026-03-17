@@ -3,6 +3,7 @@ import PixelModal from "./PixelModal";
 import PixelButton from "./PixelButton";
 import { API_BASE } from "../utils/constants";
 import toggleMulti from "../utils/toggleMulti";
+import { useSfx } from "../hooks";
 
 type SurveyModalProps = {
   surveyOpen: boolean;
@@ -60,6 +61,8 @@ export default function SurveyModal({
 
   const [surveyLoading, setSurveyLoading] = useState(false);
   const [surveyErr, setSurveyErr] = useState<string | null>(null);
+
+  const {playClickSfx, playHoverSfx} = useSfx();
 
   // Load persisted user + survey completion
   useEffect(() => {
@@ -144,6 +147,7 @@ export default function SurveyModal({
       open={surveyOpen}
       title="Quick Survey"
       onClose={() => {
+        playClickSfx();
         setSurveyOpen(false);
       }}
     >
@@ -330,20 +334,27 @@ export default function SurveyModal({
 
         {/* ✅ Sticky footer with buttons */}
         <div className="sticky bottom-0 bg-black pt-3 border-t-[3px] border-white flex items-center gap-3">
-          <PixelButton type="submit" ariaLabel="Submit survey">
+          <PixelButton 
+            onClick={playClickSfx}
+            type="submit" ariaLabel="Submit survey">
             {surveyLoading ? "Submitting..." : "Submit"}
           </PixelButton>
 
           <button
             type="button"
             onClick={() => {
+              playClickSfx();
               if (userId && !surveyCompleted) {
                 alert("Please complete the quick survey to continue.");
                 return;
               }
               setSurveyOpen(false);
+              
             }}
             className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
+            onMouseEnter={playHoverSfx}
+            onPointerEnter={playHoverSfx}
+            onFocus={playHoverSfx}
           >
             Cancel
           </button>
