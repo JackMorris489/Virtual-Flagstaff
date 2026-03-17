@@ -159,7 +159,7 @@ export class InteractiveNPC extends NPC {
         return dialogs[index];
     }
 
-    async createQuest()
+    async assignQuest()
     {
         return await apiFetch(
             `/users/me/quests/${this.questId}`, 
@@ -169,6 +169,22 @@ export class InteractiveNPC extends NPC {
             }
         );
     }
+
+
+    async handleAssigningQuest()
+    {
+        try
+        {
+            await this.assignQuest();
+            EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
+        }
+
+        catch (e)
+        {
+
+        }
+    }
+
 
     async dialog() {
 
@@ -191,18 +207,7 @@ export class InteractiveNPC extends NPC {
             EVENT_BUS.emit(CUSTOM_EVENTS.CLOSE_DIALOG);
             this.scene.currentDialogNumber = 0;
             this.unfreeze();
-            try
-            {
-                const quest = await this.createQuest();
-                EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
-            }
-
-            catch (e) {
-                if (e.status === 401)
-                {
-                    console.log("Login or sign-up to receive quests!")
-                }
-            }
+            await this.handleAssigningQuest();
 
         }
     }
