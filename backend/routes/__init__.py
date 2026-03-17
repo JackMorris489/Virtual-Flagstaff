@@ -5,3 +5,4 @@ from .weather import weather_router
 from .games import games_router
 from .npcs import npcs_router
 from .quests import quests_router
+from .rewards import rewards_router
