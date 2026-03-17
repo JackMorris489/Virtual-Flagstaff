@@ -153,18 +153,22 @@ export class Overworld extends Phaser.Scene {
         const npcs = await apiFetch("/npcs");
 
         let npcGroup = [];
+        let npcIconGroup = [];
         for (const npc of npcs) {
 
             const npcQuests = await apiFetch(`/npcs/${npc.id}/quests`);
 
             const questId = npcQuests.id;
-
+            const npcPos = {
+                x: spawnPoint.x + npc.x_pos, 
+                y: spawnPoint.y + npc.y_pos
+            }
             const npcObject = new InteractiveNPC(
                 {
                     scene: this,
                     position: {
-                        x: spawnPoint.x + npc.x_pos,
-                        y: spawnPoint.y + npc.y_pos
+                        x: npcPos.x,
+                        y: npcPos.y
                     },
                     id: npc.id,
                     interactionType: "DIALOG",
@@ -174,12 +178,14 @@ export class Overworld extends Phaser.Scene {
             );
 
             npcGroup.push(npcObject);
+            npcIconGroup.push(this.add.circle(npcPos.x, npcPos.y, 20, 0xFFFF00, 1));
         }
 
         // create the interactable npc group
         this.#interactiveNPCGroup = this.add.group(npcGroup, {runChildUpdate: true})
 
        // create the icon group
+       this.#npcIconGroup = this.add.graphics(npcIconGroup)
         // this.#npcIconGroup = this.add.group([
         //     this.mayorIcon = this.add.circle(this.#interactiveSpider.x, this.#interactiveSpider.y, 20, 0xFFFF00, 1)
         // ]);
@@ -227,7 +233,11 @@ export class Overworld extends Phaser.Scene {
 
 
         this.cameras.main.ignore(this.playerIcon);
-        // this.cameras.main.ignore(this.mayorIcon);
+        for (const npcIcon of npcIconGroup)
+        {
+            this.cameras.main.ignore(npcIcon)
+        }
+        this.cameras.main.ignore(this.mayorIcon);
         this.cameras.main.ignore(this.interactablesIcons);
     };
 
