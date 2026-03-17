@@ -17613,7 +17613,7 @@
  <tileset firstgid="26550" name="colliders" tilewidth="32" tileheight="32" tilecount="1" columns="1">
   <image source="colliders.jpg" width="32" height="32"/>
  </tileset>
- <tileset firstgid="26551" name="Flagstaff Streets" tilewidth="32" tileheight="32" tilecount="42" columns="7">
+ <tileset firstgid="26551" name="Flagstaff Streets" tilewidth="32" tileheight="32" tilecount="0" columns="7">
   <image source="../../../../../Pictures/streets.png" width="224" height="192"/>
  </tileset>
  <layer id="1" name="GroundLayer" width="16" height="16">

@@ -18,6 +18,7 @@ export class UiScene extends Phaser.Scene {
     #weatherContainerText;
     weather
     skiscene;
+    skiendlessscene;
     worldscene;
     #controls;
 
@@ -56,7 +57,9 @@ export class UiScene extends Phaser.Scene {
 
         this.#controls = new KeyboardComponent(this.input.keyboard);
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
+        this.skiendlessscene = this.scene.get(SCENE_KEYS.SKI_GAME_ENDLESS);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
+        /*
         this.getWeatherData().then((result) => {
             this.weather = result;
             console.log(this.weather);
@@ -82,7 +85,7 @@ export class UiScene extends Phaser.Scene {
         }).catch((error) => {
             console.error(error);
         });
-        
+        */
     }
 
     update() {
@@ -101,6 +104,25 @@ export class UiScene extends Phaser.Scene {
         if (this.skiscene.scene.isPaused() && this.#controls.isEnterJustDown) {
             // restart the game
             this.skiscene.scene.restart();
+
+            // close dialog
+            this.closeDialog();
+        }
+
+        if (this.skiendlessscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
+            // unpause the ski scene (so it can sleep)
+            this.skiendlessscene.scene.resume();
+
+            // switch to the overworld scene
+            this.skiendlessscene.scene.switch(this.worldscene);
+
+            // close dialog
+            this.closeDialog();
+        }
+
+        if (this.skiendlessscene.scene.isPaused() && this.#controls.isEnterJustDown) {
+            // restart the game
+            this.skiendlessscene.scene.restart();
 
             // close dialog
             this.closeDialog();

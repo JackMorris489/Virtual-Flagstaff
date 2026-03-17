@@ -44,7 +44,7 @@ export class SkiPlayer extends CharacterGameObject {
         this.physicsBody.setSize(18, 32, true).setOffset(this.width/2 - 8, this.height/2 - 7);
 
         // add gravity to the player
-        this.body.gravity.y = 20;
+        this.physicsBody.gravity.y = 20;
     }
 
     get physicsBody() {

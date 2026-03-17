@@ -20,15 +20,25 @@ import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 export class Overworld extends Phaser.Scene {
     controls;
     #playerContainer;
-    #playerInteractionZone;
     player;
+    #playerInteractionZone;
+    playerIcon;
     playerType;
     #interactiveNPCGroup;
     #interactiveSpider;
+    mayorIcon;
     currentDialogNumber = 1;
     #allCollisionLayer;
     minigameinteractables;
+    snowboardInteractable
+    skiInteractable
+    interactablesIcons;
+    skiInteractableIcon;
+    snowboardInteractableIcon;
+    skiEndlessMode = false;
     overlayImage;
+    miniMapCamera;
+    #npcIconGroup
 
     constructor() {
         super({
@@ -38,18 +48,41 @@ export class Overworld extends Phaser.Scene {
 
     create() {
         /* ========== MAP ========== */
-        // add background and foreground map image
-        this.add.image(-1060, -1912, ASSET_KEYS.FLAGSTAFF_BACKGROUND, 0).setOrigin(0);
-        this.add.image(-1060, -1912, ASSET_KEYS.FLAGSTAFF_FOREGROUND, 0).setOrigin(0).setDepth(2);
-
+        // TODO: ADD MIDDLEGROUND FOR DETAILED ITEMS
         // load in the tilemap data
         const map = this.make.tilemap({
             key: ASSET_KEYS.FLAGSTAFF_LEVEL,
         });
 
-        // create collision map
+        // LOG TILEMAP DATA
+        console.log("Map Orientation: ", map.orientation);
+        console.log("Map Height", map.height, map.heightInPixels);
+        console.log("Map Width", map.width, map.widthInPixels);
+        console.log("Map Layers: ", map.layers);
+        console.log("TILESET DATA\nMap Tilesets: ", map.tilesets);
+        console.log("Tile Height: ", map.tileHeight);
+        console.log("Tile Width: ", map.tileWidth);
+
+        // create the tilesets
+        const bricks = map.addTilesetImage(TILED_TILESET_NAMES.BRICKS, ASSET_KEYS.BRICKS);
+        const street = map.addTilesetImage(TILED_TILESET_NAMES.STREET, ASSET_KEYS.STREET);
+        const streets = map.addTilesetImage(TILED_TILESET_NAMES.STREETS, ASSET_KEYS.STREETS);
+        const roofs = map.addTilesetImage(TILED_TILESET_NAMES.ROOFS, ASSET_KEYS.ROOFS);
+        const equipment = map.addTilesetImage(TILED_TILESET_NAMES.EQUIPMENT, ASSET_KEYS.EQUIPMENT);
+        const victorianStreet = map.addTilesetImage(TILED_TILESET_NAMES.VICTORASTREET, ASSET_KEYS.VICTORASTREET);
+        const victorianTenement = map.addTilesetImage(TILED_TILESET_NAMES.VICTORATENEMENT, ASSET_KEYS.VICTORATENEMENT);
         const collisionTiles = map.addTilesetImage(TILED_TILESET_NAMES.COLLISION, ASSET_KEYS.COLLISION);
-        this.#allCollisionLayer = map.createLayer(TILED_LAYER_NAMES.ALL_COLLISION, [collisionTiles], -1060, -1400,);
+
+        // create the map layers
+        const groundLayer = map.createLayer(TILED_LAYER_NAMES.GROUND_LAYER, [bricks, street, streets], 0, 0);
+        const groundLayer2 = map.createLayer(TILED_LAYER_NAMES.GROUND_LAYER_2, [equipment], 1024, 0);
+        const buildings1 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_1, [bricks, roofs, victorianStreet, victorianTenement], 512, 0).setDepth(1);
+        const buildings2 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_2, [bricks, roofs, victorianStreet, victorianTenement], 512, 0).setDepth(2);
+        const buildings3 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_3, [bricks, roofs, victorianStreet, victorianTenement], 512, 0).setDepth(3);
+        const buildings4 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_4, [bricks, roofs, victorianStreet, victorianTenement], 1024, 1024).setDepth(4);
+
+        // create collision map
+        this.#allCollisionLayer = map.createLayer(TILED_LAYER_NAMES.ALL_COLLISION, [collisionTiles], 0, 0);
         this.#allCollisionLayer.setDepth(2).setAlpha(0);
 
         /* ========== CONTROLS ========== */
@@ -64,7 +97,7 @@ export class Overworld extends Phaser.Scene {
         // create the player container to hold the player and interaction zone
         this.player = new Player({
             scene: this,
-            position: {x: this.scale.width/2, y: this.scale.height/2},
+            position: {x: 1248, y: 1608},
             controls: this.controls,
         });
         this.#playerInteractionZone = new PlayerInteractionZone({
@@ -77,9 +110,38 @@ export class Overworld extends Phaser.Scene {
             y: 0,
             children: [this.player, this.#playerInteractionZone],
         });
+        this.playerIcon = this.add.circle(this.player.x, this.player.y, 20, 0xFF0000, 1);
 
+        /* ========== Cameras ========== */
         // lock the camera to the player
+        this.cameras.main.setName('main')
         this.cameras.main.startFollow(this.player);
+
+        // camera hue shifting based on weather WIP
+        // TODO: REFINE/REMAKE THIS FUNCTION
+        this.overlayImage = this.add.rectangle(
+            this.cameras.main.width/2, 
+            this.cameras.main.height/2, 
+            this.cameras.main.width, 
+            this.cameras.main.height, 
+            0x000000, 
+            0.1
+        ).setDepth(10000);
+        this.overlayImage.setScrollFactor(0);
+
+        // Minimap
+        // TODO: REFINE
+        this.miniMapCamera = this.cameras.add(
+            this.scale.width - this.scale.width/5 - 10, 
+            10, 
+            this.scale.width/5, 
+            this.scale.height/5, 
+            false, 
+            'minimap'
+        ).setZoom(0.1);
+        this.miniMapCamera.ignore(this.player);
+        this.miniMapCamera.ignore(this.overlayImage);
+        this.miniMapCamera.ignore(groundLayer2);
 
         /* ========== NPCs ========== */
         /*
@@ -105,20 +167,49 @@ export class Overworld extends Phaser.Scene {
             // create an interactable npc
             this.#interactiveSpider = new InteractiveNPC({
                 scene: this,
-                position: {x: this.scale.width/2, y: this.scale.height/2 - 100},
+                position: {x: 1248, y: 1480},
                 id: `MAYOR`,
                 interactionType: `DIALOG`,
             }),
         ], {
             runChildUpdate: true
-        })
+        });
+
+        // create the icon group
+        this.#npcIconGroup = this.add.group([
+            this.mayorIcon = this.add.circle(this.#interactiveSpider.x, this.#interactiveSpider.y, 20, 0xFFFF00, 1)
+        ]);
 
         /* ========== INTERACTABLES ========== */
         // TODO: Rework how the snowboard and ski interactable objects work
         // snowboard interactables to start the ski/snowboard minigame
+        this.minigameinteractables = this.add.group([
+            this.skiInteractable = new Phaser.Physics.Arcade.Image(this, 1184, 496, ''),
+            this.snowboardInteractable = new Phaser.Physics.Arcade.Image(this, 1056, 496, ''),
+        ])
+
+        this.physics.add.existing(this.snowboardInteractable);
+        this.physics.add.existing(this.skiInteractable);
+
+        this.snowboardInteractable.body.setSize(64, 32, true);
+        this.skiInteractable.body.setSize(64, 32, true);
+
+        this.physics.add.overlap(this.#playerInteractionZone, this.snowboardInteractable, () => {
+            if(this.controls.isActionJustDown) {
+                this.#minigameInteraction('SNOWBOARDER');
+            }
+        }, null, this);
+
+        this.physics.add.overlap(this.#playerInteractionZone, this.skiInteractable, () => {
+            if(this.controls.isActionJustDown) {
+                this.#minigameInteraction('SKIIER');
+            }
+        }, null, this);
+
+        /*
         this.snowborderinteractables = this.physics.add.group();
-        this.snowborderinteractables.create(-18, -906, '').setDepth(-1);
-        this.snowborderinteractables.create(12, -906, '').setDepth(-1);
+        this.snowborderinteractables.create(0, 0, '').setDepth(-1);
+        this.snowborderinteractables.create(32, 0, '').setDepth(-1);
         this.snowborderinteractables.getChildren().forEach((interactable) => {
             this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
                 if(this.controls.isActionJustDown) {
@@ -127,17 +218,26 @@ export class Overworld extends Phaser.Scene {
             }, null, this);
         });
 
-        // snowboard interactables to start the ski/snowboard minigame
+        // skiier interactables to start the ski/snowboard minigame
         this.skiierinteractables = this.physics.add.group();
-        this.skiierinteractables.create(108, -906, '').setDepth(-1);
-        this.skiierinteractables.create(140, -906, '').setDepth(-1);
+        this.skiierinteractables.create(128, 0, '').setDepth(-1);
+        this.skiierinteractables.create(160, 0, '').setDepth(-1);
         this.skiierinteractables.getChildren().forEach((interactable) => {
+            console.log(interactable.x);
+            console.log(interactable.y);
             this.physics.add.overlap(this.#playerInteractionZone, interactable, () => {
                 if(this.controls.isActionJustDown) {
                     this.#minigameInteraction('SKIIER');
                 }
             }, null, this);
         });
+        */
+
+        // create the icon group
+        this.interactablesIcons = this.add.group([
+            this.snowboardInteractableIcon = this.add.circle(this.snowboardInteractable.x, this.snowboardInteractable.y, 20, 0xFF00FF, 1),
+            this.skiInteractableIcon = this.add.circle(this.skiInteractable.x, this.skiInteractable.y, 20, 0xFF00FF, 1),
+        ]);
 
         /* ========== REGISTERS ========== */
         // register the events and colliders
@@ -147,20 +247,27 @@ export class Overworld extends Phaser.Scene {
         // register the UI Scene with this game scene
         this.scene.launch(SCENE_KEYS.UI_SCENE);
 
-        // camera hue shifting based on weather WIP
-        // TODO: REFINE/REMAKE THIS FUNCTION
-        this.overlayImage = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width, this.cameras.main.height, 0x000000, 0.1).setDepth(10000);
-        this.overlayImage.setScrollFactor(0);
+
+        this.cameras.main.ignore(this.playerIcon);
+        this.cameras.main.ignore(this.mayorIcon);
+        this.cameras.main.ignore(this.interactablesIcons);
     };
 
     update() {
         this.#playerContainer.moveInteractZone();
+        this.#minimapTracking();
     }
 
     #minigameInteraction(playerType) {
         this.playerType = playerType;
         this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
         this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+    }
+
+    #minimapTracking() {
+        this.miniMapCamera.scrollX = Phaser.Math.Clamp(this.player.physicsBody.x, 880, 1484);
+        this.miniMapCamera.scrollY = Phaser.Math.Clamp(this.player.physicsBody.y, 412, 1312);
+        this.playerIcon.setPosition(this.player.physicsBody.x, this.player.physicsBody.y);
     }
 
     #collideObjects() {
@@ -179,7 +286,7 @@ export class Overworld extends Phaser.Scene {
         
         // interactive npc group colliders
         this.#interactiveNPCGroup.getChildren().forEach((npc) => {
-            npc.setCollideWorldBounds(true);
+            npc.setCollideWorldBounds(false);
             this.physics.add.collider(this.player, npc, this.#collideObjects, null, this);
             this.physics.add.collider(this.#allCollisionLayer, npc);
             this.physics.add.overlap(this.#playerInteractionZone, npc, () => {

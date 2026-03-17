@@ -67,9 +67,11 @@ export class SkiMoveState extends SkiBaseCharacterState {
         this._gameObject.body.velocity.y += this._gameObject.speed * value;
 
         // ensure players can't go up
+        /*
         if (this._gameObject.body.velocity.y < 0) {
             this._gameObject.body.velocity.y = 0;
         }
+        */
     }
 
     #updateAnimation() {

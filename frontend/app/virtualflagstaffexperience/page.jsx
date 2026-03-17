@@ -10,6 +10,7 @@ import { PreloadScene } from './src/scenes/preload-scene';
 import { Overworld } from './src/scenes/overworld-scene';
 import { UiScene } from './src/scenes/ui-scene';
 import { SkiGame } from './src/scenes/ski-game-scene';
+import { SkiGameEndless } from './src/scenes/ski-game-endless-scene';
 
 export default function VirtualFlagstaff() {
     const gameRef = useRef(null)
@@ -23,6 +24,7 @@ export default function VirtualFlagstaff() {
         game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene)
         game.scene.add(SCENE_KEYS.GAME_SCENE, Overworld)
         game.scene.add(SCENE_KEYS.SKI_GAME, SkiGame)
+        game.scene.add(SCENE_KEYS.SKI_GAME_ENDLESS, SkiGameEndless)
         game.scene.add(SCENE_KEYS.UI_SCENE, UiScene)
         game.scene.start(SCENE_KEYS.PRELOAD_SCENE)
 
