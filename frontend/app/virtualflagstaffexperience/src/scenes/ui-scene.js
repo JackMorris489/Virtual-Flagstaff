@@ -38,6 +38,12 @@ export class UiScene extends Phaser.Scene {
         });
     }
 
+    preload()
+    {
+        this.load.audio("hoverSfx", "/sfx/menu-hover.wav")
+        this.load.audio("clickSfx", "/sfx/menu-click.wav")
+    }
+
     createDialogUi()
     {
         this.dialogBackground = this.add.image(0, 0, ASSET_KEYS.UI_DIALOG).setOrigin(0);
@@ -256,6 +262,9 @@ export class UiScene extends Phaser.Scene {
     }
 
     create() {
+        this.hoverSfx = this.sound.add("hoverSfx", { volume: this.sound.volume ?? 1 });
+        this.clickSfx = this.sound.add("clickSfx", { volume: this.sound.volume ?? 1 });
+
         this.createDialogUi();
         this.createWeatherUi();
 
@@ -451,6 +460,8 @@ export class UiScene extends Phaser.Scene {
                 backgroundColor: '#444444',
                 color: '#ffff00'
             });
+
+            this.hoverSfx.play();
         });
 
         btn.on('pointerout', () => {
@@ -460,7 +471,10 @@ export class UiScene extends Phaser.Scene {
             });
         });
 
-        btn.on('pointerdown', callback);
+        btn.on('pointerdown', () => {
+            this.clickSfx.play();
+            callback();
+        });
 
         return btn;
     }
