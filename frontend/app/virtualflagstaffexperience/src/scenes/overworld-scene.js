@@ -28,7 +28,6 @@ export class Overworld extends Phaser.Scene {
     playerType;
     #interactiveNPCGroup;
     #interactiveSpider;
-    mayorIcon;
     #interactiveSkier;
     #interactiveSnowboarder;
     currentDialogNumber = 0;
@@ -186,9 +185,6 @@ export class Overworld extends Phaser.Scene {
 
        // create the icon group
        this.#npcIconGroup = this.add.graphics(npcIconGroup)
-        // this.#npcIconGroup = this.add.group([
-        //     this.mayorIcon = this.add.circle(this.#interactiveSpider.x, this.#interactiveSpider.y, 20, 0xFFFF00, 1)
-        // ]);
 
         /* ========== INTERACTABLES ========== */
         // TODO: Rework how the snowboard and ski interactable objects work
@@ -237,7 +233,6 @@ export class Overworld extends Phaser.Scene {
         {
             this.cameras.main.ignore(npcIcon)
         }
-        this.cameras.main.ignore(this.mayorIcon);
         this.cameras.main.ignore(this.interactablesIcons);
     };
 
