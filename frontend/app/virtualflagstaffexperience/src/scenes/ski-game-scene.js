@@ -275,7 +275,18 @@ export class SkiGame extends GameScene {
             console.error(e)
         }
 
-        this.uiScene.showDialog(await this.buildEndDialogText('CONGRATS! YOU WIN!!'));
+        let rewards;
+        try
+        {
+            rewards = await apiFetch(`/quests/${questId}/rewards`);
+        }
+
+        catch (err)
+        {
+            console.error(err)
+        }
+
+        this.uiScene.showDialog(await this.buildEndDialogText(`CONGRATS! YOU WIN!!\nYou win the ${rewards[0].name}`));
     }
 
     #registerColliders() {
