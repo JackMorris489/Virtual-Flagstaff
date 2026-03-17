@@ -16,7 +16,6 @@ import apiFetch from "../../../../utils/apiFetch"
     Interactive NPC class, this class exists essentially as an extention (perhaps later literally)
     of the base NPC class. This one has additional code to allow it to be interacted with.
 **/ 
-// TODO: OVERHAUL AND MAKE IT EXTEND THE BASE NPC CLASS
 export class NPC extends CharacterGameObject
 {
     constructor(config)
