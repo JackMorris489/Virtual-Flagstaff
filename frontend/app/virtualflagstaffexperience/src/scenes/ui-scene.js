@@ -92,13 +92,7 @@ export class UiScene extends Phaser.Scene {
 
     createTutorialUi()
     {
-
-        this.showDialog(
-            'Welcome to Virtual Flagstaff!\n' +
-            'Press the arrow keys To Move!\n' +
-            'Press \'X\' to interact!\n' +
-            'Press \'Esc\' to pause!\n\n' +
-            'Move your character to exit this tutorial.')
+        this.scene.launch(SCENE_KEYS.TUTORIAL_SCENE);
     }
 
 
@@ -156,41 +150,14 @@ export class UiScene extends Phaser.Scene {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.skiendlessscene = this.scene.get(SCENE_KEYS.SKI_GAME_ENDLESS);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
-        /*
-        this.getWeatherData().then((result) => {
-            this.weather = result;
-            console.log(this.weather);
-
-            switch(this.weather) {
-                case `Sunny`: 
-                    this.worldscene.overlayImage.fillColor = 0xFFFF00;
-                    break;
-
-                case `Partly Sunny`: 
-                    this.worldscene.overlayImage.fillColor = 0xAAAA00;
-                    break;
-
-                case `Snowing`:
-                    this.worldscene.overlayImage.fillColor = 0xFFFFFF;
-                    break;
-
-                default:
-                    this.worldscene.overlayImage.fillColor = 0x00FF00;
-                    break;
-            }
-            console.log(this.worldscene.overlayImage.fillColor.toString(16));
-        }).catch((error) => {
-            console.error(error);
-        });
-        */
+        this.tutorialScene = this.scene.get(SCENE_KEYS.TUTORIAL_SCENE);
     }
 
     async getUserQuests()
     {
         return await apiFetch("/users/me/quests", {
             method: "GET",
-            credentials: "include",
-            headers: {"Content-Type": "application/json"},
+            credentials: "include"
         });
     }
 
@@ -296,17 +263,15 @@ export class UiScene extends Phaser.Scene {
 
         this.createDialogUi();
         this.createWeatherUi();
-
-        if (!this.playerCompletedTutorial())
-        {
-            this.createTutorialUi();
-        }
-
         this.createQuestUi();
         this.setupEventListeners();
         this.setupInput();
         this.setupSceneReferences();
         this.createPauseMenu();
+        if (!this.playerCompletedTutorial())
+        {
+            this.createTutorialUi();
+        }
     }
 
     update() {
