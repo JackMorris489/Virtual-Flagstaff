@@ -64,10 +64,16 @@ class DatabaseService:
         session: Session, 
         query, 
         offset: int = 0, 
-        limit: int = 25
+        limit: int = 25,
+        apply_scalars: bool = False
     ):
         query = self.paginate_query(query, offset, limit)
-        return self.execute_query(session, query).all()
+        results = self.execute_query(session, query)
+
+        if apply_scalars:
+            results = results.scalars()
+
+        return results.all()
 
 
     def get_model_instances(
