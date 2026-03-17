@@ -10,7 +10,7 @@ from constants import (
     QUESTS,
     REWARDS
 )
-from database.models import Game, Npc, Quest
+from database.models import Game, Npc, Quest, Reward
 
 class DatabaseService:
     def __init__( self, database_url: str = DATABASE_URL ):
@@ -198,13 +198,24 @@ class DatabaseService:
         self,
         rewards: list[dict[str, str]] = REWARDS
     ):
-        pass
+        with Session(self._engine) as session:
+            for reward in rewards:
+                reward_name = reward["name"]
+                query = select(Reward).where(Reward.name == reward_name)
+                existing = self.get_query_result(session, query)
+                if not existing:
+                    session.add(Reward(
+                        name=reward_name,
+                        key=reward["key"]
+                    ))
+            session.commit()
 
 
     def seed_all(self):
         self.seed_games()
         self.seed_non_playable_characters()
         self.seed_quests()
+        self.seed_rewards()
 
 database_service = DatabaseService()
 SessionDep = Annotated[Session, Depends(database_service.get_session)]
