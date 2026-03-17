@@ -103,6 +103,9 @@ export class Player extends CharacterGameObject {
             // run interaction
             this.interactedObject.interactionComponent.runInteract();
         }
+        else {
+            console.warn("Object cannot be interacted with")
+        }
     }
 
     isMoving()

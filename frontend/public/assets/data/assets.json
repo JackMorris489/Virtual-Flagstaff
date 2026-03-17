@@ -135,6 +135,16 @@
     "files": [
       {
         "type": "image",
+        "key": "SKI_GAME_BARRIER",
+        "url": "skicolliders.png"
+      }
+    ]
+  },
+  {
+    "path": "assets/images",
+    "files": [
+      {
+        "type": "image",
         "key": "SNOWBOARDER",
         "url": "snowboarder.png"
       },
@@ -166,12 +176,52 @@
     ]
   },
   {
+    "path": "assets/tiled/lpc-victorian-preview",
+    "files": [
+      {
+        "type": "image",
+        "key": "BRICKS",
+        "url": "bricks.png"
+      },
+      {
+        "type": "image",
+        "key": "ROOFS",
+        "url": "roofs.png"
+      },
+      {
+        "type": "image",
+        "key": "VICTORASTREET",
+        "url": "victorian-streets.png"
+      },
+      {
+        "type": "image",
+        "key": "VICTORATENEMENT",
+        "url": "victorian-tenement.png"
+      }
+    ]
+  },
+  {
     "path": "assets/tiled",
     "files": [
       {
         "type": "image",
         "key": "COLLISION",
         "url": "colliders.jpg"
+      },
+      {
+        "type": "image",
+        "key": "EQUIPMENT",
+        "url": "equipment.jpg"
+      },
+      {
+        "type": "image",
+        "key": "STREET",
+        "url": "street.png"
+      },
+      {
+        "type": "image",
+        "key": "STREETS",
+        "url": "streets.png"
       }
     ]
   }

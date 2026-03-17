@@ -15,6 +15,7 @@ export class UiScene extends Phaser.Scene {
     dialogBackground;
     weather;
     skiscene;
+    skiendlessscene;
     worldscene;
     #controls;
     #pauseContainer;
@@ -153,7 +154,35 @@ export class UiScene extends Phaser.Scene {
     setupSceneReferences()
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
+        this.skiendlessscene = this.scene.get(SCENE_KEYS.SKI_GAME_ENDLESS);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
+        /*
+        this.getWeatherData().then((result) => {
+            this.weather = result;
+            console.log(this.weather);
+
+            switch(this.weather) {
+                case `Sunny`: 
+                    this.worldscene.overlayImage.fillColor = 0xFFFF00;
+                    break;
+
+                case `Partly Sunny`: 
+                    this.worldscene.overlayImage.fillColor = 0xAAAA00;
+                    break;
+
+                case `Snowing`:
+                    this.worldscene.overlayImage.fillColor = 0xFFFFFF;
+                    break;
+
+                default:
+                    this.worldscene.overlayImage.fillColor = 0x00FF00;
+                    break;
+            }
+            console.log(this.worldscene.overlayImage.fillColor.toString(16));
+        }).catch((error) => {
+            console.error(error);
+        });
+        */
     }
 
     async getUserQuests()
@@ -329,6 +358,25 @@ export class UiScene extends Phaser.Scene {
         if (this.skiscene) {
             this.skiscene.scene.switch(SCENE_KEYS.GAME_SCENE);
         }
+
+        // if (this.skiendlessscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
+        //     // unpause the ski scene (so it can sleep)
+        //     this.skiendlessscene.scene.resume();
+
+        //     // switch to the overworld scene
+        //     this.skiendlessscene.scene.switch(this.worldscene);
+
+        //     // close dialog
+        //     this.closeDialog();
+        // }
+
+        // if (this.skiendlessscene.scene.isPaused() && this.#controls.isEnterJustDown) {
+        //     // restart the game
+        //     this.skiendlessscene.scene.restart();
+
+        //     // close dialog
+        //     this.closeDialog();
+        // }
     }
 
     createPauseMenu() {

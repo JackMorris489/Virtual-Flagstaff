@@ -12,4 +12,4 @@ export const NPC_CHANGE_DIRECTION_DELAY_WAIT = 800;
 
 
 /* ========== SKI CONFIGS ========== */
-export const SKI_SPEED = 2;
+export const SKI_SPEED = 2.5;

@@ -20,6 +20,7 @@ export class SkiGame extends GameScene {
     #collisionLayer;
     #startLayer;
     #finishLayer;
+    endlessMode = false;
     #obstacles;
     uiScene;
 
@@ -47,7 +48,8 @@ export class SkiGame extends GameScene {
             key: ASSET_KEYS.SKI_GAME_LEVEL,
         });
 
-        const collisionTiles = map.addTilesetImage(TILED_TILESET_NAMES.COLLISION, ASSET_KEYS.COLLISION);
+        // create collision layers
+        const collisionTiles = map.addTilesetImage(TILED_TILESET_NAMES.COLLISION, ASSET_KEYS.SKI_GAME_BARRIER);
         this.#collisionLayer = map.createLayer(TILED_LAYER_NAMES.SKI_COLLISION, [collisionTiles], -224, 0);
         this.#startLayer = map.createLayer(TILED_LAYER_NAMES.SKI_START, [collisionTiles], -224, 0);
         this.#finishLayer = map.createLayer(TILED_LAYER_NAMES.SKI_FINISH, [collisionTiles], -224, 0);
@@ -69,11 +71,14 @@ export class SkiGame extends GameScene {
             assetKey: playerModel,
         }).setDepth(6);
 
-        this.cameras.main.startFollow(this.player).followOffset.set(0, -168);
+        // resize the camera viewport and follow the player
+        this.cameras.main.startFollow(this.player).followOffset.set(0, -160);
 
         /* ========== OBSTACLES ========== */
         this.#obstacles = this.physics.add.group();
-        this.generateObsticles();
+
+        // generate obstacles
+        this.generateObsticles(384);
 
         /* ========== COINS ========== */
         this.coins = this.physics.add.group();
@@ -94,17 +99,47 @@ export class SkiGame extends GameScene {
         this.#registerColliders();
         this.uiScene = this.scene.get(SCENE_KEYS.UI_SCENE);
 
-        /* ========== START SCREEN ========== */
+        this.endlessMode = this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode;
+
+      /* ========== START SCREEN ========== */
         this.scene.pause();
         this.uiScene.showDialog(await this.buildStartDialogText());
     }
 
     update() {
         this.#updateCamera();
+
+        if(this.endlessMode) {
+            // teleport the player and all of the objects within 1000 y pixels
+            if (this.player.physicsBody.y >= 2000) {
+                this.#obstacles.getChildren().forEach((obstacle) => {
+                    console.log("Obstacle Y Position: ", obstacle.body.y)
+                    console.log("Difference: ", obstacle.body.y - this.player.physicsBody.y)
+                    if (obstacle.body.y - this.player.physicsBody.y <= -200 || obstacle.body.y - this.player.physicsBody.y >= 1152) {
+                        obstacle.destroy();
+                    }
+                });
+
+                // teleport all of the objects within 1000 y pixels 
+                this.#obstacles.getChildren().forEach((obstacle) => {
+                    if (obstacle.body.y - this.player.physicsBody.y < 1152) {
+                        obstacle.body.y -= 1600;
+                    }
+                });
+
+                // teleport the player
+                this.player.physicsBody.y -= 1600;
+
+                // create new obstacles
+                this.generateObsticles(1280);
+            }
+        }
     }
 
-    generateObsticles() {
-        for (let row = 384; row < 3008; row += 64) {
+    // TODO: Improve logic to prevent overlap and prevent obstacles from generating too close together
+    generateObsticles(rowStart) {
+        // break the map into 32 x 64 grid. In each 'square' attempt to spawn an obstacle 
+        for (let row = rowStart; row < 3008; row += 64) {
             for (let column = 64; column < 480; column += 32) {
                 const spawn = Phaser.Math.RND.between(0, 9);
                 const type = Phaser.Math.RND.between(0, 4);
@@ -131,8 +166,14 @@ export class SkiGame extends GameScene {
                 }
             }
         }
-
+        // give the obstacles colliders and remove some(?) duplicates
         this.#obstacles.getChildren().forEach((obstacle) => {
+            let closest = this.physics.closest(obstacle, this.#obstacles.getChildren());
+            while (this.physics.world.overlap(obstacle, closest)) {
+                console.log('removing overlap!');
+                closest.destroy();
+                closest = this.physics.closest(obstacle, this.#obstacles.getChildren());
+            }
             this.physics.add.collider(this.player, obstacle, this.#collideWithObstacle, null, this);
         });
     }
@@ -245,6 +286,10 @@ export class SkiGame extends GameScene {
         this.submitGameSession()
         this.scene.pause();
 
+        this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode = true;
+
+        // pull up UI scene for congradulations & restart or leave mini-game
+        this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
         let questId;
         const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
 
@@ -298,6 +343,9 @@ export class SkiGame extends GameScene {
     }
 
     #updateCamera() {
-        this.cameras.main.zoom = 1.1 / ((0.002 * this.player.body.velocity.y) + 1);
+        // zoom out when going faster zoom in when going slower
+        // function for zoom: max zoom/((zoom factor * velocity) + 1)
+        const cameraZoom = Phaser.Math.Clamp((1.1/((0.002 * this.player.body.velocity.y) + 1)), 0.65, 1.1)
+        this.cameras.main.zoom = cameraZoom
     }
 }
