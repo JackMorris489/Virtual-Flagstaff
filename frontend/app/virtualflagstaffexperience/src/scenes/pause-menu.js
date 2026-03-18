@@ -10,6 +10,12 @@ export class PauseMenu extends Phaser.Scene
         super({key: SCENE_KEYS.PAUSE_MENU})
     }
 
+    preload()
+    {
+        this.load.audio("hoverSfx", "/sfx/menu-hover.wav")
+        this.load.audio("clickSfx", "/sfx/menu-click.wav")
+    }
+
     create()
     {
         this.hoverSfx = this.sound.add("hoverSfx", { volume: this.sound.volume ?? 1 });
