@@ -11,8 +11,6 @@ export class UiScene extends Phaser.Scene {
     #hudContainer;
     #dialogueContainer;
     #dialogueContainerText;
-    #weatherContainer;
-    #weatherContainerText;
     dialogBackground;
     weather;
     skiscene;
@@ -117,6 +115,7 @@ export class UiScene extends Phaser.Scene {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+            this.pauseMenu.events.off("RESUME_GAME", this.resumeGame, this)
         });
     }
 
@@ -138,10 +137,7 @@ export class UiScene extends Phaser.Scene {
 
     async getUserQuests()
     {
-        return await apiFetch("/users/me/quests", {
-            method: "GET",
-            credentials: "include"
-        });
+        return await apiFetch("/users/me/quests", {credentials: "include"});
     }
 
     setQuestContainerText(name, description)
@@ -334,7 +330,7 @@ export class UiScene extends Phaser.Scene {
             this.pauseGame();
         }
     }
-    
+
 
     showDialog(message) {
         this.#dialogueContainerText.setText(message);
