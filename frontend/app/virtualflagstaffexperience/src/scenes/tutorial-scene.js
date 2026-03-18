@@ -33,7 +33,7 @@ export class TutorialScene extends Phaser.Scene {
                 onStart: () => this.waitForEnterPress()
             },
             {
-                text: "Press the arrow\nkeys to move!",
+                text: "Press the arrow keys to move!",
                 onStart: () => this.#moveCheck = true
                 
             },
@@ -42,11 +42,11 @@ export class TutorialScene extends Phaser.Scene {
                 onStart: () => this.waitForPlayerInRangeOfNpc()
             },
             {
-                text: "Press X to interact\nwith NPCs and objects!",
+                text: "Press X to interact with NPCs and objects!\n\nWhen interacting with NPCs, keep pressing X to continue talking to them!",
                 onStart: () => this.waitForNpcInteractionStart()
             },
             {
-                text: "You've completed the tutorial!\n\nPress Enter to end tutorial!",
+                text: "You've completed the tutorial!\n\nMove your character to end the tutorial.",
                 onStart: () => this.waitForNpcInteractionEnd()
             }
 
@@ -60,7 +60,7 @@ export class TutorialScene extends Phaser.Scene {
     {
         EVENT_BUS.once("NPC_INTERACTION_END", () => {
             this.#textBox.show();
-            this.waitForEnterPress();
+            this.#moveCheck = true;
         })
     }
 
