@@ -112,11 +112,31 @@ export class SkiGame extends GameScene {
     {
         try
         {
+            let playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
             const playerRewards = await this.getPlayerRewards();
+            console.log(playerRewards)
 
-            return playerRewards.some(
+            
+
+            const hasEndlessMode = playerRewards.some(
                 reward => reward.key === "ENDLESS_SKI_GAME"
             );
+
+            // TODO: Refactor this section of conditionals
+            if (playerModel === "SKIIER")
+            {
+                questId = 2;
+            }
+
+            else if (playerModel === "SNOWBOARDER")
+            {
+                questId = 1;
+            }
+            ///////////////////////////////////////////////
+
+            const playerQuest = await apiFetch(`/users/me/quest/{questId}`, {credentials: "include"});
+
+            return hasEndlessMode && playerQuest.is_complete;
         }
         catch
         {
@@ -321,10 +341,8 @@ export class SkiGame extends GameScene {
         this.submitGameSession()
         this.scene.pause();
 
-        // this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode = true;
-
         // pull up UI scene for congradulations & restart or leave mini-game
-        this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
+        this.uiScene.showDialog("CONGRATS! YOU WIN!!\n\nPress Enter to play again or press Escape to return to Flagstaff");
         let questId;
         const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
 
@@ -371,7 +389,7 @@ export class SkiGame extends GameScene {
             console.error(err)
         }
 
-        this.uiScene.showDialog(await this.buildEndDialogText(`CONGRATS! YOU WIN!!\nYou win the ${rewards[0].name}`));
+        this.uiScene.showDialog(await this.buildEndDialogText(`"CONGRATS! YOU WIN!!\n\nYou win the ${rewards[0].name}\n\n`));
     }
 
     #registerColliders() {
