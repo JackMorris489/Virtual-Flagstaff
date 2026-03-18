@@ -105,13 +105,13 @@ export class UiScene extends Phaser.Scene {
     {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
-        // EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.#questHUD.refresh, this);
+        EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.#questHUD.refresh, this.#questHUD);
         this.pauseMenu.events.on("RESUME_GAME", this.resumeGame, this)
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
-            // EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.#questHUD.refresh, this);
+            EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.#questHUD.refresh, this.#questHUD);
             this.pauseMenu.events.off("RESUME_GAME", this.resumeGame, this)
         });
     }
@@ -126,7 +126,6 @@ export class UiScene extends Phaser.Scene {
     setupSceneReferences()
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
-        // this.skiendlessscene = this.scene.get(SCENE_KEYS.SKI_GAME_ENDLESS);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
         this.tutorialScene = this.scene.get(SCENE_KEYS.TUTORIAL_SCENE);
         this.pauseMenu = this.scene.get(SCENE_KEYS.PAUSE_MENU);
