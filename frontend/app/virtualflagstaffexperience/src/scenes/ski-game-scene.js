@@ -82,7 +82,7 @@ export class SkiGame extends GameScene {
 
         /* ========== COINS ========== */
         this.coins = this.physics.add.group();
-        this.generateCoins();
+        this.generateCoins(460);
 
         this.scoreText = this.add
             .text(20, 20, 'Score: 0', {
@@ -110,15 +110,18 @@ export class SkiGame extends GameScene {
         this.#updateCamera();
 
         if(this.endlessMode) {
-            // teleport the player and all of the objects within 1000 y pixels
             if (this.player.physicsBody.y >= 2000) {
+                // remove all the current objects within 200 pixels behind the player
                 this.#obstacles.getChildren().forEach((obstacle) => {
-                    console.log("Obstacle Y Position: ", obstacle.body.y)
-                    console.log("Difference: ", obstacle.body.y - this.player.physicsBody.y)
                     if (obstacle.body.y - this.player.physicsBody.y <= -200 || obstacle.body.y - this.player.physicsBody.y >= 1152) {
                         obstacle.destroy();
                     }
                 });
+                this.coins.getChildren().forEach((coin) => {
+                    if (coin.body.y - this.player.physicsBody.y <= -200 || coin.body.y - this.player.physicsBody.y >= 1152) {
+                        coin.destroy();
+                    }
+                })
 
                 // teleport all of the objects within 1000 y pixels 
                 this.#obstacles.getChildren().forEach((obstacle) => {
@@ -126,12 +129,20 @@ export class SkiGame extends GameScene {
                         obstacle.body.y -= 1600;
                     }
                 });
+                this.coins.getChildren().forEach((coin) => {
+                    if (coin.body.y - this.player.physicsBody.y < 1152) {
+                        coin.body.y -= 1600;
+                    }
+                })
 
                 // teleport the player
                 this.player.physicsBody.y -= 1600;
 
                 // create new obstacles
                 this.generateObsticles(1280);
+
+                // generate new coins
+                this.generateCoins(1280);
             }
         }
     }
@@ -170,7 +181,6 @@ export class SkiGame extends GameScene {
         this.#obstacles.getChildren().forEach((obstacle) => {
             let closest = this.physics.closest(obstacle, this.#obstacles.getChildren());
             while (this.physics.world.overlap(obstacle, closest)) {
-                console.log('removing overlap!');
                 closest.destroy();
                 closest = this.physics.closest(obstacle, this.#obstacles.getChildren());
             }
@@ -178,12 +188,12 @@ export class SkiGame extends GameScene {
         });
     }
 
-    generateCoins() {
+    generateCoins(rowStart) {
         // Spread coins in reachable lanes so they feel intentional instead of clumped.
         const lanes = [112, 176, 240, 304, 368, 432];
         let lastLaneIndex = -1;
 
-        for (let row = 460; row < 2860; row += 165) {
+        for (let row = rowStart; row < 2860; row += 165) {
             let laneIndex = Phaser.Math.Between(0, lanes.length - 1);
 
             // Avoid repeating the same lane too often
@@ -212,7 +222,7 @@ export class SkiGame extends GameScene {
     collectCoin(player, coin) {
         if (this.hasEnded || !coin.active) return;
 
-        coin.disableBody(true, true);
+        coin.destroy();
         this.score += 10;
         this.scoreText.setText(`Score: ${this.score}`);
     }

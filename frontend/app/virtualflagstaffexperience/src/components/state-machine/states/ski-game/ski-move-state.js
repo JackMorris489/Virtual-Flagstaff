@@ -63,8 +63,9 @@ export class SkiMoveState extends SkiBaseCharacterState {
             this._gameObject.body.velocity.x += this._gameObject.speed * value;
             return;
         }
-        // update y velocity
+        // update y velocity use clamp to prevent upwards movement
         this._gameObject.body.velocity.y += this._gameObject.speed * value;
+        this._gameObject.body.velocity.y = Phaser.Math.Clamp(this._gameObject.body.velocity.y, 0, 1000)
 
         // ensure players can't go up
         /*
