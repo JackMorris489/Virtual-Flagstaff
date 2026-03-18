@@ -33,14 +33,17 @@ export default class WeatherHUD
     async init() {
         try {
             const { shortForecast, temperature, temperatureUnit } = await this.getWeather();
-
+            console.log(shortForecast)
             this.#text.setText(
                 `${shortForecast}  ${temperature}°${temperatureUnit}`
             );
 
             this.handleOverlaySelection(shortForecast);
 
-        } catch (err) {
+        } 
+        
+        catch (err)
+        {
             this.#text.setText("Weather unavailable");
         }
     }
@@ -54,24 +57,36 @@ export default class WeatherHUD
     {
         const lowerCasedForecast = forecast.toLowerCase();
 
+        const YELLOW = 0xFFFF00;
+        const GREY = 0x808080;
+        const WHITE = 0xFFFFFF;
+        const BLUE = 0x0000FF;
+        
+        let overlayColor = undefined;
+
         if (lowerCasedForecast.includes('sun')) 
         {
-            this.#scene.overlayImage.fillColor = 0xFFFF00;
+            overlayColor = YELLOW;
         } 
         
         else if (lowerCasedForecast.includes('cloud')) 
         {
-            this.#scene.overlayImage.fillColor = 0x808080;
+            overlayColor = GREY;
         } 
         
         else if (lowerCasedForecast.includes('snow')) 
         {
-            this.#scene.overlayImage.fillColor = 0xFFFFFF;
+            overlayColor = WHITE;
         } 
         
         else if (lowerCasedForecast.includes('rain')) 
         {
-            this.#scene.overlayImage.fillColor = 0x0000FF;
+            overlayColor = BLUE;
+        }
+
+        if (overlayColor)
+        {
+            this.#scene.worldscene.overlayImage.fillColor = overlayColor;
         }
     }
 }
