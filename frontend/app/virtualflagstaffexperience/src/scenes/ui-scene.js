@@ -5,6 +5,7 @@ import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
 import { KeyboardComponent } from '../components/input/keyboard-component';
 import apiFetch from '../../../utils/apiFetch';
+import WeatherHUD from '../ui/WeatherHUD';
 
 export class UiScene extends Phaser.Scene {
     #hudContainer;
@@ -27,6 +28,8 @@ export class UiScene extends Phaser.Scene {
     #questNameText;
     #questDescriptionText;
 
+    #weatherHUD;
+
     constructor() {
         super({
             key: SCENE_KEYS.UI_SCENE,
@@ -36,13 +39,6 @@ export class UiScene extends Phaser.Scene {
     init(args)
     {
         this.playerContainer = args.playerContainer
-    }
-
-
-    preload()
-    {
-        this.load.audio("hoverSfx", "/sfx/menu-hover.wav")
-        this.load.audio("clickSfx", "/sfx/menu-click.wav")
     }
 
     createDialogUi()
@@ -64,65 +60,11 @@ export class UiScene extends Phaser.Scene {
     }
 
 
-    handleOverlaySelection(forecast)
-    {
-        const lowerCasedForecast = forecast.toLowerCase();
-
-        if (lowerCasedForecast.includes('sun')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0xFFFF00;
-        } 
-        
-        else if (lowerCasedForecast.includes('cloud')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0x808080;
-        } 
-        
-        else if (lowerCasedForecast.includes('snow')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0xFFFFFF;
-        } 
-        
-        else if (lowerCasedForecast.includes('rain')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0x0000FF;
-        }
-    }
-
-
     createTutorialUi()
     {
         this.scene.launch(SCENE_KEYS.TUTORIAL_SCENE, {
             playerContainer: this.playerContainer
         });
-    }
-
-
-    async createWeatherUi()
-    {
-        this.#weatherContainer = this.add.container(0, 0, [
-            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
-        ]);
-        this.#weatherContainerText = this.add.text(14, 14, 'Loading Weather...', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
-
-        this.#weatherContainer.add(this.#weatherContainerText);
-        this.#weatherContainer.setVisible(true);
-       
-        try
-        {
-            const {shortForecast, temperature, temperatureUnit} = await this.getWeather();
-
-            this.#weatherContainerText.setText(
-                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
-            );
-
-            this.handleOverlaySelection(shortForecast)
-        }
-
-        catch (err)
-        {
-            this.#weatherContainerText.setText("Weather unavailable");
-        }
     }
 
 
@@ -301,12 +243,10 @@ export class UiScene extends Phaser.Scene {
     create() {
         this.setupSceneReferences();
         this.createDialogUi();
-        this.createWeatherUi();
+        this.#weatherHUD = new WeatherHUD(this, 0, 0);
         this.createQuestUi();
         this.setupEventListeners();
         this.setupInput();
-        
-        // this.createPauseMenu();
         if (!this.playerCompletedTutorial())
         {
             this.createTutorialUi();
@@ -394,10 +334,7 @@ export class UiScene extends Phaser.Scene {
             this.pauseGame();
         }
     }
-
-    async getWeather() {
-        return await apiFetch("/weather");
-    }
+    
 
     showDialog(message) {
         this.#dialogueContainerText.setText(message);
