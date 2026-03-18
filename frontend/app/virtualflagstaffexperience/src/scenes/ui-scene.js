@@ -5,13 +5,12 @@ import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
 import { KeyboardComponent } from '../components/input/keyboard-component';
 import apiFetch from '../../../utils/apiFetch';
+import WeatherHUD from '../ui/WeatherHUD';
 
 export class UiScene extends Phaser.Scene {
     #hudContainer;
     #dialogueContainer;
     #dialogueContainerText;
-    #weatherContainer;
-    #weatherContainerText;
     dialogBackground;
     weather;
     skiscene;
@@ -19,12 +18,6 @@ export class UiScene extends Phaser.Scene {
     worldscene;
     #controls;
     #pauseContainer;
-    #isPaused = false;
-    #volume = 1;
-    #tutorialContainer;
-    #tutorialContainerText;
-    #interactPopup;
-    #interactPopupText;
     #enterKey;
     #escKey;
 
@@ -32,6 +25,8 @@ export class UiScene extends Phaser.Scene {
     #questText;
     #questNameText;
     #questDescriptionText;
+
+    #weatherHUD;
 
     constructor() {
         super({
@@ -42,13 +37,6 @@ export class UiScene extends Phaser.Scene {
     init(args)
     {
         this.playerContainer = args.playerContainer
-    }
-
-
-    preload()
-    {
-        this.load.audio("hoverSfx", "/sfx/menu-hover.wav")
-        this.load.audio("clickSfx", "/sfx/menu-click.wav")
     }
 
     createDialogUi()
@@ -70,32 +58,6 @@ export class UiScene extends Phaser.Scene {
     }
 
 
-    handleOverlaySelection(forecast)
-    {
-        const lowerCasedForecast = forecast.toLowerCase();
-
-        if (lowerCasedForecast.includes('sun')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0xFFFF00;
-        } 
-        
-        else if (lowerCasedForecast.includes('cloud')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0x808080;
-        } 
-        
-        else if (lowerCasedForecast.includes('snow')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0xFFFFFF;
-        } 
-        
-        else if (lowerCasedForecast.includes('rain')) 
-        {
-            this.worldscene.overlayImage.fillColor = 0x0000FF;
-        }
-    }
-
-
     createTutorialUi()
     {
         this.scene.launch(SCENE_KEYS.TUTORIAL_SCENE, {
@@ -104,45 +66,56 @@ export class UiScene extends Phaser.Scene {
     }
 
 
-    async createWeatherUi()
+    resumeScene(sceneKey)
     {
-        this.#weatherContainer = this.add.container(0, 0, [
-            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
-        ]);
-        this.#weatherContainerText = this.add.text(14, 14, 'Loading Weather...', DEFAULT_UI_TEXT_STYLE).setOrigin(0);
-
-        this.#weatherContainer.add(this.#weatherContainerText);
-        this.#weatherContainer.setVisible(true);
-       
-        try
+        if (this.scene.isPaused(sceneKey))
         {
-            const {shortForecast, temperature, temperatureUnit} = await this.getWeather();
-
-            this.#weatherContainerText.setText(
-                `${shortForecast}\n` + `Temp: ${temperature}°${temperatureUnit}\n`
-            );
-
-            this.handleOverlaySelection(shortForecast)
-        }
-
-        catch (err)
-        {
-            this.#weatherContainerText.setText("Weather unavailable");
+            this.scene.resume(sceneKey);
         }
     }
+
+
+    resumeGame()
+    {
+        this.resumeScene(SCENE_KEYS.GAME_SCENE);
+        this.resumeScene(SCENE_KEYS.SKI_GAME);
+        this.resumeScene(SCENE_KEYS.TUTORIAL_SCENE);
+
+        this.scene.stop(SCENE_KEYS.PAUSE_MENU);
+    }
+
+
+    pauseScene(sceneKey)
+    {
+        if (this.scene.isActive(sceneKey))
+        {
+            this.scene.pause(sceneKey);
+        }
+    }
+
+
+    pauseGame()
+    {
+        this.pauseScene(SCENE_KEYS.GAME_SCENE);
+        this.pauseScene(SCENE_KEYS.SKI_GAME);
+        this.pauseScene(SCENE_KEYS.TUTORIAL_SCENE);
+
+        this.scene.launch(SCENE_KEYS.PAUSE_MENU);
+    }
+
 
     setupEventListeners()
     {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
-        EVENT_BUS.on("PLAYER_MOVED", this.closeDialog, this);
+        this.pauseMenu.events.on("RESUME_GAME", this.resumeGame, this)
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
-            EVENT_BUS.off("PLAYER_MOVED", this.closeDialog, this);
+            this.pauseMenu.events.off("RESUME_GAME", this.resumeGame, this)
         });
     }
 
@@ -156,17 +129,15 @@ export class UiScene extends Phaser.Scene {
     setupSceneReferences()
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
-        this.skiendlessscene = this.scene.get(SCENE_KEYS.SKI_GAME_ENDLESS);
+        // this.skiendlessscene = this.scene.get(SCENE_KEYS.SKI_GAME_ENDLESS);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
         this.tutorialScene = this.scene.get(SCENE_KEYS.TUTORIAL_SCENE);
+        this.pauseMenu = this.scene.get(SCENE_KEYS.PAUSE_MENU);
     }
 
     async getUserQuests()
     {
-        return await apiFetch("/users/me/quests", {
-            method: "GET",
-            credentials: "include"
-        });
+        return await apiFetch("/users/me/quests", {credentials: "include"});
     }
 
     setQuestContainerText(name, description)
@@ -266,16 +237,12 @@ export class UiScene extends Phaser.Scene {
     }
 
     create() {
-        this.hoverSfx = this.sound.add("hoverSfx", { volume: this.sound.volume ?? 1 });
-        this.clickSfx = this.sound.add("clickSfx", { volume: this.sound.volume ?? 1 });
-
+        this.setupSceneReferences();
         this.createDialogUi();
-        this.createWeatherUi();
+        this.#weatherHUD = new WeatherHUD(this, 0, 0);
         this.createQuestUi();
         this.setupEventListeners();
         this.setupInput();
-        this.setupSceneReferences();
-        this.createPauseMenu();
         if (!this.playerCompletedTutorial())
         {
             this.createTutorialUi();
@@ -319,7 +286,6 @@ export class UiScene extends Phaser.Scene {
     returnToWorldFromSki() {
         this.closeDialog();
 
-        this.#isPaused = false;
         if (this.#pauseContainer) {
             this.#pauseContainer.setVisible(false);
         }
@@ -352,183 +318,19 @@ export class UiScene extends Phaser.Scene {
         // }
     }
 
-    createPauseMenu() {
-        const { width, height } = this.scale;
-
-        this.#pauseContainer = this.add.container(width / 2, height / 2);
-
-        const dim = this.add.rectangle(
-            0, 0,
-            width,
-            height,
-            0x000000,
-            0.65
-        ).setOrigin(0.5);
-
-        const panel = this.add.rectangle(
-            0,
-            0,
-            460,
-            420,
-            0x111111,
-            0.95
-        )
-            .setStrokeStyle(4, 0xffd700)
-            .setOrigin(0.5);
-
-        const title = this.add.text(0, -170, 'PAUSED', {
-            fontSize: '42px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        const controlsTitle = this.add.text(0, -110, 'Controls', {
-            fontSize: '22px',
-            color: '#ffd700'
-        }).setOrigin(0.5);
-
-        const controlsText = this.add.text(
-            0,
-            -70,
-            'Arrows  -  Move\nX  -  Interact\nESC  -  Pause',
-            {
-                fontSize: '18px',
-                color: '#cccccc',
-                align: 'center'
-            }
-        ).setOrigin(0.5);
-
-        const volumeLabel = this.add.text(0, -10, 'Volume', {
-            fontSize: '22px',
-            color: '#ffd700'
-        }).setOrigin(0.5);
-
-        const sliderWidth = 240;
-        const min = -sliderWidth / 2;
-        const max = sliderWidth / 2;
-
-        const currentVolume = Number(localStorage.getItem("globalVolume")) ?? 1;
-        const startX = min + (currentVolume * (max - min));
-
-        const sliderTrack = this.add.rectangle(
-            0,
-            30,
-            sliderWidth,
-            8,
-            0xffffff
-        ).setOrigin(0.5);
-
-        const sliderHandle = this.add.circle(
-            startX,
-            30,
-            12,
-            0xffd700
-        ).setInteractive({ draggable: true });
-
-        this.input.setDraggable(sliderHandle);
-
-        sliderHandle.on('drag', (pointer, dragX) => {
-            const clamped = Phaser.Math.Clamp(dragX, min, max);
-            sliderHandle.x = clamped;
-
-            const value = (clamped - min) / (max - min);
-            this.sound.setVolume(value);
-            localStorage.setItem("globalVolume", this.sound.volume.toString())
-        });
-
-        const resumeBtn = this.createButton(0, 110, 'Resume', () => {
-            this.togglePause();
-        });
-
-        const exitBtn = this.createButton(0, 170, 'Exit to Menu', () => {
-            this.#isPaused = false;
-
-            if (this.worldscene) this.worldscene.scene.stop();
-            if (this.skiscene) this.skiscene.scene.stop();
-
-            window.location.href = '/';
-        });
-
-        this.#pauseContainer.add([
-            dim,
-            panel,
-            title,
-            controlsTitle,
-            controlsText,
-            volumeLabel,
-            sliderTrack,
-            sliderHandle,
-            resumeBtn,
-            exitBtn
-        ]);
-
-        this.#pauseContainer.setDepth(9999);
-        this.#pauseContainer.setVisible(false);
-    }
-
-    createButton(x, y, label, callback) {
-        const btn = this.add.text(x, y, label, {
-            fontSize: '22px',
-            color: '#ffffff',
-            backgroundColor: '#222222',
-            padding: { x: 14, y: 8 }
-        })
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true });
-
-        btn.on('pointerover', () => {
-            btn.setStyle({
-                backgroundColor: '#444444',
-                color: '#ffff00'
-            });
-
-            this.hoverSfx.play();
-        });
-
-        btn.on('pointerout', () => {
-            btn.setStyle({
-                backgroundColor: '#222222',
-                color: '#ffffff'
-            });
-        });
-
-        btn.on('pointerdown', () => {
-            this.clickSfx.play();
-            callback();
-        });
-
-        return btn;
-    }
 
     togglePause() {
-        this.#isPaused = !this.#isPaused;
+        if (this.scene.isActive(SCENE_KEYS.PAUSE_MENU))
+        {
+            this.resumeGame();
+        }
 
-        if (this.#isPaused) {
-            if (!this.worldscene.scene.isPaused()) {
-                this.worldscene.scene.pause();
-            }
-
-            if (!this.skiscene.scene.isPaused()) {
-                this.skiscene.scene.pause();
-            }
-
-            this.#pauseContainer.setVisible(true);
-        } else {
-            if (this.worldscene.scene.isPaused()) {
-                this.worldscene.scene.resume();
-            }
-
-            if (this.skiscene.scene.isPaused()) {
-                this.skiscene.scene.resume();
-            }
-
-            this.#pauseContainer.setVisible(false);
+        else
+        {
+            this.pauseGame();
         }
     }
 
-    async getWeather() {
-        return await apiFetch("/weather");
-    }
 
     showDialog(message) {
         this.#dialogueContainerText.setText(message);
@@ -562,35 +364,5 @@ export class UiScene extends Phaser.Scene {
     closeDialog() {
         this.#dialogueContainerText.setText('');
         this.#dialogueContainer.setVisible(false);
-    }
-
-    showInteractPopup(type) {
-        let message = '';
-
-        switch(type)
-        {
-            // adjust to proper interact buttons
-            case INTERACTIVE_OBJECT_TYPE.PICKUP:
-                message = 'X';
-                break;
-            case INTERACTIVE_OBJECT_TYPE.OPEN:
-                message = 'Z';
-                break;
-            case INTERACTIVE_OBJECT_TYPE.DIALOG:
-                message = 'X';
-                break;
-            case INTERACTIVE_OBJECT_TYPE.MINI_GAME:
-                message = 'C';
-                break;
-            default: 
-                message = 'X';
-        }
-        this.#interactPopupText.setText(message);
-        this.#interactPopup.setVisible(true);
-    }
-
-    hideInteractPopup()
-    {
-        this.#interactPopup.setVisible(false);
     }
 }
