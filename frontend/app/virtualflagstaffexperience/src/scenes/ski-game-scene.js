@@ -37,6 +37,7 @@ export class SkiGame extends GameScene {
     }
 
     async create() {
+        this.scene.pause();
         this.isStartScreen = true;
         this.hasEnded = false;
         this.resetScore();
@@ -98,13 +99,37 @@ export class SkiGame extends GameScene {
         /* ========== REGISTERS ========== */
         this.#registerColliders();
         this.uiScene = this.scene.get(SCENE_KEYS.UI_SCENE);
-
-        this.endlessMode = this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode;
+        
+        this.endlessMode = await this.playerHasEndlessMode();
+        // this.endlessMode = this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode;
 
       /* ========== START SCREEN ========== */
-        this.scene.pause();
         this.uiScene.showDialog(await this.buildStartDialogText());
     }
+
+
+    async playerHasEndlessMode()
+    {
+        try
+        {
+            const playerRewards = await this.getPlayerRewards();
+
+            return playerRewards.some(
+                reward => reward.key === "ENDLESS_SKI_GAME"
+            );
+        }
+        catch
+        {
+            return this.endlessMode;
+        }
+    }
+
+
+    async getPlayerRewards()
+    {
+        return await apiFetch("/users/me/rewards", {credentials: "include"})
+    }
+
 
     update() {
         this.#updateCamera();
@@ -286,7 +311,7 @@ export class SkiGame extends GameScene {
         this.submitGameSession()
         this.scene.pause();
 
-        this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode = true;
+        // this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode = true;
 
         // pull up UI scene for congradulations & restart or leave mini-game
         this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
@@ -318,6 +343,11 @@ export class SkiGame extends GameScene {
 
         catch (e) {
             
+        }
+
+        finally
+        {
+            this.endlessMode = true;
         }
 
         let rewards;

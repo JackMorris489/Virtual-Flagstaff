@@ -13,7 +13,9 @@ from database.models import (
     GameSession,
     GameSessionPublic,
     GameSessionCreate,
-    Game
+    Game,
+    Reward,
+    QuestReward
 )
 from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
@@ -177,6 +179,23 @@ def create_game_session(
         session, 
         game_session
     )
+
+
+@users_router.get("/me/rewards", response_model=list[Reward])
+def get_user_rewards(user: CurrentUser, db: SessionDep):
+    query = (
+        select(Reward)
+        .join(QuestReward, QuestReward.reward_id == Reward.id)
+        .join(UserQuest, UserQuest.quest_id == QuestReward.quest_id)
+        .where(
+            and_(
+                UserQuest.user_id == user.id,
+                UserQuest.is_complete
+            )
+        )
+    )
+
+    return database_service.get_query_results(db, query)
 
 
 @users_router.post("/notifications/broadcast")
