@@ -15,7 +15,7 @@ export const NPC_DIALOG = {
             'Hey there! You here to rip some on these gnarly slopes?',
             'Well that\'s what I\'m here for!',
             'You should totally come join me, it\'ll be sick!',
-            'Just head up and after corssing the road head left.',
+            'Just head up and after crossing the road head left.',
             'Walk on over to the pair of boards and we\'ll hit the slopes!'
         ]
 }
