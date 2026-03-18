@@ -32,7 +32,7 @@ export default class QuestHUD
                 
                 this.#textBox.text = this.formatQuest(quest);
 
-                this.#textBox.show()
+                this.#textBox.show();
             }
 
             else
