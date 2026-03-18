@@ -393,29 +393,6 @@ export class UiScene extends Phaser.Scene {
         {
             this.pauseGame();
         }
-        // this.#isPaused = !this.#isPaused;
-
-        // if (this.#isPaused) {
-        //     if (!this.worldscene.scene.isPaused()) {
-        //         this.worldscene.scene.pause();
-        //     }
-
-        //     if (!this.skiscene.scene.isPaused()) {
-        //         this.skiscene.scene.pause();
-        //     }
-
-        //     this.#pauseContainer.setVisible(true);
-        // } else {
-        //     if (this.worldscene.scene.isPaused()) {
-        //         this.worldscene.scene.resume();
-        //     }
-
-        //     if (this.skiscene.scene.isPaused()) {
-        //         this.skiscene.scene.resume();
-        //     }
-
-        //     this.#pauseContainer.setVisible(false);
-        // }
     }
 
     async getWeather() {
