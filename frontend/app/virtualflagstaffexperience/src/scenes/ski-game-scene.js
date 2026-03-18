@@ -341,10 +341,8 @@ export class SkiGame extends GameScene {
         this.submitGameSession()
         this.scene.pause();
 
-        // this.scene.get(SCENE_KEYS.GAME_SCENE).skiEndlessMode = true;
-
         // pull up UI scene for congradulations & restart or leave mini-game
-        this.uiScene.showDialog("CONGRATS! YOU WIN!!\nPress C to play again. Or press Escape to Return to Flagstaff");
+        this.uiScene.showDialog("CONGRATS! YOU WIN!!\n\nPress Enter to play again or press Escape to return to Flagstaff");
         let questId;
         const playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
 
@@ -391,7 +389,7 @@ export class SkiGame extends GameScene {
             console.error(err)
         }
 
-        this.uiScene.showDialog(await this.buildEndDialogText(`CONGRATS! YOU WIN!!\nYou win the ${rewards[0].name}`));
+        this.uiScene.showDialog(await this.buildEndDialogText(`"CONGRATS! YOU WIN!!\n\nYou win the ${rewards[0].name}\n\n`));
     }
 
     #registerColliders() {
