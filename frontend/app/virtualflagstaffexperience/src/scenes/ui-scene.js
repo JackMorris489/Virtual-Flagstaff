@@ -6,9 +6,11 @@ import { DEFAULT_UI_TEXT_STYLE } from '../common/common';
 import { KeyboardComponent } from '../components/input/keyboard-component';
 import apiFetch from '../../../utils/apiFetch';
 import WeatherHUD from '../ui/WeatherHUD';
+import QuestHUD from '../ui/QuestHud';
 
 export class UiScene extends Phaser.Scene {
     #hudContainer;
+    #questHUD;
     #dialogueContainer;
     #dialogueContainerText;
     dialogBackground;
@@ -20,11 +22,6 @@ export class UiScene extends Phaser.Scene {
     #pauseContainer;
     #enterKey;
     #escKey;
-
-    #questContainer;
-    #questText;
-    #questNameText;
-    #questDescriptionText;
 
     #weatherHUD;
 
@@ -108,13 +105,13 @@ export class UiScene extends Phaser.Scene {
     {
         EVENT_BUS.on(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
         EVENT_BUS.on(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
-        EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+        // EVENT_BUS.on(CUSTOM_EVENTS.REFRESH_QUESTS, this.#questHUD.refresh, this);
         this.pauseMenu.events.on("RESUME_GAME", this.resumeGame, this)
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             EVENT_BUS.off(CUSTOM_EVENTS.SHOW_DIALOG, this.showDialog, this);
             EVENT_BUS.off(CUSTOM_EVENTS.CLOSE_DIALOG, this.closeDialog, this);
-            EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.refreshQuestUi, this);
+            // EVENT_BUS.off(CUSTOM_EVENTS.REFRESH_QUESTS, this.#questHUD.refresh, this);
             this.pauseMenu.events.off("RESUME_GAME", this.resumeGame, this)
         });
     }
@@ -135,100 +132,10 @@ export class UiScene extends Phaser.Scene {
         this.pauseMenu = this.scene.get(SCENE_KEYS.PAUSE_MENU);
     }
 
-    async getUserQuests()
-    {
-        return await apiFetch("/users/me/quests", {credentials: "include"});
-    }
-
-    setQuestContainerText(name, description)
-    {
-        this.#questNameText.setText(name);
-        this.#questDescriptionText.setText(description);
-    }
-
-    async refreshQuestUi()
-    {
-        try {
-            const quests = await this.getUserQuests();
-
-            if (quests.length > 0) {
-                const quest = quests[0];
-
-                this.setQuestContainerText(
-                    `Name: ${quest.name}`, 
-                    `Description: ${quest.description}`
-                );
-            }
-
-            else
-            {
-                this.setQuestContainerText(
-                    "Name: None", 
-                    "Description: None"
-                );
-            }
-
-        } catch (err) {
-            if (err.status === 401)
-            {
-                this.setQuestContainerText("Login/Sign-up to get quests!", "");
-            }
-        }
-    }
-
     async createQuestUi()
     {
-        this.#questContainer = this.add.container(320, 0, [
-            this.add.image(0, 0, ASSET_KEYS.UI_DIALOG, 0).setOrigin(0)
-        ]);
-
-        this.#questText = this.add.text(
-            14,
-            10,
-            "Active Quest:",
-            DEFAULT_UI_TEXT_STYLE
-        ).setOrigin(0);
-
-        this.#questNameText = this.add.text(
-            14,
-            30,
-            "Name: None",
-            DEFAULT_UI_TEXT_STYLE
-        ).setOrigin(0);
-
-        this.#questDescriptionText = this.add.text(
-            14,
-            50,
-            "Description: None",
-            DEFAULT_UI_TEXT_STYLE
-        ).setOrigin(0);
-
-        this.#questContainer.add([
-            this.#questText,
-            this.#questNameText,
-            this.#questDescriptionText
-        ]);
-
-        try {
-            const quests = await this.getUserQuests();
-
-            if (quests.length > 0) {
-                const quest = quests[0];
-
-                this.setQuestContainerText(
-                    `Name: ${quest.name}`, 
-                    `Description: ${quest.description}`
-                );
-            }
-
-        } catch (err) {
-            if (err.status === 401)
-            {
-                this.setQuestContainerText("Login/Sign-up to get quests!", "");
-            }
-        }
-
-        this.#questContainer.setVisible(true);
+        this.#questHUD = new QuestHUD(this, 90, 375);
+        this.#questHUD.init();
     }
 
     playerCompletedTutorial()
@@ -297,25 +204,6 @@ export class UiScene extends Phaser.Scene {
         if (this.skiscene) {
             this.skiscene.scene.switch(SCENE_KEYS.GAME_SCENE);
         }
-
-        // if (this.skiendlessscene.scene.isPaused() && this.#controls.isEscapeJustDown) {
-        //     // unpause the ski scene (so it can sleep)
-        //     this.skiendlessscene.scene.resume();
-
-        //     // switch to the overworld scene
-        //     this.skiendlessscene.scene.switch(this.worldscene);
-
-        //     // close dialog
-        //     this.closeDialog();
-        // }
-
-        // if (this.skiendlessscene.scene.isPaused() && this.#controls.isEnterJustDown) {
-        //     // restart the game
-        //     this.skiendlessscene.scene.restart();
-
-        //     // close dialog
-        //     this.closeDialog();
-        // }
     }
 
 
