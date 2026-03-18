@@ -34,8 +34,13 @@ export default class TextBoxUi
 
     set text(t)
     {
-        this.#text.setText(t)
+        this.#text.setText(t);
 
+        this.formatTextToContainer();
+    }
+
+    formatTextToContainer()
+    {
         const paddingX = 40;
         const paddingY = 40;
 
