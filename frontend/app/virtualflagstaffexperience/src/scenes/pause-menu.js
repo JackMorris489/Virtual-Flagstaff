@@ -103,9 +103,6 @@ export class PauseMenu extends Phaser.Scene
         });
 
         const exitBtn = this.createButton(0, 170, 'Exit to Menu', () => {
-            // if (this.worldScene) this.worldScene.scene.stop();
-            // if (this.skiScene) this.skiScene.scene.stop();
-
             window.location.href = '/';
         });
 
