@@ -11,6 +11,7 @@ from constants import (
     MAIL_FROM_NAME,
     MAIL_TO
 )
+from database.models import User
 
 CONNECTION_CONFIGURATION = ConnectionConfig(
     MAIL_USERNAME = MAIL_USERNAME,
@@ -84,6 +85,21 @@ class EmailService:
             "survey": survey
         }
         self.send_background( background_tasks, subject, MAIL_TO, body )
+
+
+    def notify_client_of_user_redeeming(
+        self,
+        bg_tasks: BackgroundTasks,
+        user: User
+    ) -> None:
+        subject = "User Wants to Redeem Points"
+        body = {
+            "username": user.username,
+            "contact": user.email or user.phone_number,
+            "points": user.points
+        }
+        self.send_background(bg_tasks, subject, MAIL_TO, body, "user-redeeming.html")
+
 
     def broadcast_html_email(
         self,

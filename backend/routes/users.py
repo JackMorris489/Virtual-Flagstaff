@@ -202,6 +202,11 @@ def get_user_rewards(user: CurrentUser, db: SessionDep):
     return database_service.get_query_results(db, query)
 
 
+@users_router.post("/redeem")
+def redeem_points(bg_tasks: BackgroundTasks, user: CurrentUser):
+    email_service.notify_client_of_user_redeeming(bg_tasks, user)
+
+
 @users_router.post("/notifications/broadcast")
 def broadcast_to_opted_in_users(
     background_tasks: BackgroundTasks,
