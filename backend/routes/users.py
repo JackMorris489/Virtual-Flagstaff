@@ -54,7 +54,11 @@ def update_user(
                 user_db.email or user_db.phone_number, 
                 user_update.survey
             )
-            
+
+    if user_update.points is not None:
+        user_db = database_service.get_model_instance_by_id(User, session, user.id)
+        user_update.points += user_db.points
+        
     return database_service.set_model_instance_by_id(User, session, user.id, user_update)
 
 

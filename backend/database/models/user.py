@@ -15,10 +15,12 @@ class User(UserBase, table=True):
     receive_notifications: bool = Field(default=False)
     survey: dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
     completed_tutorial: bool
+    points: int = 0
 
 class UserPublic(UserBase):
     id: int
     completed_tutorial: bool
+    points: int
 
 class UserCreate(UserBase):
     password: str
@@ -35,3 +37,4 @@ class UserUpdate(UserBase):
     receive_notifications: bool | None = None
     survey: dict[str, Any] | None = None
     completed_tutorial: bool | None = None
+    points: int | None = None

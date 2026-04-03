@@ -116,8 +116,6 @@ export class SkiGame extends GameScene {
             const playerRewards = await this.getPlayerRewards();
             console.log(playerRewards)
 
-            
-
             const hasEndlessMode = playerRewards.some(
                 reward => reward.key === "ENDLESS_SKI_GAME"
             );
@@ -361,10 +359,21 @@ export class SkiGame extends GameScene {
 
         try
         {
-            const data = await apiFetch(`/users/me/quests/${questId}`, {
+            await apiFetch(`/users/me/quests/${questId}`, {
                 method: "PATCH",
                 credentials: "include",
             });
+
+            await apiFetch(
+                "/users/me",
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                    body: JSON.stringify({
+                        "points": this.score
+                    })
+                }
+            )
 
             EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
         }
