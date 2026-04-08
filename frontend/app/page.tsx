@@ -8,6 +8,7 @@ import BackgroundGraphics from "./components/BackgroundGraphics"
 import MainMenu from "./components/MainMenu"
 import { useRouter } from "next/navigation";
 import { Press_Start_2P } from "next/font/google";
+import IncentivesModal from "./components/IncentivesModal"
 
 const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: "400" });
 
@@ -25,6 +26,8 @@ export default function Page() {
     const [surveyOpen, setSurveyOpen] = useState(false);
     const [userId, setUserId] = useState<number | null>(null);
     const [surveyCompleted, setSurveyCompleted] = useState(false);
+
+    const [incentivesOpen, setIncentivesOpen] = useState(false);
 
     // Disable start shortcut while any modal is open
     useEffect(() => {
@@ -50,6 +53,7 @@ export default function Page() {
                 setAuthOpen={setAuthOpen}
                 setSurveyOpen={setSurveyOpen}
                 setContactOpen={setContactOpen}
+                setIncentivesOpen={setIncentivesOpen}
             />
             
             <SurveyModal
@@ -73,6 +77,11 @@ export default function Page() {
             <ContactModal
                 contactOpen={contactOpen}
                 setContactOpen={setContactOpen}
+            />
+
+            <IncentivesModal
+                open={incentivesOpen}
+                setOpen={setIncentivesOpen}
             />
         </main>
     );
