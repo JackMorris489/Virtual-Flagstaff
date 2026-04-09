@@ -37,7 +37,7 @@ export default function IncentivesList({incentives})
                             checked={inputs[idx] ?? false}
                             onChange={() => onChange(idx)}
                         />
-                        {incentive}
+                        {incentive.name}, Points: {incentive.required_points}
                     </label>
                 )
             )}

@@ -13,7 +13,8 @@ from routes import (
     npcs_router,
     quests_router,
     rewards_router,
-    quest_rewards_router
+    quest_rewards_router,
+    incentives_router
 )
 from database import database_service
 
@@ -42,6 +43,7 @@ app.include_router(npcs_router)
 app.include_router(quests_router)
 app.include_router(rewards_router)
 app.include_router(quest_rewards_router)
+app.include_router(incentives_router)
 
 @app.get("/", include_in_schema = False)
 def read_root() -> RedirectResponse:
