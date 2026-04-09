@@ -4,6 +4,7 @@ import {useSfx} from "../../hooks"
 import {useEffect, useState} from "react";
 import apiFetch from "../../utils/apiFetch";
 import IncentivesList from "./IncentivesList"
+import IncentivesForm from "./IncentivesForm";
 
 function fetchIncentives()
 {
@@ -39,25 +40,14 @@ export default function IncentivesModal({
                 }
             }
         >
-            <form
-                onSubmit={
-                    (e) => {
-                        e.preventDefault();
-                        setOpen(false);
-                    }
-                }
-                className="grid gap-4"
-            >
-                <IncentivesList
+            {
+                incentives.length > 0 ? 
+                <IncentivesForm 
+                    setOpen={setOpen}
                     incentives={incentives}
-                />
-                <PixelButton
-                    onClick={playClickSfx}
-                    type="submit"
-                >
-                    Redeem
-                </PixelButton>
-            </form>
+                /> :
+                <p>None available! Please check again Later!</p>
+            }
         </PixelModal>
     );
 }
