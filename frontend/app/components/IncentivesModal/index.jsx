@@ -3,7 +3,6 @@ import PixelButton from "../PixelButton";
 import {useSfx} from "../../hooks"
 import {useEffect, useState} from "react";
 import apiFetch from "../../utils/apiFetch";
-import IncentivesList from "./IncentivesList"
 import IncentivesForm from "./IncentivesForm";
 
 function fetchIncentives()
@@ -36,7 +35,7 @@ export default function IncentivesModal({
             .then(i => setIncentives(i))
             .catch(() => setIncentives([]))
         },
-        []
+        [open]
     )
 
     return (
