@@ -1,5 +1,4 @@
 import PixelModal from "../PixelModal"
-import PixelButton from "../PixelButton";
 import {useSfx} from "../../hooks"
 import {useEffect, useState} from "react";
 import apiFetch from "../../utils/apiFetch";
@@ -51,8 +50,8 @@ export default function IncentivesModal({
         >
             {
                 availPts ?
-                    <p>Available Points: {availPts}</p> :
-                    <p>Sign-up/login to redeem!</p>
+                <p>Available Points: {availPts}</p> :
+                <p>Sign-up/login to redeem!</p>
             }
             {
                 incentives.length > 0 ? 

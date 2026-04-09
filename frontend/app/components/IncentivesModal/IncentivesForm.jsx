@@ -1,6 +1,7 @@
 import {useSfx} from "../../hooks"
 import IncentivesList from "./IncentivesList";
 import PixelButton from "../PixelButton";
+import {useState, useEffect} from "react"
 
 export default function IncentivesForm({
     setOpen,
@@ -8,6 +9,27 @@ export default function IncentivesForm({
 })
 {
     const {playClickSfx} = useSfx();
+
+    const [inputs, setInputs] = useState([])
+
+    const onChange = (idx) => {
+        const newInputs = inputs.map(
+            (input, i) => {
+                return i === idx ? !input : input
+            }
+        );
+        setInputs(newInputs)
+    }
+
+    const initInputs = () => {
+        const inputs = incentives.map(() => false)
+        setInputs(inputs)
+    }
+
+    useEffect(
+        () =>  {initInputs()},
+        []
+    )
 
     return (
         <form
@@ -21,6 +43,8 @@ export default function IncentivesForm({
         >
             <IncentivesList
                 incentives={incentives}
+                inputs={inputs}
+                onChange={onChange}
             />
             <PixelButton
                 onClick={playClickSfx}
