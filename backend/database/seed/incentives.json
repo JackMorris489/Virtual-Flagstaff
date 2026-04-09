@@ -1,0 +1,10 @@
+[
+    {
+        "name": "25% Flagstaff Tour",
+        "requiredPoints": 1000
+    },
+    {
+        "name": "50% Flagstaff Tour",
+        "requiredPoints": 10000
+    }
+]

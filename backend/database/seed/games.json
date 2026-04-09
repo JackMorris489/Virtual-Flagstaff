@@ -1,4 +1,6 @@
 [
-    {"name": "snowboard."},
-    {"name": "Ski Extreme"}
+    {
+        "name": "Ski/Snowboard Extereme",
+        "key": "SKI_GAME"
+    }
 ]
