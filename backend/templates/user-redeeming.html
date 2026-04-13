@@ -2,6 +2,8 @@
   <body>
     <p>Username: {{username}}</p>
     <p>Contact: {{contact}}</p>
-    <p>Points: {{points}}</p>
+    {% for i in incentives %}
+    <p>{{i.name}}</p>
+    {% endfor %}
   </body>
 </html>

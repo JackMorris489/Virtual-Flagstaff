@@ -1,14 +1,14 @@
 [
     {
         "name": "15% Retirement Consultation",
-        "requiredPoints": 1000
+        "requiredPoints": 10
     },
     {
         "name": "20% City Weekend Adventure",
-        "requiredPoints": 1500
+        "requiredPoints": 20
     },
     {
         "name": "25% Statewide Expedition",
-        "requiredPoints": 3000
+        "requiredPoints": 30
     }
 ]

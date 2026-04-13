@@ -90,13 +90,14 @@ class EmailService:
     def notify_client_of_user_redeeming(
         self,
         bg_tasks: BackgroundTasks,
-        user: User
+        user: User,
+        incentives: list[dict]
     ) -> None:
         subject = "User Wants to Redeem Points"
         body = {
             "username": user.username,
             "contact": user.email or user.phone_number,
-            "points": user.points
+            "incentives": incentives
         }
         self.send_background(bg_tasks, subject, MAIL_TO, body, "user-redeeming.html")
 

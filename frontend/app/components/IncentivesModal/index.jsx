@@ -29,7 +29,7 @@ export default function IncentivesModal({
             fetchUser()
             .then(user => setAvailPts(user.points))
             .catch(() => setAvailPts(null))
-
+            
             fetchIncentives()
             .then(i => setIncentives(i))
             .catch(() => setIncentives([]))
@@ -49,7 +49,7 @@ export default function IncentivesModal({
             }
         >
             {
-                availPts ?
+                availPts >= 0 ?
                 <p>Available Points: {availPts}</p> :
                 <p>Sign-up/login to redeem!</p>
             }
