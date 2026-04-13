@@ -1,10 +1,14 @@
 [
     {
-        "name": "25% Flagstaff Tour",
+        "name": "15% Retirement Consultation",
         "requiredPoints": 1000
     },
     {
-        "name": "50% Flagstaff Tour",
-        "requiredPoints": 10000
+        "name": "20% City Weekend Adventure",
+        "requiredPoints": 1500
+    },
+    {
+        "name": "25% Statewide Expedition",
+        "requiredPoints": 3000
     }
 ]
