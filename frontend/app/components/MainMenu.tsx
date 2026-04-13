@@ -9,13 +9,15 @@ type MainMenuProps = {
     setAuthOpen: React.Dispatch<React.SetStateAction<boolean>>
     setSurveyOpen: React.Dispatch<React.SetStateAction<boolean>>
     setContactOpen: React.Dispatch<React.SetStateAction<boolean>>
+    setIncentivesOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function MainMenu({
     setAuthMode,
     setAuthOpen,
     setSurveyOpen,
-    setContactOpen
+    setContactOpen,
+    setIncentivesOpen
 }: MainMenuProps )
 {
     // Weather state
@@ -97,6 +99,18 @@ export default function MainMenu({
                 }}
             ariaLabel="Open survey">
                 Survey
+            </PixelButton>
+
+            <PixelButton 
+                onClick={
+                    () => {
+                        setIncentivesOpen(true);
+                        playClickSfx();
+                    }
+                }
+                ariaLabel="Open incentives"
+            >
+                Incentives
             </PixelButton>
 
 

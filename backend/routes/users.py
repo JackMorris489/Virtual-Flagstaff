@@ -23,10 +23,13 @@ from email_utilities import EmailService
 from sqlmodel import select, and_
 from constants import ADMIN_EMAIL_BROADCAST_KEY
 from auth.dependencies import CurrentUser
+from pydantic import BaseModel
 
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
+class IncentiveFormInput(BaseModel):
+    incentives: list[dict]
 
 @users_router.get("", response_model = list[User])
 def read_users(session: SessionDep) -> list[User]:
@@ -54,7 +57,11 @@ def update_user(
                 user_db.email or user_db.phone_number, 
                 user_update.survey
             )
-            
+
+    if user_update.points is not None:
+        user_db = database_service.get_model_instance_by_id(User, session, user.id)
+        user_update.points += user_db.points
+        
     return database_service.set_model_instance_by_id(User, session, user.id, user_update)
 
 
@@ -197,6 +204,17 @@ def get_user_rewards(user: CurrentUser, db: SessionDep):
 
     return database_service.get_query_results(db, query)
 
+
+@users_router.post("/redeem")
+def redeem_points(session: SessionDep, bg_tasks: BackgroundTasks, user: CurrentUser, ifi: IncentiveFormInput):
+    cost = 0
+    for i in ifi.incentives:
+        cost += i["required_points"]
+
+    if cost <= user.points:
+        user.points -= cost
+        email_service.notify_client_of_user_redeeming(bg_tasks, user, ifi.incentives)
+        database_service.set_model_instance_by_id(User, session, user.id, user)
 
 @users_router.post("/notifications/broadcast")
 def broadcast_to_opted_in_users(

@@ -9,9 +9,10 @@ from constants import (
     NON_PLAYABLE_CHARACTERS, 
     QUESTS,
     REWARDS,
-    QUEST_REWARDS
+    QUEST_REWARDS,
+    INCENTIVES
 )
-from database.models import Game, Npc, Quest, Reward, QuestReward
+from database.models import Game, Npc, Quest, Reward, QuestReward, Incentive
 
 class DatabaseService:
     def __init__( self, database_url: str = DATABASE_URL ):
@@ -247,12 +248,31 @@ class DatabaseService:
             session.commit()
 
 
+    def seed_incentives(
+        self,
+        incentives = INCENTIVES
+    ):
+        with Session(self._engine) as session:
+            for incentive in incentives:
+                query = select(Incentive).where(incentive["name"] == Incentive.name)
+                existing = self.get_query_result(session, query)
+
+                if not existing:
+                    session.add(Incentive(
+                        name=incentive["name"],
+                        required_points=incentive["requiredPoints"]
+                    ))
+
+            session.commit()
+
+
     def seed_all(self):
         self.seed_games()
         self.seed_non_playable_characters()
         self.seed_quests()
         self.seed_rewards()
         self.seed_quest_rewards()
+        self.seed_incentives()
 
 database_service = DatabaseService()
 SessionDep = Annotated[Session, Depends(database_service.get_session)]

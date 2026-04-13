@@ -37,3 +37,7 @@ from .quest_reward import (
     QuestRewardPublic,
     QuestRewardUpdate
 )
+
+
+# Incentives
+from .incentive import Incentive, IncentivePublic

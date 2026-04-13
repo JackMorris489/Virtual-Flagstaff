@@ -1,0 +1,14 @@
+[
+    {
+        "name": "15% Retirement Consultation",
+        "requiredPoints": 10
+    },
+    {
+        "name": "20% City Weekend Adventure",
+        "requiredPoints": 20
+    },
+    {
+        "name": "25% Statewide Expedition",
+        "requiredPoints": 30
+    }
+]
