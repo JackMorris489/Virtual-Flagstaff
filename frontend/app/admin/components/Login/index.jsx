@@ -32,21 +32,6 @@ export default function Login({
     }
 
 
-    const checkAdmin = async () => {
-        try 
-        {
-            const user = await apiFetch("/users/me", {credentials: "include"})
-            return user.is_admin;
-        }
-
-        catch (err) 
-        {
-            console.error(err);
-            return false;
-        }
-    }
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const isLoggedIn = await login()

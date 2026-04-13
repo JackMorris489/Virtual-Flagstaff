@@ -1,20 +1,19 @@
 "use client";
 
 import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
 import { useEffect, useState } from "react";
 import apiFetch from "../utils/apiFetch";
 
 export default function Admin()
 {
     const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false)
-    const [adminUsername, setAdminUsername] = useState(null)
 
     const checkAdminUser = async () => {
         let retVal
         try 
         {
             const user = await apiFetch("/users/me", {credentials: "include"})
-            setAdminUsername(user.username)
             console.log(user)
             retVal = user.is_admin
         }
@@ -32,14 +31,12 @@ export default function Admin()
         setIsAdminLoggedIn(isAdmin);
     };
 
-    useEffect(() => {
-        checkAdminLoggedIn();
-    }, [])
+    useEffect(() => {checkAdminLoggedIn()}, [])
 
     return (
         <>
             {isAdminLoggedIn 
-                ? <p>{adminUsername}</p> 
+                ? <Dashboard/>
                 : <Login 
                     setIsAdminLoggedIn={setIsAdminLoggedIn}
                     checkAdminLoggedIn={checkAdminLoggedIn}
