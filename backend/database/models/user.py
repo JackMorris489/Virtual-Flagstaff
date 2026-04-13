@@ -16,11 +16,13 @@ class User(UserBase, table=True):
     survey: dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
     completed_tutorial: bool
     points: int = 0
+    is_admin: bool = False
 
 class UserPublic(UserBase):
     id: int
     completed_tutorial: bool
     points: int
+    is_admin: bool
 
 class UserCreate(UserBase):
     password: str
