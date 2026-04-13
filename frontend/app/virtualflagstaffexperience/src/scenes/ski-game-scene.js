@@ -330,6 +330,20 @@ export class SkiGame extends GameScene {
         await this.submitGameSession()
 
         this.uiScene.showDialog(await this.buildEndDialogText('You Lost!'));
+
+        await apiFetch(
+                "/users/me",
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        points: Number(this.score)
+                    })
+                }
+            )
     }
 
     async #collideWithFinish() {
@@ -369,8 +383,11 @@ export class SkiGame extends GameScene {
                 {
                     method: "PATCH",
                     credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                     body: JSON.stringify({
-                        "points": this.score
+                        points: Number(this.score)
                     })
                 }
             )
