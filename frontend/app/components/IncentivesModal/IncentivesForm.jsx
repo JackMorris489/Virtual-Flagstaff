@@ -46,29 +46,38 @@ export default function IncentivesForm({
 
         for (let i = 0; i < incent.length; i++)
         {
-            cost += incent.required_points
+            cost += incent[i].required_points
         }
 
         return cost
     }
 
-    const validateSufficientPoints = async () => {
-        const chosenIncentives = getChosenIncentives();
-        const cost = getCost(chosenIncentives);
+    const validateSufficientPoints = async (incentives) => {
+        const cost = getCost(incentives);
         console.log(cost)
         const user = await apiFetch("/users/me", {credentials: "include"});
-        // console.log(user)
         const availPts = user.points;
-        console.log(availPts)
         return cost > 0 && availPts >= cost
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (await validateSufficientPoints())
+        const chosenIncentives = getChosenIncentives();
+        if (await validateSufficientPoints(chosenIncentives))
         {
             console.log("sufficient")
+            await apiFetch(
+                "/users/redeem", 
+                {
+                    method: "post",
+                    credentials: "include",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        incentives: chosenIncentives
+                    })
+                }
+            )
         }
 
         else
@@ -76,15 +85,10 @@ export default function IncentivesForm({
             console.log("Insufficient")
         }
 
-        
-
         setOpen(false)
     }
 
-    useEffect(
-        () =>  {initInputs()},
-        []
-    )
+    useEffect(() => {initInputs()}, [])
 
     return (
         <form
