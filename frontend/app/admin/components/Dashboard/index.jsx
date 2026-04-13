@@ -1,13 +1,13 @@
 import IncentivesDashboard from "./IncentivesDashboard";
 import NpcsDashboard from "./NpcsDashboard";
 import QuestsDashboard from "./QuestsDashboard";
-import SurveryDashboard from "./SurveryDashboard";
+import SurveyDashboard from "./SurveyDashboard";
 
 export default function Dashboard()
 {
     return (
         <>
-            <SurveryDashboard/>
+            <SurveyDashboard/>
             <QuestsDashboard/>
             <NpcsDashboard/>
             <IncentivesDashboard/>
