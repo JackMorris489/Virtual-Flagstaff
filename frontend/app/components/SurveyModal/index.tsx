@@ -29,7 +29,6 @@ export default function SurveyModal({
 }: SurveyModalProps) {
 
   const [surveyLoading, setSurveyLoading] = useState(false);
-  const [surveyErr, setSurveyErr] = useState<string | null>(null);
 
   const [survey, setSurvey] = useState([]);
   const [surveyAnswers, setSurveyAnswers] = useState([]);
@@ -40,18 +39,23 @@ export default function SurveyModal({
     return await apiFetch("/survey-questions");
   }
 
-  const initialize = async () => {
-    const surv = await fetchSurvey();
-    setSurvey(surv);
-    const answers = surv.map(q => {
-        if (q.input === "checkbox")
+
+  const initializeSurveyAnswers = (surv) => {
+    const answers = surv.map(question => {
+        if (question.input === "checkbox")
         {
           return [];
         } 
         return "";
     });
-
     setSurveyAnswers(answers);
+  }
+
+
+  const initialize = async () => {
+    const s = await fetchSurvey();
+    setSurvey(s);
+    initializeSurveyAnswers(s);
   }
 
   // Load persisted user + survey completion
@@ -72,7 +76,6 @@ export default function SurveyModal({
 
   const handleSubmitSurvey = async () => {
     setSurveyLoading(true);
-    setSurveyErr(null);
 
     const surveyPayload = {survey: {}};
     for (let i = 0; i < surveyAnswers.length; i++)
@@ -103,11 +106,12 @@ export default function SurveyModal({
       setSurveyCompleted(true);
       setSurveyOpen(false);
     } catch (e: any) {
-      setSurveyErr(e?.message ?? "Unknown survey error");
+      
     } finally {
       setSurveyLoading(false);
     }
   };
+
 
   const handleSurveyAnswerChange = (val, idx) => {
     setSurveyAnswers(prev => prev.map((ans, i) => {
@@ -217,12 +221,7 @@ export default function SurveyModal({
             type="button"
             onClick={() => {
               playClickSfx();
-              if (userId && !surveyCompleted) {
-                alert("Please complete the quick survey to continue.");
-                return;
-              }
               setSurveyOpen(false);
-              
             }}
             className="rounded-none border-[3px] border-white px-3 py-2 text-[10px] uppercase tracking-widest"
             onMouseEnter={playHoverSfx}
