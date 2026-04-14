@@ -1,5 +1,4 @@
 import { Fragment } from "react"
-import apiFetch from "../../../../utils/apiFetch";
 import SurveyQuestionItem from "./SurveyQuestionItem";
 
 export default function SurveyQuestions({
