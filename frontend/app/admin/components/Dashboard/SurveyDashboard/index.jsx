@@ -22,7 +22,7 @@ export default function SurveyDashboard()
 
     return (
         <>
-            <p>Survey Dashboard</p>
+            <h1>Survey Dashboard</h1>
             <CreateMenu updateSurveyQuestions={updateSurveyQuestions}/>
             <SurveyQuestions questions={questions}/>
         </>
