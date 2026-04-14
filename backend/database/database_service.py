@@ -10,9 +10,18 @@ from constants import (
     QUESTS,
     REWARDS,
     QUEST_REWARDS,
-    INCENTIVES
+    INCENTIVES,
+    SURVEY_QUESTIONS
 )
-from database.models import Game, Npc, Quest, Reward, QuestReward, Incentive
+from database.models import (
+    Game, 
+    Npc, 
+    Quest, 
+    Reward, 
+    QuestReward, 
+    Incentive,
+    SurveyQuestion
+)
 
 class DatabaseService:
     def __init__( self, database_url: str = DATABASE_URL ):
@@ -266,6 +275,24 @@ class DatabaseService:
             session.commit()
 
 
+    def seed_survery_questions(self, survey_questions = SURVEY_QUESTIONS):
+        with Session(self._engine) as session:
+            for question in survey_questions:
+                query = select(SurveyQuestion).where(question["question"] == SurveyQuestion.question)
+                existing = self.get_query_result(session, query)
+                if not existing:
+                    options = None
+                    if "options" in question:
+                        options = question["options"]
+                    session.add(SurveyQuestion(
+                        question=question["question"],
+                        input=question["input"],
+                        options=options
+                    ))
+
+            session.commit()
+
+
     def seed_all(self):
         self.seed_games()
         self.seed_non_playable_characters()
@@ -273,6 +300,7 @@ class DatabaseService:
         self.seed_rewards()
         self.seed_quest_rewards()
         self.seed_incentives()
+        self.seed_survery_questions()
 
 database_service = DatabaseService()
 SessionDep = Annotated[Session, Depends(database_service.get_session)]

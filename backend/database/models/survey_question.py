@@ -9,7 +9,7 @@ class SurveyQuestion(SurveyQuestionBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     question: str
     input: str
-    options: list[str] = Field(sa_column=Column(ARRAY(String)))
+    options: list[str] | None = Field(sa_column=Column(ARRAY(String)))
 
 class SurveyQuestionCreate(SurveyQuestionBase):
     question: str
