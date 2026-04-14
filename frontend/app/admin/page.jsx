@@ -10,20 +10,19 @@ export default function Admin()
     const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false)
 
     const checkAdminUser = async () => {
-        let retVal
+        let isAdmin;
         try 
         {
-            const user = await apiFetch("/users/me", {credentials: "include"})
-            console.log(user)
-            retVal = user.is_admin
+            const user = await apiFetch("/users/me", {credentials: "include"});
+            isAdmin = user.is_admin;
         }
 
         catch (err) 
         {
-            console.error(err)
-            retVal = false
+            isAdmin = false;
         }
-        return retVal
+
+        return isAdmin
     }
 
     const checkAdminLoggedIn = async () => {

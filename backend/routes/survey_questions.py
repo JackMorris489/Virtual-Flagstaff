@@ -30,6 +30,7 @@ def create_survey_question(
     else:
         return database_service.create_model_instance(SurveyQuestion, session, survey_question)
 
+
 @survey_questions_router.get("", response_model=list[SurveyQuestionPublic])
 def get_survey_questions(session: SessionDep) -> list[SurveyQuestionPublic]:
     return database_service.get_model_instances(SurveyQuestion, session)

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import OptionsList from "./OptionsList"
+import apiFetch from "../../../../utils/apiFetch"
 
 export default function CreateMenu()
 {
@@ -9,8 +10,43 @@ export default function CreateMenu()
     const [option, setOption] = useState("")
     const [options, setOptions] = useState([])
 
+    const clearData = () => {
+        setQuestion("");
+        setInput("text");
+        setOption("");
+        setOptions([]);
+    }
+
+    const createSurveyQuestion = async () => {
+        return await apiFetch("/survey-questions", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                question: question,
+                input: input,
+                options: options
+            })
+        });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try
+        {
+            await createSurveyQuestion();
+            clearData();
+        }
+
+        catch (err)
+        {
+
+        }
+    }
+
     return (
-        <form>
+        <form onSubmit={e => handleSubmit(e)}>
             <label>
                 Question:
                 <input 
@@ -56,6 +92,7 @@ export default function CreateMenu()
                 </>
                 : <></>
             }
+            <button type="submit">Submit</button>
         </form>
     )
 }
