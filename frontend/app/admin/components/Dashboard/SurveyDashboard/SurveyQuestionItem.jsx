@@ -72,7 +72,7 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
                         type="button"
                         onClick={() => setIsEditing(true)}
                     >
-                        UPDATE
+                        EDIT
                     </button>
                     <button 
                         type="button"

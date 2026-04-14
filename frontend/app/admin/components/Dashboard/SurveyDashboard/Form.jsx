@@ -39,26 +39,27 @@ export default function Form({
                 (input === "checkbox" || input === "select") &&
                 (
                     <>
-                        <div>
-                            <label>
-                                Option:
-                                <input 
-                                    type="text" 
-                                    value={option}
-                                    onChange={e => setOption(e.target.value)}
-                                />
-                            </label>
-                            <button 
-                                type="button"
-                                onClick={() => {
-                                    setOptions(prev => [...prev, option]);
-                                    setOption("");
-                                }}
-                            >
-                                Add
-                            </button>
-                        </div>
-                        <OptionsList options={options}/>
+                        <label>
+                            Option:
+                            <input 
+                                type="text" 
+                                value={option}
+                                onChange={e => setOption(e.target.value)}
+                            />
+                        </label>
+                        <button 
+                            type="button"
+                            onClick={() => {
+                                setOptions(prev => [...prev, option]);
+                                setOption("");
+                            }}
+                        >
+                            Add
+                        </button>
+                        <OptionsList 
+                            options={options}
+                            setOptions={setOptions}
+                        />
                     </>
                 )
             }
