@@ -5,7 +5,6 @@ import CreateMenu from "./CreateMenu"
 
 export default function SurveyDashboard()
 {
-
     const [questions, setQuestions] = useState([])
 
     const fetchSurveyQuestions = async () => {
@@ -17,7 +16,7 @@ export default function SurveyDashboard()
         setQuestions(surveyQuestions)
     };
 
-    const initialize = () => {updateSurveyQuestions()};
+    const initialize = updateSurveyQuestions;
 
     useEffect(() => {initialize()}, [])
 
