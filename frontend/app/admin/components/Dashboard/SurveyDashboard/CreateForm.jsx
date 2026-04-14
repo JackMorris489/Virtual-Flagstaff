@@ -1,6 +1,7 @@
 import { useState } from "react"
 import OptionsList from "./OptionsList"
 import apiFetch from "../../../../utils/apiFetch"
+import Form from "./Form"
 
 export default function CreateForm({updateSurveyQuestions})
 {
@@ -45,54 +46,18 @@ export default function CreateForm({updateSurveyQuestions})
     return (
         <>
             <h2>Create Survey Question</h2>
-            <form onSubmit={e => handleSubmit(e)}>
-                <label>
-                    Question:
-                    <input 
-                        type="text" 
-                        value={question} 
-                        onChange={e => setQuestion(e.target.value)}
-                    />
-                </label>
-                <label>
-                    Input:
-                    <select 
-                        value={input} 
-                        onChange={e => setInput(e.target.value)}
-                    >
-                        <option value="text">Text</option>
-                        <option value="checkbox">Checkbox</option>
-                        <option value="select">Select</option>
-                        <option value="textarea">Textarea</option>
-                    </select>
-                </label>
-                {input === "checkbox" || input === "select"
-                    ? <>
-                        <div>
-                            <label>
-                                Option:
-                                <input 
-                                    type="text" 
-                                    value={option}
-                                    onChange={e => setOption(e.target.value)}
-                                />
-                            </label>
-                            <button 
-                                type="button"
-                                onClick={() => {
-                                    setOptions(prev => [...prev, option]);
-                                    setOption("");
-                                }}
-                            >
-                                Add
-                            </button>
-                        </div>
-                        <OptionsList options={options}/>
-                    </>
-                    : <></>
-                }
-                <button type="submit">Submit</button>
-            </form>
+            <Form
+                question={question}
+                setQuestion={setQuestion}
+                input={input}
+                setInput={setInput}
+                option={option}
+                setOption={setOption}
+                options={options}
+                setOptions={setOptions}
+                onSubmit={handleSubmit}
+                submitName={"SUBMIT"}
+            />
         </>
     )
 }
