@@ -41,5 +41,5 @@ def update_survey_question(id: int, survey_question: SurveryQuestionUpdate, sess
 
 
 @survey_questions_router.delete("/{id}")
-def update_survey_question(id: int, session: SessionDep):
+def delete_survey_question(id: int, session: SessionDep):
     return database_service.delete_model_instance(SurveyQuestion, session, id)
