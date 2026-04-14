@@ -1,9 +1,22 @@
 import { Fragment } from "react"
+import apiFetch from "../../../../utils/apiFetch";
 
 export default function SurveyQuestions({
-    questions
+    questions,
+    updateSurveyQuestions
 })
 {
+
+    const deleteSurveyQuestion = async (id) => {
+        return await apiFetch(`/survey-questions/${id}`, {method: "DELETE"});
+    }
+
+
+    const handleDelete = async (id) => {
+        await deleteSurveyQuestion(id);
+        updateSurveyQuestions();
+    }
+
     return (
         <>
             {questions.map((q, i) => (
@@ -16,6 +29,12 @@ export default function SurveyQuestions({
                         )) 
                         : <></>
                     }
+                    <button 
+                        type="button"
+                        onClick={() => handleDelete(q.id)}
+                    >
+                        Del
+                    </button>
                 </Fragment>
             ))
             }

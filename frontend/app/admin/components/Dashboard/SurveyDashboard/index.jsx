@@ -24,7 +24,10 @@ export default function SurveyDashboard()
         <>
             <h1>Survey Dashboard</h1>
             <CreateForm updateSurveyQuestions={updateSurveyQuestions}/>
-            <SurveyQuestions questions={questions}/>
+            <SurveyQuestions 
+                questions={questions}
+                updateSurveyQuestions={updateSurveyQuestions}
+            />
         </>
     )
 }
