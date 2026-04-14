@@ -2,7 +2,7 @@ import { useState } from "react"
 import OptionsList from "./OptionsList"
 import apiFetch from "../../../../utils/apiFetch"
 
-export default function CreateMenu({updateSurveyQuestions})
+export default function CreateForm({updateSurveyQuestions})
 {
 
     const [question, setQuestion] = useState("")

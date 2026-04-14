@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import apiFetch from "../../../../utils/apiFetch"
 import SurveyQuestions from "./SurveyQuestions"
-import CreateMenu from "./CreateMenu"
+import CreateForm from "./CreateForm"
 
 export default function SurveyDashboard()
 {
@@ -13,7 +13,7 @@ export default function SurveyDashboard()
 
     const updateSurveyQuestions = async () => {
         const surveyQuestions = await fetchSurveyQuestions();
-        setQuestions(surveyQuestions)
+        setQuestions(surveyQuestions);
     };
 
     const initialize = updateSurveyQuestions;
@@ -23,7 +23,7 @@ export default function SurveyDashboard()
     return (
         <>
             <h1>Survey Dashboard</h1>
-            <CreateMenu updateSurveyQuestions={updateSurveyQuestions}/>
+            <CreateForm updateSurveyQuestions={updateSurveyQuestions}/>
             <SurveyQuestions questions={questions}/>
         </>
     )
