@@ -2,7 +2,7 @@ import { useState } from "react"
 import OptionsList from "./OptionsList"
 import apiFetch from "../../../../utils/apiFetch"
 
-export default function CreateMenu()
+export default function CreateMenu({updateSurveyQuestions})
 {
 
     const [question, setQuestion] = useState("")
@@ -23,11 +23,7 @@ export default function CreateMenu()
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                question: question,
-                input: input,
-                options: options
-            })
+            body: JSON.stringify({question, input, options})
         });
     }
 
@@ -37,11 +33,12 @@ export default function CreateMenu()
         {
             await createSurveyQuestion();
             clearData();
+            updateSurveyQuestions();
         }
 
         catch (err)
         {
-
+            
         }
     }
 

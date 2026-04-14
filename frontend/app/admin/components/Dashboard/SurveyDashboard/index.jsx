@@ -12,17 +12,19 @@ export default function SurveyDashboard()
         return await apiFetch("/survey-questions")
     }
 
-    const initialize = async () => {
+    const updateSurveyQuestions = async () => {
         const surveyQuestions = await fetchSurveyQuestions();
         setQuestions(surveyQuestions)
-    }
+    };
+
+    const initialize = () => {updateSurveyQuestions()};
 
     useEffect(() => {initialize()}, [])
 
     return (
         <>
             <p>Survey Dashboard</p>
-            <CreateMenu/>
+            <CreateMenu updateSurveyQuestions={updateSurveyQuestions}/>
             <SurveyQuestions questions={questions}/>
         </>
     )
