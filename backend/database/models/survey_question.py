@@ -17,6 +17,7 @@ class SurveyQuestionCreate(SurveyQuestionBase):
     options: list[str] | None = None
 
 class SurveyQuestionPublic(SurveyQuestionBase):
+    id: int
     question: str
     input: str
     options: list[str] | None

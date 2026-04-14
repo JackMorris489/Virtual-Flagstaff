@@ -35,3 +35,11 @@ def get_survey_questions(session: SessionDep) -> list[SurveyQuestionPublic]:
     return database_service.get_model_instances(SurveyQuestion, session)
 
 
+@survey_questions_router.put("/{id}", response_model=SurveyQuestionPublic)
+def update_survey_question(id: int, survey_question: SurveryQuestionUpdate, session: SessionDep):
+    return database_service.set_model_instance_by_id(SurveyQuestion, session, id, survey_question)
+
+
+@survey_questions_router.delete("/{id}")
+def update_survey_question(id: int, session: SessionDep):
+    return database_service.delete_model_instance(SurveyQuestion, session, id)
