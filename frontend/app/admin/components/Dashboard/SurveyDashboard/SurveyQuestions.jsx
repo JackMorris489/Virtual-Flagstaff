@@ -33,7 +33,7 @@ export default function SurveyQuestions({
                         type="button"
                         onClick={() => handleDelete(q.id)}
                     >
-                        Del
+                        DELETE
                     </button>
                 </Fragment>
             ))
