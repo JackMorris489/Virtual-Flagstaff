@@ -22,7 +22,6 @@ export default function SurveyDashboard()
 
     return (
         <>
-            <h1>Survey Dashboard</h1>
             <CreateForm updateSurveyQuestions={updateSurveyQuestions}/>
             <SurveyQuestions 
                 questions={questions}
