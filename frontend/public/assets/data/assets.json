@@ -86,7 +86,7 @@
       {
         "type": "tilemapTiledJSON",
         "key": "FLAGSTAFF_LEVEL",
-        "url": "flagstaff.json"
+        "url": "downtown.json"
       }
     ]
   },
