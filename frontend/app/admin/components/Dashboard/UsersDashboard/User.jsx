@@ -1,13 +1,78 @@
 import { useState } from "react";
 import UserSurvey from "./UserSurvey";
 import apiFetch from "../../../../utils/apiFetch";
+import Users from "./Users";
 
-export default function User({
-    user,
-    refreshUsers
-})
+function UserStatic({user})
+{
+    return (
+        <>
+            <p>Username: {user.username}</p>
+            <p>Email: {user.email ?? "None"}</p>
+            <p>Phone Number: {user.phone_number ?? "None"}</p>
+        </>
+    )
+}
+
+function UserEdit({isAdmin, setIsAdmin, onUpdateClick})
+{
+    return (
+        <>
+            <label>
+                Is admin?: 
+                <input 
+                    type="checkbox" 
+                    checked={isAdmin} 
+                    onChange={() => setIsAdmin(prev => !prev)}
+                />
+            </label>
+            <button 
+                type="button"
+                onClick={onUpdateClick}
+            >
+                UPDATE
+            </button>
+        </>
+    )
+}
+
+
+function UserRead({user, onEditClick, onDeleteClick})
 {
     const [showSurvey, setShowSurvey] = useState(false)
+
+    const handleSurveyDisplay = () => {setShowSurvey(prev => !prev)}
+
+    return (
+        <>
+            <p>Is admin?: {user.is_admin ? "True" : "False"}</p>
+            <button 
+                type="button"
+                onClick={onEditClick}
+            >
+                EDIT
+            </button>
+            <button 
+                type="button"
+                onClick={onDeleteClick}
+            >
+                DELETE
+            </button>
+            {showSurvey
+                ? 
+                    <>
+                        <button onClick={handleSurveyDisplay}>HIDE SURVEY</button>
+                        <UserSurvey survey={user.survey}/>
+                    </>
+                : <button onClick={handleSurveyDisplay}>SHOW SURVEY</button>
+            }
+        </>
+    )
+}
+
+
+export default function User({user, refreshUsers})
+{
     const [isEditing, setIsEditing] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false);
 
@@ -15,8 +80,8 @@ export default function User({
         return await apiFetch(`/users/${id}`, {method: "DELETE"});
     }
 
-    const handleUpdate = async (id) => {
-        await apiFetch(`/users/${id}`, {
+    const handleUpdate = async () => {
+        await apiFetch(`/users/${user.id}`, {
             method: "PUT",
             credentials: "include",
             headers: {'Content-Type': 'application/json'},
@@ -28,64 +93,34 @@ export default function User({
         refreshUsers();
     }
 
-    const handleDelete = async (id) => {
-        await deleteUser(id);
+    const handleDelete = async () => {
+        await deleteUser(user.id);
         refreshUsers();
+    }
+
+    const handleEdit = () => {
+        setIsEditing(true); 
+        setIsAdmin(user.is_admin);
     }
 
     return (
         <>
+            <UserStatic user={user}/>
             {isEditing
-                ?
-                    <>
-                        <p>Username: {user.username}</p>
-                        <p>Email: {user.email}</p>
-                        <p>Phone Number: {user.phone_number}</p>
-                        <label>
-                            Is admin?: 
-                            <input 
-                                type="checkbox" 
-                                checked={isAdmin} 
-                                onChange={() => setIsAdmin(prev => !prev)}
-                            />
-                        </label>
-                        <button 
-                            type="button"
-                            onClick={() => handleUpdate(user.id)}
-                        >
-                            UPDATE
-                        </button>
-                    </>
-                :
-                    <>
-                        <p>Username: {user.username}</p>
-                        <p>Email: {user.email}</p>
-                        <p>Phone Number: {user.phone_number}</p>
-                        <p>Is admin?: {user.is_admin ? "True" : "False"}</p>
-                        <button 
-                            type="button"
-                            onClick={() => {
-                                setIsEditing(true); 
-                                setIsAdmin(user.is_admin);
-                            }}
-                        >
-                            EDIT
-                        </button>
-                        <button 
-                            type="button"
-                            onClick={() => handleDelete(user.id)}
-                        >
-                            DELETE
-                        </button>
-                        {showSurvey
-                            ? 
-                                <>
-                                    <button onClick={()=>{setShowSurvey(false)}}>HIDE SURVEY</button>
-                                    <UserSurvey survey={user.survey}/>
-                                </>
-                            : <button onClick={()=>{setShowSurvey(true)}}>SHOW SURVEY</button>
-                        }
-                    </>
+                ? (
+                    <UserEdit 
+                        isAdmin={isAdmin}
+                        setIsAdmin={setIsAdmin}
+                        onUpdateClick={handleUpdate}
+                    />
+                )
+                : (
+                    <UserRead 
+                        user={user} 
+                        onEditClick={handleEdit}
+                        onDeleteClick={handleDelete}
+                    />
+                )
             }
         </>
     )
