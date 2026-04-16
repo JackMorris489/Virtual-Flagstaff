@@ -21,9 +21,7 @@ export default function CreateForm({updateSurveyQuestions})
     const createSurveyQuestion = async () => {
         return await apiFetch("/survey-questions", {
             method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({question, input, options})
         });
     }

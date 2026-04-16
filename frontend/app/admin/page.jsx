@@ -30,7 +30,7 @@ export default function Admin()
         setIsAdminLoggedIn(isAdmin);
     };
 
-    useEffect(() => {checkAdminLoggedIn()}, [])
+    useEffect(() => {() => checkAdminLoggedIn()}, [])
 
     return (
         <>

@@ -5,7 +5,6 @@ export default function UserSurvey({survey})
     const [questions, setQuestions] = useState([])
     
     const initialize = () => {
-        console.log(survey)
         if (survey)
         {
             setQuestions(Object.keys(survey))
@@ -17,25 +16,28 @@ export default function UserSurvey({survey})
     return (
         <>
             <p>Survey:</p>
-            {questions.map((q) => {
-                const answer = survey[q];
+            {survey
+                ? questions.map((q) => {
+                    const answer = survey[q];
 
-                return (
-                    <Fragment key={q}>
-                        <p>Question: {q}</p>
+                    return (
+                        <Fragment key={q}>
+                            <p>Question: {q}</p>
 
-                        {Array.isArray(answer) ? (
-                            answer.length > 0 ? (
-                                answer.map((a) => <p key={a}>- {a}</p>)
+                            {Array.isArray(answer) ? (
+                                answer.length > 0 ? (
+                                    answer.map((a) => <p key={a}>- {a}</p>)
+                                ) : (
+                                    <p>Answer: No answer</p>
+                                )
                             ) : (
-                                <p>Answer: None</p>
-                            )
-                        ) : (
-                            <p>Answer: {answer || "None"}</p>
-                        )}
-                    </Fragment>
-                );
-            })}
+                                <p>Answer: {answer || "No answer"}</p>
+                            )}
+                        </Fragment>
+                    );
+                })
+                : <p>Survey not completed!</p>
+            }
         </>
     )
 }
