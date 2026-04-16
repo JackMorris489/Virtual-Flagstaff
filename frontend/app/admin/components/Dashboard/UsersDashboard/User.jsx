@@ -14,7 +14,7 @@ function UserStatic({user})
     )
 }
 
-function UserEdit({isAdmin, setIsAdmin, onUpdateClick})
+function UserEdit({isAdmin, setIsAdmin, onUpdateClick, onCancelClick})
 {
     return (
         <>
@@ -31,6 +31,12 @@ function UserEdit({isAdmin, setIsAdmin, onUpdateClick})
                 onClick={onUpdateClick}
             >
                 UPDATE
+            </button>
+            <button
+                type="button"
+                onClick={onCancelClick}
+            >
+                CANCEL
             </button>
         </>
     )
@@ -85,9 +91,7 @@ export default function User({user, refreshUsers})
             method: "PUT",
             credentials: "include",
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                is_admin: isAdmin
-            })
+            body: JSON.stringify({is_admin: isAdmin})
         })
         setIsEditing(false)
         refreshUsers();
@@ -103,6 +107,11 @@ export default function User({user, refreshUsers})
         setIsAdmin(user.is_admin);
     }
 
+    const handleCancel = () => {
+        setIsEditing(false);
+        refreshUsers();
+    }
+
     return (
         <>
             <UserStatic user={user}/>
@@ -112,6 +121,7 @@ export default function User({user, refreshUsers})
                         isAdmin={isAdmin}
                         setIsAdmin={setIsAdmin}
                         onUpdateClick={handleUpdate}
+                        onCancelClick={handleCancel}
                     />
                 )
                 : (
