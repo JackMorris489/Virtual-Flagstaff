@@ -1,6 +1,6 @@
 # user.py
 
-from sqlmodel import Field, SQLModel, Column
+from sqlmodel import Field, SQLModel, Column, Relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from typing import Any
 
@@ -19,6 +19,9 @@ class User(UserBase, table=True):
     completed_tutorial: bool
     points: int = 0
     is_admin: bool = False
+
+    game_sessions: list["GameSession"] = Relationship(back_populates="user", cascade_delete=True)
+    user_quests: list["UserQuest"] = Relationship(back_populates="user", cascade_delete=True)
 
 class UserPublic(UserBase):
     id: int
