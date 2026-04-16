@@ -8,6 +8,8 @@ class UserBase(SQLModel):
     username: str = Field(unique=True, index=True)
     
 class User(UserBase, table=True):
+    __tablename__ = "users"
+
     id: int | None = Field(default=None, primary_key=True)
     password: str 
     email: str | None = Field(default=None, unique=True, index=True)

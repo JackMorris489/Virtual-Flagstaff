@@ -4,6 +4,8 @@ class RewardBase(SQLModel):
     pass
 
 class Reward(RewardBase, table=True):
+    __tablename__ = "rewards"
+
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     key: str

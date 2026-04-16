@@ -6,6 +6,8 @@ class SurveyQuestionBase(SQLModel):
     pass
 
 class SurveyQuestion(SurveyQuestionBase, table=True):
+    __tablename__ = "surveyquestions"
+
     id: int | None = Field(default=None, primary_key=True)
     question: str
     input: str

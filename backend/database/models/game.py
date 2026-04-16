@@ -7,6 +7,8 @@ class GameBase(SQLModel):
     key: str = Field(unique=True, index=True)
 
 class Game(GameBase, table=True):
+    __tablename__ = "games"
+
     id: int | None = Field(default=None, primary_key=True)
 
 class GamePublic(GameBase):

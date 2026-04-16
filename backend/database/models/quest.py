@@ -7,8 +7,10 @@ class QuestBase(SQLModel):
     description: str
 
 class Quest(QuestBase, table=True):
+    __tablename__ = "quests"
+
     id: int | None = Field(default=None, primary_key=True)
-    npc_id: int = Field(foreign_key="npc.id")
+    npc_id: int = Field(foreign_key="npcs.id")
 
 class QuestPublic(QuestBase):
     pass
