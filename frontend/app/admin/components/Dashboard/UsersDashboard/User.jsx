@@ -3,7 +3,8 @@ import UserSurvey from "./UserSurvey";
 import apiFetch from "../../../../utils/apiFetch";
 
 export default function User({
-    user
+    user,
+    refreshUsers
 })
 {
     const [showSurvey, setShowSurvey] = useState(false)
@@ -14,6 +15,7 @@ export default function User({
 
     const handleDelete = async (id) => {
         await deleteUser(id);
+        refreshUsers();
     }
 
     return (

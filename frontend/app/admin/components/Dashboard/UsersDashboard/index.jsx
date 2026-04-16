@@ -25,6 +25,7 @@ export default function UsersDashboard()
         <>
             <Users
                 users={users}
+                refreshUsers={refreshUsers}
             />
         </>
     )
