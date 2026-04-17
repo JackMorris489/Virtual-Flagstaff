@@ -5,39 +5,75 @@ import Users from "./Users";
 
 function UserStatic({user})
 {
+    const [showSurvey, setShowSurvey] = useState(false);
+    const handleSurveyDisplay = () => {setShowSurvey(prev => !prev)}
+
     return (
         <>
-            <p>Username: {user.username}</p>
-            <p>Email: {user.email ?? "None"}</p>
-            <p>Phone Number: {user.phone_number ?? "None"}</p>
+            <th scope="row">{user.id}</th>
+            <td>{user.username}</td>
+            <td>{user.email ?? "None"}</td>
+            <td>{user.phone_number ?? "None"}</td>
+            <td>{user.points}</td>
+            <td>
+                {showSurvey
+                        ? (
+                            <>
+                                <button onClick={handleSurveyDisplay}>HIDE SURVEY</button>
+                                <UserSurvey survey={user.survey}/>
+                            </>
+                        )
+                        : <button onClick={handleSurveyDisplay}>SHOW SURVEY</button>
+                }
+            </td>
+            
         </>
     )
 }
 
-function UserEdit({isAdmin, setIsAdmin, onUpdateClick, onCancelClick})
+function UserEdit({
+    isAdmin, 
+    setIsAdmin, 
+    notify,
+    setNotify,
+    onUpdateClick, 
+    onCancelClick
+})
 {
     return (
         <>
-            <label>
-                Is admin?: 
-                <input 
-                    type="checkbox" 
-                    checked={isAdmin} 
-                    onChange={() => setIsAdmin(prev => !prev)}
-                />
-            </label>
-            <button 
-                type="button"
-                onClick={onUpdateClick}
-            >
-                UPDATE
-            </button>
-            <button
-                type="button"
-                onClick={onCancelClick}
-            >
-                CANCEL
-            </button>
+            <td>
+                <label>
+                    <input 
+                        type="checkbox" 
+                        checked={notify} 
+                        onChange={() => setNotify(prev => !prev)}
+                    />
+                </label>
+            </td>
+            <td>
+                <label>
+                    <input 
+                        type="checkbox" 
+                        checked={isAdmin} 
+                        onChange={() => setIsAdmin(prev => !prev)}
+                    />
+                </label>
+            </td>
+            <td>
+                <button 
+                    type="button"
+                    onClick={onUpdateClick}
+                >
+                    UPDATE
+                </button>
+                <button
+                    type="button"
+                    onClick={onCancelClick}
+                >
+                    CANCEL
+                </button>
+            </td>
         </>
     )
 }
@@ -45,33 +81,26 @@ function UserEdit({isAdmin, setIsAdmin, onUpdateClick, onCancelClick})
 
 function UserRead({user, onEditClick, onDeleteClick})
 {
-    const [showSurvey, setShowSurvey] = useState(false)
-
-    const handleSurveyDisplay = () => {setShowSurvey(prev => !prev)}
-
     return (
         <>
-            <p>Is admin?: {user.is_admin ? "True" : "False"}</p>
-            <button 
-                type="button"
-                onClick={onEditClick}
-            >
-                EDIT
-            </button>
-            <button 
-                type="button"
-                onClick={onDeleteClick}
-            >
-                DELETE
-            </button>
-            {showSurvey
-                ? 
-                    <>
-                        <button onClick={handleSurveyDisplay}>HIDE SURVEY</button>
-                        <UserSurvey survey={user.survey}/>
-                    </>
-                : <button onClick={handleSurveyDisplay}>SHOW SURVEY</button>
-            }
+            <td>{user.receive_notifications ? "True" : "False"}</td>
+            <td>{user.is_admin ? "True" : "False"}</td>
+            
+            <td>
+                <button 
+                    type="button"
+                    onClick={onEditClick}
+                >
+                    EDIT
+                </button>
+                <button 
+                    type="button"
+                    onClick={onDeleteClick}
+                >
+                    DELETE
+                </button>
+                
+            </td>
         </>
     )
 }
@@ -81,6 +110,7 @@ export default function User({user, refreshUsers})
 {
     const [isEditing, setIsEditing] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false);
+    const [notify, setNotify] = useState(false);
 
     const deleteUser = async (id) => {
         return await apiFetch(`/users/${id}`, {method: "DELETE"});
@@ -91,7 +121,10 @@ export default function User({user, refreshUsers})
             method: "PUT",
             credentials: "include",
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({is_admin: isAdmin})
+            body: JSON.stringify({
+                is_admin: isAdmin,
+                receive_notifications: notify
+            })
         })
         setIsEditing(false)
         refreshUsers();
@@ -120,6 +153,8 @@ export default function User({user, refreshUsers})
                     <UserEdit 
                         isAdmin={isAdmin}
                         setIsAdmin={setIsAdmin}
+                        notify={notify}
+                        setNotify={setNotify}
                         onUpdateClick={handleUpdate}
                         onCancelClick={handleCancel}
                     />
