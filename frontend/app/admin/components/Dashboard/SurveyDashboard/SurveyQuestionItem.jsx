@@ -2,6 +2,65 @@ import { useState } from "react";
 import apiFetch from "../../../../utils/apiFetch";
 import Form from "./Form";
 
+function QuestionEditSubTable({
+    options,
+    newOption,
+    setNewOption,
+    onOptionsChange,
+    onAddClick,
+    onDeleteClick,
+})
+{
+    return (
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Option</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input
+                            type="text"
+                            value={newOption}
+                            onChange={e => setNewOption(e.target.value)}
+                        />
+                    </td>
+                    <td>
+                        <button
+                            type="button"
+                            onClick={onAddClick}
+                        >
+                            ADD
+                        </button>
+                    </td>
+                </tr>
+                    {options.map((o, idx) => (
+                        <tr key={idx}>
+                            <td>
+                                <input
+                                    type="text"
+                                    value={o}
+                                    onChange={(e) => onOptionsChange(e.target.value, idx)}
+                                />
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    onClick={() => onDeleteClick(idx)}
+                                >
+                                    DELETE
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+            </tbody>
+        </table>
+    )
+}
+
 function SurveyQuestionEdit({
     question,
     setQuestion,
@@ -13,11 +72,22 @@ function SurveyQuestionEdit({
     onCancelClick
 })
 {
+    const [newOption, setNewOption] = useState("")
+
     const handleOptionsChange = (changeOption, changeIdx) => {
         let newOptions = [...options];
         newOptions[changeIdx] = changeOption;
         setOptions(newOptions);
     };
+
+    const handleAdd = () => {
+        setOptions(prev => [...prev, newOption]);
+    }
+
+    const handleDelete = (deleteIdx) => {
+        setOptions(prev => prev.filter((_, idx) => idx !== deleteIdx));
+    }
+
 
     return (
         <>
@@ -40,14 +110,14 @@ function SurveyQuestionEdit({
                 </select>
             </td>
             <td>
-                {options.map((o, idx) => (
-                    <input
-                        key={o}
-                        type="text"
-                        value={o}
-                        onChange={(e) => handleOptionsChange(e.target.value, idx)}
-                    />
-                ))}
+                <QuestionEditSubTable
+                    options={options}
+                    newOption={newOption}
+                    setNewOption={setNewOption}
+                    onOptionsChange={handleOptionsChange}
+                    onAddClick={handleAdd}
+                    onDeleteClick={handleDelete}
+                />
             </td>
             <td>
                 <button 
