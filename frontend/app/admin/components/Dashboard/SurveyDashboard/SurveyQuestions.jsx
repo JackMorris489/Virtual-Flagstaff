@@ -1,4 +1,4 @@
-import { Fragment } from "react"
+
 import SurveyQuestionItem from "./SurveyQuestionItem";
 
 export default function SurveyQuestions({
@@ -7,16 +7,15 @@ export default function SurveyQuestions({
 })
 {
     return (
-        <>
+        <tbody>
             {questions.map((q) => (
-                <Fragment key={q.id}>
+                <tr key={q.id}>
                     <SurveyQuestionItem 
                         question={q} 
                         updateSurveyQuestions={updateSurveyQuestions}
                     />
-                </Fragment>
-            ))
-            }
-        </>
+                </tr>
+            ))}
+        </tbody>
     )
 }

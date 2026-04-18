@@ -3,6 +3,20 @@ import apiFetch from "../../../../utils/apiFetch"
 import SurveyQuestions from "./SurveyQuestions"
 import CreateForm from "./CreateForm"
 
+function TableHeader()
+{
+    return (
+        <thead>
+            <tr>
+                <th scope="col">Question</th>
+                <th scope="col">Input</th>
+                <th scope="col">Options</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+    )
+}
+
 export default function SurveyDashboard()
 {
     const [questions, setQuestions] = useState([])
@@ -23,10 +37,13 @@ export default function SurveyDashboard()
     return (
         <>
             <CreateForm updateSurveyQuestions={updateSurveyQuestions}/>
-            <SurveyQuestions 
-                questions={questions}
-                updateSurveyQuestions={updateSurveyQuestions}
-            />
+            <table>
+                <TableHeader/>
+                <SurveyQuestions 
+                    questions={questions}
+                    updateSurveyQuestions={updateSurveyQuestions}
+                />
+            </table>
         </>
     )
 }

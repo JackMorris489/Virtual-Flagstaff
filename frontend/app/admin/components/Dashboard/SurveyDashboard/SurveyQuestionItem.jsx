@@ -2,6 +2,76 @@ import { useState } from "react";
 import apiFetch from "../../../../utils/apiFetch";
 import Form from "./Form";
 
+function SurveyQuestionEdit({
+    question,
+    setQuestion,
+    input,
+    setInput,
+    options,
+    setOptions,
+    onUpdateClick,
+    onCancelClick
+})
+{
+    const handleOptionsChange = (changeOption, changeIdx) => {
+        setOptions(prev => prev.map((option, idx) => {
+            let returningOption = option;
+            if (idx === changeIdx)
+            {
+                returningOption = changeOption;
+            }
+            return returningOption;
+        }));
+    }
+
+    return (
+        <>
+            <th scope="row">
+                <input 
+                    type="text"
+                    value={question}
+                    onChange={e => setQuestion(e.target.value)}
+                />
+            </th>
+            <td>
+                <select
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                >
+                    <option value="text">Text</option>
+                    <option value="checkbox">Checkbox</option>
+                    <option value="select">Select</option>
+                    <option value="textarea">Textarea</option>
+                </select>
+            </td>
+            <td>
+                {options.map((o, idx) => (
+                    <input
+                        key={o}
+                        type="text"
+                        value={o}
+                        onChange={(e) => handleOptionsChange(e.target.value, idx)}
+                    />
+                ))}
+            </td>
+            <td>
+                <button 
+                    type="button"
+                    onClick={onUpdateClick}
+                >
+                    UPDATE
+                </button>
+                <button 
+                    type="button"
+                    onClick={onCancelClick}
+                >
+                    CANCEL
+                </button>
+            </td>
+        </>
+    )
+}
+
 
 export default function SurveyQuestionItem({question, updateSurveyQuestions})
 {
@@ -9,7 +79,6 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
 
     const [name, setName] = useState(question.question);
     const [input, setInput] = useState(question.input);
-    const [option, setOption] = useState("")
     const [options, setOptions] = useState(question.options);
 
     const deleteSurveyQuestion = async (id) => {
@@ -33,53 +102,57 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
     }
 
 
-    const handleUpdate = async (id) => {
-        await updateSurveyQuestion(id);
+    const handleUpdate = async () => {
+        await updateSurveyQuestion(question.id);
         updateSurveyQuestions();
         setIsEditing(false);
     }
 
 
+    const handleCancel = () => {setIsEditing(false)};
+
     return (
         <>
             {isEditing
                 ? <>
-                    <Form
+                    <SurveyQuestionEdit
                         question={name}
                         setQuestion={setName}
                         input={input}
                         setInput={setInput}
-                        option={option}
-                        setOption={setOption}
                         options={options}
                         setOptions={setOptions}
-                        onSubmit={() => handleUpdate(question.id)}
-                        submitName={"UPDATE"}
+                        onUpdateClick={handleUpdate}
+                        onCancelClick={handleCancel}
                     />
                 </>
                 :<>
-                    <p>Question: {question.question}</p>
-                    <p>Input: {question.input}</p>
-                    {
-                        (question.input === "select" || question.input === "checkbox") &&
-                        (
-                            question.options.map((o, j) => (
-                                <p key={j}>{o}</p>
-                            )) 
-                        )
-                    }
-                    <button 
-                        type="button"
-                        onClick={() => setIsEditing(true)}
-                    >
-                        EDIT
-                    </button>
-                    <button 
-                        type="button"
-                        onClick={() => handleDelete(question.id)}
-                    >
-                        DELETE
-                    </button>
+                    <th scope="row">{question.question}</th>
+                    <td>{question.input}</td>
+                    <td>
+                        {
+                            (question.input === "select" || question.input === "checkbox") &&
+                            (
+                                question.options.map((o, j) => (
+                                    <p key={j}>{o}</p>
+                                )) 
+                            )
+                        }
+                    </td>
+                    <td>
+                        <button 
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                        >
+                            EDIT
+                        </button>
+                        <button 
+                            type="button"
+                            onClick={() => handleDelete(question.id)}
+                        >
+                            DELETE
+                        </button>
+                    </td>
                 </>
             }
         </>
