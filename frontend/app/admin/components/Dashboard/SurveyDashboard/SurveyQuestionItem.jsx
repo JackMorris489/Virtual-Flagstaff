@@ -146,6 +146,12 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
     const [input, setInput] = useState(question.input);
     const [options, setOptions] = useState(question.options);
 
+    const resetVariables = () => {
+        setName(question.question);
+        setInput(question.input);
+        setOptions(question.options);
+    }
+
     const deleteSurveyQuestion = async (id) => {
         return await apiFetch(`/survey-questions/${id}`, {method: "DELETE"});
     }
@@ -153,6 +159,7 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
     const handleDelete = async (id) => {
         await deleteSurveyQuestion(id);
         updateSurveyQuestions();
+        resetVariables();
     }
 
 
@@ -170,11 +177,16 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
     const handleUpdate = async () => {
         await updateSurveyQuestion(question.id);
         updateSurveyQuestions();
+        resetVariables();
         setIsEditing(false);
     }
 
 
-    const handleCancel = () => {setIsEditing(false)};
+    const handleCancel = () => {
+        updateSurveyQuestions();
+        resetVariables();
+        setIsEditing(false);
+    };
 
     return (
         <>
