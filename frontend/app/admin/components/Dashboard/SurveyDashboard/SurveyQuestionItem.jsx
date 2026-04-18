@@ -158,7 +158,7 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
 
     const handleDelete = async (id) => {
         await deleteSurveyQuestion(id);
-        updateSurveyQuestions();
+        await updateSurveyQuestions();
         resetVariables();
     }
 
@@ -176,14 +176,14 @@ export default function SurveyQuestionItem({question, updateSurveyQuestions})
 
     const handleUpdate = async () => {
         await updateSurveyQuestion(question.id);
-        updateSurveyQuestions();
+        await updateSurveyQuestions();
         resetVariables();
         setIsEditing(false);
     }
 
 
-    const handleCancel = () => {
-        updateSurveyQuestions();
+    const handleCancel = async () => {
+        await updateSurveyQuestions();
         resetVariables();
         setIsEditing(false);
     };
