@@ -14,15 +14,10 @@ function SurveyQuestionEdit({
 })
 {
     const handleOptionsChange = (changeOption, changeIdx) => {
-        setOptions(prev => prev.map((option, idx) => {
-            let returningOption = option;
-            if (idx === changeIdx)
-            {
-                returningOption = changeOption;
-            }
-            return returningOption;
-        }));
-    }
+        let newOptions = [...options];
+        newOptions[changeIdx] = changeOption;
+        setOptions(newOptions);
+    };
 
     return (
         <>
