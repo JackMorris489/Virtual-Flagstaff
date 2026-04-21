@@ -431,8 +431,8 @@ function QuestionForm({refreshQuestions})
                 {optionsDisabled 
                     ? <p>Cannot enter options for this input type.</p>
                     : <OptionsForm
-                        option={newOption}
-                        setOption={setNewOption}
+                        option={option}
+                        setOption={setOption}
                         options={options}
                         onAddClick={handleAdd}
                         onOptionsChange={handleOptionsChange}
