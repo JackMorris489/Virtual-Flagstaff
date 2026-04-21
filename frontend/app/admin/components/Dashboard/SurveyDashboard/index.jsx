@@ -88,7 +88,6 @@ function QuestionEdit({
         setOptions(prev => prev.filter((_, idx) => idx !== deleteIdx));
     }
 
-
     return (
         <>
             <td>
@@ -179,12 +178,12 @@ function Question({question, refreshQuestions})
 
     const [name, setName] = useState(question.question);
     const [input, setInput] = useState(question.input);
-    const [options, setOptions] = useState(question.options);
-
+    const [options, setOptions] = useState(question.options ?? []);
+    console.log(options)
     const refreshVariables = () => {
         setName(question.question);
         setInput(question.input);
-        setOptions(question.options);
+        setOptions(question.options ?? []);
     }
 
 
@@ -305,6 +304,55 @@ function OptionsTableHeader()
 }
 
 
+function OptionCreate({option, setOption, optionsDisabled, onAddClick})
+{
+    return (
+        <>
+            <td>
+                <input
+                    type="text"
+                    value={option}
+                    onChange={e => setOption(e.target.value)}
+                    disabled={optionsDisabled}
+                />
+            </td>
+            <td>
+                <button
+                    type="button"
+                    onClick={onAddClick}
+                >
+                    ADD
+                </button>
+            </td>
+        </>
+    )
+}
+
+
+function OptionEdit({idx, onOptionsChange, onDeleteClick})
+{
+    return (
+        <>
+            <td>
+                <input
+                    type="text"
+                    value={o}
+                    onChange={(e) => onOptionsChange(e.target.value, idx)}
+                />
+            </td>
+            <td>
+                <button
+                    type="button"
+                    onClick={() => onDeleteClick(idx)}
+                >
+                    DELETE
+                </button>
+            </td>
+        </>
+    )
+}
+
+
 function OptionsForm({
     option,
     setOption,
@@ -321,40 +369,20 @@ function OptionsForm({
             <OptionsTableHeader/>
             <tbody>
                 <tr>
-                    <td>
-                        <input
-                            type="text"
-                            value={option}
-                            onChange={e => setOption(e.target.value)}
-                            disabled={optionsDisabled}
-                        />
-                    </td>
-                    <td>
-                        <button
-                            type="button"
-                            onClick={onAddClick}
-                        >
-                            ADD
-                        </button>
-                    </td>
+                    <OptionCreate
+                        option={option}
+                        setOption={setOption}
+                        optionsDisabled={optionsDisabled}
+                        onAddClick={onAddClick}
+                    />
                 </tr>
                     {options.map((o, idx) => (
                         <tr key={idx}>
-                            <td>
-                                <input
-                                    type="text"
-                                    value={o}
-                                    onChange={(e) => onOptionsChange(e.target.value, idx)}
-                                />
-                            </td>
-                            <td>
-                                <button
-                                    type="button"
-                                    onClick={() => onDeleteClick(idx)}
-                                >
-                                    DELETE
-                                </button>
-                            </td>
+                            <OptionEdit
+                                idx={idx}
+                                onOptionsChange={onOptionsChange}
+                                onDeleteClick={onDeleteClick}
+                            />
                         </tr>
                     ))}
             </tbody>
@@ -387,7 +415,6 @@ function QuestionForm({refreshQuestions})
     }
 
     const handleCreate = async () => {
-        console.log("here")
         try
         {
             await createQuestion();
