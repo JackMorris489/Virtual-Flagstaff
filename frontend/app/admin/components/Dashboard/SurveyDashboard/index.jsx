@@ -1,65 +1,6 @@
 import { useEffect, useState } from "react"
 import apiFetch from "../../../../utils/apiFetch"
 
-function QuestionOptionsEdit({
-    options,
-    newOption,
-    setNewOption,
-    onOptionsChange,
-    onAddClick,
-    onDeleteClick,
-})
-{
-    return (
-        <table>
-            <thead>
-                <tr>
-                    <th scope="col">Option</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <input
-                            type="text"
-                            value={newOption}
-                            onChange={e => setNewOption(e.target.value)}
-                        />
-                    </td>
-                    <td>
-                        <button
-                            type="button"
-                            onClick={onAddClick}
-                        >
-                            ADD
-                        </button>
-                    </td>
-                </tr>
-                    {options.map((o, idx) => (
-                        <tr key={idx}>
-                            <td>
-                                <input
-                                    type="text"
-                                    value={o}
-                                    onChange={(e) => onOptionsChange(e.target.value, idx)}
-                                />
-                            </td>
-                            <td>
-                                <button
-                                    type="button"
-                                    onClick={() => onDeleteClick(idx)}
-                                >
-                                    DELETE
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-            </tbody>
-        </table>
-    )
-}
-
 
 function QuestionEdit({
     question,
@@ -72,7 +13,8 @@ function QuestionEdit({
     onCancelClick
 })
 {
-    const [newOption, setNewOption] = useState("")
+    const [newOption, setNewOption] = useState("");
+    const [optionsDisabled, setOptionsDisabled] = useState(false);
 
     const handleOptionsChange = (changeOption, changeIdx) => {
         let newOptions = [...options];
@@ -87,6 +29,16 @@ function QuestionEdit({
     const handleDelete = (deleteIdx) => {
         setOptions(prev => prev.filter((_, idx) => idx !== deleteIdx));
     }
+
+    useEffect(() => {
+        const isOptionsDisabled = input === "text" || input === "textarea";
+        setOptionsDisabled(isOptionsDisabled);
+        if (isOptionsDisabled)
+        {
+            setNewOption("");
+            setOptions([]);
+        }
+    }, [input])
 
     return (
         <>
@@ -109,14 +61,17 @@ function QuestionEdit({
                 </select>
             </td>
             <td>
-                <QuestionOptionsEdit
-                    options={options}
-                    newOption={newOption}
-                    setNewOption={setNewOption}
-                    onOptionsChange={handleOptionsChange}
-                    onAddClick={handleAdd}
-                    onDeleteClick={handleDelete}
-                />
+                {optionsDisabled 
+                    ? <p>Cannot enter options for this input type.</p>
+                    : <OptionsForm
+                        option={newOption}
+                        setOption={setNewOption}
+                        options={options}
+                        onAddClick={handleAdd}
+                        onOptionsChange={handleOptionsChange}
+                        onDeleteClick={handleDelete}
+                    />
+                }
             </td>
             <td>
                 <button 
@@ -179,7 +134,7 @@ function Question({question, refreshQuestions})
     const [name, setName] = useState(question.question);
     const [input, setInput] = useState(question.input);
     const [options, setOptions] = useState(question.options ?? []);
-    console.log(options)
+    
     const refreshVariables = () => {
         setName(question.question);
         setInput(question.input);
@@ -329,14 +284,14 @@ function OptionCreate({option, setOption, optionsDisabled, onAddClick})
 }
 
 
-function OptionEdit({idx, onOptionsChange, onDeleteClick})
+function OptionEdit({option, idx, onOptionsChange, onDeleteClick})
 {
     return (
         <>
             <td>
                 <input
                     type="text"
-                    value={o}
+                    value={option}
                     onChange={(e) => onOptionsChange(e.target.value, idx)}
                 />
             </td>
@@ -357,7 +312,6 @@ function OptionsForm({
     option,
     setOption,
     options,
-    optionsDisabled,
     onAddClick,
     onOptionsChange,
     onDeleteClick
@@ -372,13 +326,13 @@ function OptionsForm({
                     <OptionCreate
                         option={option}
                         setOption={setOption}
-                        optionsDisabled={optionsDisabled}
                         onAddClick={onAddClick}
                     />
                 </tr>
                     {options.map((o, idx) => (
                         <tr key={idx}>
                             <OptionEdit
+                                option={o}
                                 idx={idx}
                                 onOptionsChange={onOptionsChange}
                                 onDeleteClick={onDeleteClick}
@@ -474,15 +428,17 @@ function QuestionForm({refreshQuestions})
                 
             </td>
             <td>
-                <OptionsForm
-                    option={option}
-                    setOption={setOption}
-                    options={options}
-                    optionsDisabled={optionsDisabled}
-                    onAddClick={handleAdd}
-                    onOptionsChange={handleOptionsChange}
-                    onDeleteClick={handleDelete}
-                />
+                {optionsDisabled 
+                    ? <p>Cannot enter options for this input type.</p>
+                    : <OptionsForm
+                        option={newOption}
+                        setOption={setNewOption}
+                        options={options}
+                        onAddClick={handleAdd}
+                        onOptionsChange={handleOptionsChange}
+                        onDeleteClick={handleDelete}
+                    />
+                }
             </td>
             <td>
                 <button
