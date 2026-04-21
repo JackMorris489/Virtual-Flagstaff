@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
 import apiFetch from "../../../../utils/apiFetch"
-import CreateForm from "./CreateForm"
 
-function QuestionEditSubTable({
+function QuestionOptionsEdit({
     options,
     newOption,
     setNewOption,
@@ -92,13 +91,13 @@ function QuestionEdit({
 
     return (
         <>
-            <th scope="row">
+            <td>
                 <input 
                     type="text"
                     value={question}
                     onChange={e => setQuestion(e.target.value)}
                 />
-            </th>
+            </td>
             <td>
                 <select
                     value={input}
@@ -111,7 +110,7 @@ function QuestionEdit({
                 </select>
             </td>
             <td>
-                <QuestionEditSubTable
+                <QuestionOptionsEdit
                     options={options}
                     newOption={newOption}
                     setNewOption={setNewOption}
@@ -261,10 +260,7 @@ function Question({question, refreshQuestions})
 }
 
 
-function ExistingQuestions({
-    questions,
-    refreshQuestions
-})
+function ExistingQuestions({questions, refreshQuestions})
 {
     return (
         <>
@@ -296,6 +292,209 @@ function TableHeader()
 }
 
 
+function OptionsForm({options, setOptions})
+{
+    const [option, setOption] = useState("")
+
+    const handleAdd = () => {
+        setOptions(prev => [...prev, option]);
+    }
+
+    return (
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Option</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input
+                            type="text"
+                            value={option}
+                            onChange={e => setOption(e.target.value)}
+                        />
+                    </td>
+                    <td>
+                        <button
+                            type="button"
+                            onClick={handleAdd}
+                        >
+                            ADD
+                        </button>
+                    </td>
+                </tr>
+                    {options.map((o, idx) => (
+                        <tr key={idx}>
+                            <td>
+                                <input
+                                    type="text"
+                                    value={o}
+                                    onChange={(e) => onOptionsChange(e.target.value, idx)}
+                                />
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    onClick={() => onDeleteClick(idx)}
+                                >
+                                    DELETE
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+            </tbody>
+        </table>
+    )
+}
+
+
+function QuestionForm({refreshQuestions})
+{
+    const [question, setQuestion] = useState("")
+    const [input, setInput] = useState("text")
+    const [option, setOption] = useState("")
+    const [options, setOptions] = useState([])
+    const [optionsDisabled, setOptionsDisabled] = useState(false)
+
+    const clear = () => {
+        setQuestion("");
+        setInput("text")
+        setOption("")
+        setOptions([]);
+    }
+
+    const createQuestion = async () => {
+        return await apiFetch("/survey-questions", {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({question, input, options})
+        });
+    }
+
+    const handleCreate = async () => {
+        console.log("here")
+        try
+        {
+            await createQuestion();
+            refreshQuestions();
+            clear();
+        }
+        catch (err)
+        {
+
+        }
+    };
+
+    const handleOptionsChange = (changeOption, changeIdx) => {
+        let newOptions = [...options];
+        newOptions[changeIdx] = changeOption;
+        setOptions(newOptions);
+    };
+
+    const handleAdd = () => {
+        setOptions(prev => [...prev, option]);
+    }
+
+    const handleDelete = (deleteIdx) => {
+        setOptions(prev => prev.filter((_, idx) => idx !== deleteIdx));
+    }
+
+    useEffect(() => {
+        const isOptionsDisabled = input === "text" || input === "textarea";
+        setOptionsDisabled(isOptionsDisabled);
+        if (isOptionsDisabled)
+        {
+            setOption("");
+            setOptions([]);
+        }
+    }, [input]);
+
+    return (
+        <tr>
+            <td>
+                <input 
+                    type="text" 
+                    value={question} 
+                    onChange={e => setQuestion(e.target.value)}
+                />
+            </td>
+            <td>
+                <select 
+                    value={input} 
+                    onChange={e => setInput(e.target.value)}
+                >
+                    <option value="text">Text</option>
+                    <option value="checkbox">Checkbox</option>
+                    <option value="select">Select</option>
+                    <option value="textarea">Textarea</option>
+                </select>
+                
+            </td>
+            <td>
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Option</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input
+                                    type="text"
+                                    value={option}
+                                    onChange={e => setOption(e.target.value)}
+                                    disabled={optionsDisabled}
+                                />
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    onClick={handleAdd}
+                                >
+                                    ADD
+                                </button>
+                            </td>
+                        </tr>
+                            {options.map((o, idx) => (
+                                <tr key={idx}>
+                                    <td>
+                                        <input
+                                            type="text"
+                                            value={o}
+                                            onChange={(e) => handleOptionsChange(e.target.value, idx)}
+                                        />
+                                    </td>
+                                    <td>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDelete(idx)}
+                                        >
+                                            DELETE
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                    </tbody>
+                </table>
+            </td>
+            <td>
+                <button
+                    type="button"
+                    onClick={handleCreate}
+                >
+                    CREATE
+                </button>
+            </td>
+        </tr>
+    )
+}
+
+
 export default function SurveyDashboard()
 {
     const [questions, setQuestions] = useState([])
@@ -315,10 +514,10 @@ export default function SurveyDashboard()
 
     return (
         <>
-            <CreateForm updateSurveyQuestions={refreshQuestions}/>
             <table>
                 <TableHeader/>
                 <tbody>
+                    <QuestionForm refreshQuestions={refreshQuestions}/>
                     <ExistingQuestions 
                         questions={questions}
                         refreshQuestions={refreshQuestions}
