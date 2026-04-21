@@ -277,7 +277,7 @@ function ExistingQuestions({questions, refreshQuestions})
 }
 
 
-function TableHeader()
+function SurveyTableHeader()
 {
     return (
         <thead>
@@ -292,22 +292,33 @@ function TableHeader()
 }
 
 
-function OptionsForm({options, setOptions})
+function OptionsTableHeader()
 {
-    const [option, setOption] = useState("")
+    return (
+        <thead>
+            <tr>
+                <th scope="col">Option</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+    )
+}
 
-    const handleAdd = () => {
-        setOptions(prev => [...prev, option]);
-    }
+
+function OptionsForm({
+    option,
+    setOption,
+    options,
+    optionsDisabled,
+    onAddClick,
+    onOptionsChange,
+    onDeleteClick
+})
+{
 
     return (
         <table>
-            <thead>
-                <tr>
-                    <th scope="col">Option</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
+            <OptionsTableHeader/>
             <tbody>
                 <tr>
                     <td>
@@ -315,12 +326,13 @@ function OptionsForm({options, setOptions})
                             type="text"
                             value={option}
                             onChange={e => setOption(e.target.value)}
+                            disabled={optionsDisabled}
                         />
                     </td>
                     <td>
                         <button
                             type="button"
-                            onClick={handleAdd}
+                            onClick={onAddClick}
                         >
                             ADD
                         </button>
@@ -396,6 +408,7 @@ function QuestionForm({refreshQuestions})
 
     const handleAdd = () => {
         setOptions(prev => [...prev, option]);
+        setOption("")
     }
 
     const handleDelete = (deleteIdx) => {
@@ -434,53 +447,15 @@ function QuestionForm({refreshQuestions})
                 
             </td>
             <td>
-                <table>
-                    <thead>
-                        <tr>
-                            <th scope="col">Option</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <input
-                                    type="text"
-                                    value={option}
-                                    onChange={e => setOption(e.target.value)}
-                                    disabled={optionsDisabled}
-                                />
-                            </td>
-                            <td>
-                                <button
-                                    type="button"
-                                    onClick={handleAdd}
-                                >
-                                    ADD
-                                </button>
-                            </td>
-                        </tr>
-                            {options.map((o, idx) => (
-                                <tr key={idx}>
-                                    <td>
-                                        <input
-                                            type="text"
-                                            value={o}
-                                            onChange={(e) => handleOptionsChange(e.target.value, idx)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleDelete(idx)}
-                                        >
-                                            DELETE
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </table>
+                <OptionsForm
+                    option={option}
+                    setOption={setOption}
+                    options={options}
+                    optionsDisabled={optionsDisabled}
+                    onAddClick={handleAdd}
+                    onOptionsChange={handleOptionsChange}
+                    onDeleteClick={handleDelete}
+                />
             </td>
             <td>
                 <button
@@ -515,7 +490,7 @@ export default function SurveyDashboard()
     return (
         <>
             <table>
-                <TableHeader/>
+                <SurveyTableHeader/>
                 <tbody>
                     <QuestionForm refreshQuestions={refreshQuestions}/>
                     <ExistingQuestions 
