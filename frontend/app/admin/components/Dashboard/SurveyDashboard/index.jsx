@@ -24,6 +24,7 @@ function QuestionEdit({
 
     const handleAdd = () => {
         setOptions(prev => [...prev, newOption]);
+        setNewOption("")
     }
 
     const handleDelete = (deleteIdx) => {
