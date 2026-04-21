@@ -61,7 +61,8 @@ function QuestionEditSubTable({
     )
 }
 
-function SurveyQuestionEdit({
+
+function QuestionEdit({
     question,
     setQuestion,
     input,
@@ -138,7 +139,42 @@ function SurveyQuestionEdit({
 }
 
 
-function SurveyQuestionItem({question, refreshQuestions})
+function QuestionRead({question, onEditClick, onDeleteClick})
+{
+    return (
+        <>
+            <td>{question.question}</td>
+            <td>{question.input}</td>
+            <td>
+                {
+                    (question.input === "select" || question.input === "checkbox") &&
+                    (
+                        question.options.map((o, j) => (
+                            <p key={j}>{o}</p>
+                        )) 
+                    )
+                }
+            </td>
+            <td>
+                <button 
+                    type="button"
+                    onClick={onEditClick}
+                >
+                    EDIT
+                </button>
+                <button 
+                    type="button"
+                    onClick={onDeleteClick}
+                >
+                    DELETE
+                </button>
+            </td>
+        </>
+    )
+}
+
+
+function Question({question, refreshQuestions})
 {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -146,29 +182,34 @@ function SurveyQuestionItem({question, refreshQuestions})
     const [input, setInput] = useState(question.input);
     const [options, setOptions] = useState(question.options);
 
-    const resetVariables = () => {
+    const refreshVariables = () => {
         setName(question.question);
         setInput(question.input);
         setOptions(question.options);
     }
 
+
+    const refresh = async () => {
+        await refreshQuestions();
+        refreshVariables();
+    }
+
+
     const deleteSurveyQuestion = async (id) => {
         return await apiFetch(`/survey-questions/${id}`, {method: "DELETE"});
     }
 
-    const handleDelete = async (id) => {
-        await deleteSurveyQuestion(id);
-        await refreshQuestions();
-        resetVariables();
+
+    const handleDelete = async () => {
+        await deleteSurveyQuestion(question.id);
+        refresh();
     }
 
 
     const updateSurveyQuestion = async (id) => {
         return await apiFetch(`/survey-questions/${id}`, {
             method: "PUT",
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({question: name, input, options})
         });
     }
@@ -176,23 +217,28 @@ function SurveyQuestionItem({question, refreshQuestions})
 
     const handleUpdate = async () => {
         await updateSurveyQuestion(question.id);
-        await refreshQuestions();
-        resetVariables();
+        refresh();
         setIsEditing(false);
     }
 
 
     const handleCancel = async () => {
-        await refreshQuestions();
-        resetVariables();
+        refresh();
         setIsEditing(false);
     };
+
+    
+    const handleEdit = async () => {
+        refresh();
+        setIsEditing(true);
+    }
+
 
     return (
         <>
             {isEditing
                 ? <>
-                    <SurveyQuestionEdit
+                    <QuestionEdit
                         question={name}
                         setQuestion={setName}
                         input={input}
@@ -203,38 +249,17 @@ function SurveyQuestionItem({question, refreshQuestions})
                         onCancelClick={handleCancel}
                     />
                 </>
-                :<>
-                    <td>{question.question}</td>
-                    <td>{question.input}</td>
-                    <td>
-                        {
-                            (question.input === "select" || question.input === "checkbox") &&
-                            (
-                                question.options.map((o, j) => (
-                                    <p key={j}>{o}</p>
-                                )) 
-                            )
-                        }
-                    </td>
-                    <td>
-                        <button 
-                            type="button"
-                            onClick={() => setIsEditing(true)}
-                        >
-                            EDIT
-                        </button>
-                        <button 
-                            type="button"
-                            onClick={() => handleDelete(question.id)}
-                        >
-                            DELETE
-                        </button>
-                    </td>
-                </>
+                :
+                <QuestionRead
+                    question={question}
+                    onEditClick={handleEdit}
+                    onDeleteClick={handleDelete}
+                />
             }
         </>
     )
 }
+
 
 function ExistingQuestions({
     questions,
@@ -245,7 +270,7 @@ function ExistingQuestions({
         <>
             {questions.map((q) => (
                 <tr key={q.id}>
-                    <SurveyQuestionItem 
+                    <Question 
                         question={q} 
                         refreshQuestions={refreshQuestions}
                     />
@@ -254,6 +279,7 @@ function ExistingQuestions({
         </>
     )
 }
+
 
 function TableHeader()
 {
@@ -268,6 +294,7 @@ function TableHeader()
         </thead>
     )
 }
+
 
 export default function SurveyDashboard()
 {
