@@ -109,8 +109,8 @@ function UserRead({user, onEditClick, onDeleteClick})
 export default function User({user, refreshUsers})
 {
     const [isEditing, setIsEditing] = useState(false)
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [notify, setNotify] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(user.is_admin);
+    const [notify, setNotify] = useState(user.receive_notifications);
 
     const deleteUser = async (id) => {
         return await apiFetch(`/users/${id}`, {method: "DELETE"});
