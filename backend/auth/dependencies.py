@@ -30,3 +30,17 @@ async def get_current_user(
     return user
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+async def get_admin_user(user: CurrentUser):
+    exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="User is not admin",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+
+    if not user.is_admin:
+        raise exception
+    
+    return user
+
+AdminUser = Annotated[User, Depends(get_admin_user)]

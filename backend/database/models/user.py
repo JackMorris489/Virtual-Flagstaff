@@ -1,6 +1,6 @@
 # user.py
 
-from sqlmodel import Field, SQLModel, Column
+from sqlmodel import Field, SQLModel, Column, Relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from typing import Any
 
@@ -8,6 +8,8 @@ class UserBase(SQLModel):
     username: str = Field(unique=True, index=True)
     
 class User(UserBase, table=True):
+    __tablename__ = "users"
+
     id: int | None = Field(default=None, primary_key=True)
     password: str 
     email: str | None = Field(default=None, unique=True, index=True)
@@ -16,11 +18,16 @@ class User(UserBase, table=True):
     survey: dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
     completed_tutorial: bool
     points: int = 0
+    is_admin: bool = False
+
+    game_sessions: list["GameSession"] = Relationship(back_populates="user", cascade_delete=True)
+    user_quests: list["UserQuest"] = Relationship(back_populates="user", cascade_delete=True)
 
 class UserPublic(UserBase):
     id: int
     completed_tutorial: bool
     points: int
+    is_admin: bool
 
 class UserCreate(UserBase):
     password: str
