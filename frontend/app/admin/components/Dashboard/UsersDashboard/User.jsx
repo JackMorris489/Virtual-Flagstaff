@@ -99,7 +99,6 @@ function UserRead({user, onEditClick, onDeleteClick})
                 >
                     DELETE
                 </button>
-                
             </td>
         </>
     )
