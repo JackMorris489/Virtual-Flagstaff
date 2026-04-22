@@ -15,9 +15,12 @@ export default function Dashboard()
             <DashboardSection title="Survey">
                 <SurveyDashboard/>
             </DashboardSection>
+            <DashboardSection title="Incentives">
+                <IncentivesDashboard/>
+            </DashboardSection>
             <QuestsDashboard/>
             <NpcsDashboard/>
-            <IncentivesDashboard/>
+            
         </>
     )
 }

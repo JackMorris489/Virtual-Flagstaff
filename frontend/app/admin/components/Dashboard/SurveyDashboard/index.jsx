@@ -472,17 +472,15 @@ export default function SurveyDashboard()
     useEffect(() => {initialize()}, [])
 
     return (
-        <>
-            <table>
-                <SurveyTableHeader/>
-                <tbody>
-                    <QuestionForm refreshQuestions={refreshQuestions}/>
-                    <ExistingQuestions 
-                        questions={questions}
-                        refreshQuestions={refreshQuestions}
-                    />
-                </tbody>
-            </table>
-        </>
+        <table>
+            <SurveyTableHeader/>
+            <tbody>
+                <QuestionForm refreshQuestions={refreshQuestions}/>
+                <ExistingQuestions 
+                    questions={questions}
+                    refreshQuestions={refreshQuestions}
+                />
+            </tbody>
+        </table>
     )
 }

@@ -15,3 +15,11 @@ class Incentive(IncentiveBase, table=True):
 class IncentivePublic(IncentiveBase):
     name: str
     required_points: int
+
+class IncentiveUpdate(IncentiveBase):
+    name: str | None = None
+    required_points: int | None = None
+
+class IncentiveCreate(IncentiveBase):
+    name: str
+    required_points: int

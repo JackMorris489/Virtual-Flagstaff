@@ -40,7 +40,7 @@ from .quest_reward import (
 
 
 # Incentives
-from .incentive import Incentive, IncentivePublic
+from .incentive import Incentive, IncentivePublic, IncentiveUpdate, IncentiveCreate
 
 # Survey Questions
 from .survey_question import (
