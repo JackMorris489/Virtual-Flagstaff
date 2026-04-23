@@ -175,11 +175,11 @@ def create_game_session(
     query = select(Game).where(Game.key == game_session_args.game_key)
     game: Game = database_service.get_query_result(session, query)
 
-    game_session = GameSession(
-        score=game_session_args.score, 
-        user_id=user.id, 
-        game_id=game.id
-    )
+    game_session = {
+        "score": game_session_args.score, 
+        "user_id": user.id, 
+        "game_id": game.id
+    }
 
     return database_service.create_model_instance(
         GameSession, 
