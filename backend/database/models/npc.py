@@ -10,6 +10,7 @@ class Npc(NpcBase, table=True):
     __tablename__ = "npcs"
 
     id: int | None = Field(default=None, primary_key=True)
+    key: str = Field(index=True, unique=True)
     x_pos: int
     y_pos: int
     dialog: dict[str, list[str]] = Field(default=None, sa_column=Column(JSONB))
