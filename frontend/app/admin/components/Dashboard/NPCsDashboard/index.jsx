@@ -69,31 +69,64 @@ function NpcRead({npc, onEditClick})
 }
 
 
-function DialogEdit({
-    initialDialog,
-    setInitialDialog,
-    inProgressDialog,
-    setInProgressDialog,
-    completedDialog,
-    setCompletedDialog
-})
+function DialogEdit({dialog, setDialog, onDialogChange})
 {
     const maxLength = Math.max(
-        initialDialog.length,
-        inProgressDialog.length,
-        completedDialog.length
+        dialog.initial.length,
+        dialog.inProgress.length,
+        dialog.completed.length
     );
 
     return (
-        <>
+        <table>
+            <thead>
+                <tr>
+                    <th>Initial</th>
+                    <th>In Progress</th>
+                    <th>Completed</th>
+                </tr>
+            </thead>
             {Array.from({length: maxLength}).map((_, idx) => (
                 <tr key={idx}>
-                    <td>{dialog.initial[idx] ?? ""}</td>
-                    <td>{dialog.inProgress[idx] ?? ""}</td>
-                    <td>{dialog.completed[idx] ?? ""}</td>
+                    <td>
+                        {dialog.initial[idx] &&
+                            (
+                                <textarea
+                                    type="text"
+                                    value={dialog.initial[idx]}
+                                    onChange={e => onDialogChange(e.target.value, "initial", idx)}
+                                />
+                            )
+
+                        }
+                    </td>
+                    <td>
+                        {dialog.inProgress[idx] &&
+                            (
+                                <textarea
+                                    type="text"
+                                    value={dialog.inProgress[idx]}
+                                    onChange={e => onDialogChange(e.target.value, "inProgress", idx)}
+                                />
+                            )
+
+                        }
+                    </td>
+                    <td>
+                        {dialog.completed[idx] &&
+                            (
+                                <textarea
+                                    type="text"
+                                    value={dialog.completed[idx]}
+                                    onChange={e => onDialogChange(e.target.value, "completed", idx)}
+                                />
+                            )
+
+                        }
+                    </td>
                 </tr>
             ))}
-        </>
+        </table>
     )
 }
 
@@ -105,9 +138,23 @@ function NpcEdit({
     set_xPos,
     yPos,
     set_yPos,
+    dialog,
+    setDialog,
     onCancelClick
 })
 {
+    const handleDialogChange = (value, type, idx) => {
+        setDialog(prev => {
+            const newArray = [...prev[type]];
+            newArray[idx] = value;
+
+            return {
+                ...prev,
+                [type]: newArray
+            };
+        });
+    }
+
     return (
         <>
             <td>
@@ -132,10 +179,11 @@ function NpcEdit({
                 />
             </td>
             <td>
-                {/* <textarea
-                    value={""}
-                    onChange={}
-                /> */}
+                <DialogEdit
+                    dialog={dialog}
+                    setDialog={setDialog}
+                    onDialogChange={handleDialogChange}
+                />
             </td>
             <td>
                 <button
@@ -156,6 +204,9 @@ function NPC({npc, refreshNpcs})
     const [name, setName] = useState(npc.name);
     const [xPos, set_xPos] = useState(npc.x_pos);
     const [yPos, set_yPos] = useState(npc.y_pos);
+    const [dialog, setDialog] = useState(npc.dialog);
+
+    console.log(dialog)
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -177,6 +228,8 @@ function NPC({npc, refreshNpcs})
                         set_xPos={set_xPos}
                         yPos={yPos}
                         set_yPos={set_yPos}
+                        dialog={dialog}
+                        setDialog={setDialog}
                         onCancelClick={handleCancel}
                     />
                 )
