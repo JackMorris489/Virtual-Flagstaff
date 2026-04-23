@@ -9,8 +9,47 @@ import MainMenu from "./components/MainMenu"
 import { useRouter } from "next/navigation";
 import { Press_Start_2P } from "next/font/google";
 import IncentivesModal from "./components/IncentivesModal"
+import { redirect } from "next/navigation";
 
 const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: "400" });
+
+const KONAMI_CODE = [
+    "ArrowUp",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowLeft",
+    "ArrowRight",
+    "b",
+    "a"
+];
+
+function useKonamiCode(callback) {
+  const [input, setInput] = useState([]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+      setInput((prev) => {
+        const newInput = [...prev, key].slice(-KONAMI_CODE.length);
+
+        if (JSON.stringify(newInput) === JSON.stringify(KONAMI_CODE)) {
+          callback();
+          return [];
+        }
+
+        return newInput;
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [callback]);
+}
+
 
 export default function Page() {
     const router = useRouter();
@@ -28,6 +67,8 @@ export default function Page() {
     const [surveyCompleted, setSurveyCompleted] = useState(false);
 
     const [incentivesOpen, setIncentivesOpen] = useState(false);
+
+    useKonamiCode(() => redirect("/admin"))
 
     // Disable start shortcut while any modal is open
     useEffect(() => {
