@@ -174,7 +174,8 @@ export class Overworld extends Phaser.Scene {
                     interactionType: "DIALOG",
                 },
                 npc.name,
-                questId
+                questId,
+                npc.key
             );
 
             npcGroup.push(npcObject);
