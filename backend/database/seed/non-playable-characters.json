@@ -5,7 +5,12 @@
         "x_pos": 50,
         "y_pos": -100,
         "dialog": {
-            "initial": ["Initial"],
+            "initial": [
+                "Oh hey there buddy, you here to hit the snow slopes too?",
+                "I'm here to ski, if you're looking to try it I can give you some pointers.",
+                "If you wanna take me up on that offer, come find me at the skiis.",
+                "You just have to head North, cross the road, and head West."
+            ],
             "inProgress": ["In Progress"],
             "completed": ["Completed"]
         }
@@ -16,7 +21,13 @@
         "x_pos": 100,
         "y_pos": -100,
         "dialog": {
-            "initial": ["Initial"],
+            "initial": [
+                "Hey there! You here to rip some on these gnarly slopes?",
+                "Well that's what I'm here for!",
+                "You should totally come join me, it'll be sick!",
+                "Just head up and after crossing the road head left.",
+                "Walk on over to the pair of boards and we'll hit the slopes!"
+            ],
             "inProgress": ["In Progress"],
             "completed": ["Completed"]
         }
