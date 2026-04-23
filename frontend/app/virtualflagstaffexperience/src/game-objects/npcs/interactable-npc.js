@@ -90,13 +90,14 @@ export class InteractiveNPC extends NPC {
     interactionType;
     interactionComponent;
 
-    constructor(config, name, questId) {
+    constructor(config, name, questId, key) {
         super(config)
 
         this.interactionType = config.interactionType;
         this.name = name;
         this.id = config.id;
         this.questId = questId
+        this.key = key
 
         // add components
         this.interactionComponent = new InteractiveObjectComponent(
@@ -127,33 +128,40 @@ export class InteractiveNPC extends NPC {
 
     async getCurrentDialog()
     {
-        const dialogs = NPC_DIALOG[this.name];
+        // const dialogs = NPC_DIALOG[this.name];
+        const dialogs = await apiFetch(`/npcs/${this.key}/dialog`)
+        let dialog;
         const index = this.scene.currentDialogNumber;
+        console.log(dialogs)
 
         if (index === 0)
         {
             EVENT_BUS.emit("NPC_INTERACTION_START")
-            try
+        }
+
+        try
+        {
+            const quest = await this.getQuest();
+
+            if (quest.is_complete)
             {
-                const quest = await this.getQuest();
-
-                if (quest.is_complete)
-                {
-                    console.log("Use quest completion dialog")
-                }
-
-                else
-                {
-                    console.log("Use quest in progress dialog")
-                }
+                console.log("Use quest completion dialog")
+                dialog = dialogs.completed[index]
             }
 
-            catch (e) {
-                console.log("Use quest assigning dialog")
+            else
+            {
+                console.log("Use quest in progress dialog")
+                dialog = dialogs.inProgress[index]
             }
         }
 
-        return dialogs[index];
+        catch (e) {
+            console.log("Use quest assigning dialog")
+            dialog = dialogs.initial[index]
+        }
+
+        return dialog;
     }
 
     async assignQuest()
@@ -186,7 +194,7 @@ export class InteractiveNPC extends NPC {
     async dialog() {
 
         const dialog = await this.getCurrentDialog();
-
+        console.log(dialog)
         if (dialog) 
         {
             this.freeze()
