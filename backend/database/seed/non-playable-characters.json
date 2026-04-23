@@ -1,12 +1,24 @@
 [
     {
         "name": "Skier", 
+        "key": "SKIER",
         "x_pos": 50,
-        "y_pos": -100
+        "y_pos": -100,
+        "dialog": {
+            "initial": ["Initial"],
+            "inProgress": ["In Progress"],
+            "completed": ["Completed"]
+        }
     },
     {
         "name": "Snowboarder", 
+        "key": "SNOWBOARDER",
         "x_pos": 100,
-        "y_pos": -100
+        "y_pos": -100,
+        "dialog": {
+            "initial": ["Initial"],
+            "inProgress": ["In Progress"],
+            "completed": ["Completed"]
+        }
     }
 ]
