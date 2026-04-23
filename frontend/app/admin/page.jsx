@@ -1,5 +1,6 @@
 "use client";
 
+import "./styles.css"
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import { useEffect, useState } from "react";
