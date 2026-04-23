@@ -14,3 +14,9 @@ def read_npcs(session: SessionDep) -> list[Npc]:
 def read_npc_quest(npc_id: int, session: SessionDep) -> Quest:
     query = select(Quest).where(Quest.npc_id == npc_id)
     return database_service.get_query_result(session, query)
+
+
+@npcs_router.get("/{key}/dialog", response_model=dict[str, list[str]])
+def read_npc_dialog(key: str, session: SessionDep):
+    query = select(Npc.dialog).where(Npc.key == key)
+    return (database_service.get_query_result(session, query))

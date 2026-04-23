@@ -10,11 +10,11 @@ class GameSession(GameSessionBase, table=True):
     __tablename__ = "gamesessions"
 
     id: int | None = Field(default=None, primary_key=True)
-    user_id: int | None = Field(default=None, foreign_key="users.id", ondelete="CASCADE")
-    game_id: int | None = Field(default=None, foreign_key="games.id", ondelete="CASCADE")
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE")
+    game_id: int = Field(foreign_key="games.id", ondelete="CASCADE")
 
-    user: User | None = Relationship(back_populates="game_sessions")
-    game: Game | None = Relationship(back_populates="game_sessions")
+    user: User = Relationship(back_populates="game_sessions")
+    game: Game = Relationship(back_populates="game_sessions")
 
 class GameSessionPublic(GameSessionBase):
     game_id: int
