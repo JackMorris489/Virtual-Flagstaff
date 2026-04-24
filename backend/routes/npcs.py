@@ -26,6 +26,5 @@ def read_npc_dialog(key: str, session: SessionDep):
 def update_npc(key: str, updated: NpcUpdate, session: SessionDep):
     id_query = select(Npc.id).where(Npc.key == key)
     id = database_service.get_query_result(session, id_query)
-    print(id)
 
     return database_service.set_model_instance_by_id(Npc, session, id, updated)
