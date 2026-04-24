@@ -89,7 +89,7 @@ function DialogEdit({dialog, setDialog, onDialogChange})
             {Array.from({length: maxLength}).map((_, idx) => (
                 <tr key={idx}>
                     <td>
-                        {dialog.initial[idx] &&
+                        {dialog.initial[idx] !== undefined &&
                             (
                                 <textarea
                                     type="text"
@@ -101,7 +101,7 @@ function DialogEdit({dialog, setDialog, onDialogChange})
                         }
                     </td>
                     <td>
-                        {dialog.inProgress[idx] &&
+                        {dialog.inProgress[idx] !== undefined &&
                             (
                                 <textarea
                                     type="text"
@@ -113,7 +113,7 @@ function DialogEdit({dialog, setDialog, onDialogChange})
                         }
                     </td>
                     <td>
-                        {dialog.completed[idx] &&
+                        {dialog.completed[idx] !== undefined &&
                             (
                                 <textarea
                                     type="text"
@@ -140,6 +140,7 @@ function NpcEdit({
     set_yPos,
     dialog,
     setDialog,
+    onUpdateClick,
     onCancelClick
 })
 {
@@ -188,6 +189,12 @@ function NpcEdit({
             <td>
                 <button
                     type="button"
+                    onClick={onUpdateClick}
+                >
+                    UPDATE
+                </button>
+                <button
+                    type="button"
                     onClick={onCancelClick}
                 >
                     CANCEL
@@ -206,15 +213,37 @@ function NPC({npc, refreshNpcs})
     const [yPos, set_yPos] = useState(npc.y_pos);
     const [dialog, setDialog] = useState(npc.dialog);
 
-    console.log(dialog)
+    const refreshVars = () => {
+        setName(npc.name);
+        set_xPos(npc.x_pos);
+        set_yPos(npc.y_pos);
+        setDialog(npc.dialog);
+    }
+
+    const refresh = async () => {
+        await refreshNpcs();
+        refreshVars();
+    }
 
     const handleEdit = () => {
+        refresh();
         setIsEditing(true);
     }
     
     const handleCancel = () => {
+        refresh();
         setIsEditing(false);
-        refreshNpcs();
+    }
+
+
+    const handleUpdate = async () => {
+        await apiFetch(`/npcs/${npc.key}`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({name, x_pos: xPos, y_pos: yPos, dialog})
+        })
+        refresh();
+        setIsEditing(false);
     }
 
     return (
@@ -230,6 +259,7 @@ function NPC({npc, refreshNpcs})
                         set_yPos={set_yPos}
                         dialog={dialog}
                         setDialog={setDialog}
+                        onUpdateClick={handleUpdate}
                         onCancelClick={handleCancel}
                     />
                 )
