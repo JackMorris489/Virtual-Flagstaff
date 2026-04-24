@@ -69,8 +69,27 @@ function NpcRead({npc, onEditClick})
 }
 
 
-function DialogEdit({dialog, setDialog, onDialogChange})
+function DialogEdit({dialog, setDialog, onDialogChange, onDeleteClick})
 {
+    const [initialDialog, setInitialDialog] = useState("")
+    const [inProgressDialog, setInProgressDialog] = useState("")
+    const [completedDialog, setCompletedDialog] = useState("")
+
+    const handleDialogAdd = (value, type) => {
+        setDialog(prev => {
+            const newArray = [...prev[type]];
+            newArray.push(value);
+
+            return {
+                ...prev,
+                [type]: newArray
+            }
+        })
+        setInitialDialog("");
+        setInProgressDialog("");
+        setCompletedDialog("");
+    }
+
     const maxLength = Math.max(
         dialog.initial.length,
         dialog.inProgress.length,
@@ -86,46 +105,109 @@ function DialogEdit({dialog, setDialog, onDialogChange})
                     <th>Completed</th>
                 </tr>
             </thead>
-            {Array.from({length: maxLength}).map((_, idx) => (
-                <tr key={idx}>
+            <tbody>
+                <tr>
                     <td>
-                        {dialog.initial[idx] !== undefined &&
-                            (
-                                <textarea
-                                    type="text"
-                                    value={dialog.initial[idx]}
-                                    onChange={e => onDialogChange(e.target.value, "initial", idx)}
-                                />
-                            )
-
-                        }
+                        <textarea
+                            value={initialDialog}
+                            onChange={e => {setInitialDialog(e.target.value)}}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => handleDialogAdd(initialDialog, "initial")}
+                        >
+                            ADD
+                        </button>
                     </td>
                     <td>
-                        {dialog.inProgress[idx] !== undefined &&
-                            (
-                                <textarea
-                                    type="text"
-                                    value={dialog.inProgress[idx]}
-                                    onChange={e => onDialogChange(e.target.value, "inProgress", idx)}
-                                />
-                            )
-
-                        }
+                        <textarea
+                            value={inProgressDialog}
+                            onChange={e => {setInProgressDialog(e.target.value)}}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => handleDialogAdd(inProgressDialog, "inProgress")}
+                        >
+                            ADD
+                        </button>
                     </td>
                     <td>
-                        {dialog.completed[idx] !== undefined &&
-                            (
-                                <textarea
-                                    type="text"
-                                    value={dialog.completed[idx]}
-                                    onChange={e => onDialogChange(e.target.value, "completed", idx)}
-                                />
-                            )
-
-                        }
+                        <textarea
+                            value={completedDialog}
+                            onChange={e => {setCompletedDialog(e.target.value)}}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => handleDialogAdd(completedDialog, "completed")}
+                        >
+                            ADD
+                        </button>
                     </td>
                 </tr>
-            ))}
+                {Array.from({length: maxLength}).map((_, idx) => (
+                    <tr key={idx}>
+                        <td>
+                            {dialog.initial[idx] !== undefined &&
+                                (
+                                    <>
+                                        <textarea
+                                            type="text"
+                                            value={dialog.initial[idx]}
+                                            onChange={e => onDialogChange(e.target.value, "initial", idx)}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => onDeleteClick("initial", idx)}
+                                        >
+                                            DELETE
+                                        </button>
+                                    </>
+                                )
+                            }
+                        </td>
+                        <td>
+                            {dialog.inProgress[idx] !== undefined &&
+                                (
+                                    <>
+                                        <textarea
+                                            type="text"
+                                            value={dialog.inProgress[idx]}
+                                            onChange={e => onDialogChange(e.target.value, "inProgress", idx)}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => onDeleteClick("inProgress", idx)}
+                                        >
+                                            DELETE
+                                        </button>
+                                    </>
+                                )
+
+                            }
+                        </td>
+                        <td>
+                            {dialog.completed[idx] !== undefined &&
+                                (
+                                    <>
+                                        <textarea
+                                            type="text"
+                                            value={dialog.completed[idx]}
+                                            onChange={e => onDialogChange(e.target.value, "completed", idx)}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => onDeleteClick("completed", idx)}
+                                        >
+                                            DELETE
+                                        </button>
+                                    </>
+                                )
+
+                            }
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
         </table>
     )
 }
@@ -156,6 +238,13 @@ function NpcEdit({
         });
     }
 
+    const handleDialogDelete = (type, idx) => {
+        setDialog(prev => ({
+            ...prev,
+            [type]: prev[type].filter((_, i) => i !== idx)
+        }));
+    };
+
     return (
         <>
             <td>
@@ -184,6 +273,7 @@ function NpcEdit({
                     dialog={dialog}
                     setDialog={setDialog}
                     onDialogChange={handleDialogChange}
+                    onDeleteClick={handleDialogDelete}
                 />
             </td>
             <td>
