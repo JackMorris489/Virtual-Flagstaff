@@ -176,6 +176,71 @@
     ]
   },
   {
+    "path": "assets/images/diner",
+    "files": [
+      {
+        "type": "image",
+        "key": "DINER_BURGER",
+        "url": "burger.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_COFFEE",
+        "url": "coffee.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_FRIES",
+        "url": "fries.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_FLOOR_TILE",
+        "url": "floor_tile.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_FOOD_STATION",
+        "url": "food_station.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_TABLE",
+        "url": "table.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_WAITER",
+        "url": "waiter.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_ACCESS_BOX",
+        "url": "diner_access_box.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_CUSTOMER_1",
+        "url": "customer_1.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_CUSTOMER_2",
+        "url": "customer_2.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_CUSTOMER_3",
+        "url": "customer_3.png"
+      },
+      {
+        "type": "image",
+        "key": "DINER_CUSTOMER_4",
+        "url": "customer_4.png"
+      }
+    ]
+  },
+  {
     "path": "assets/tiled/lpc-victorian-preview",
     "files": [
       {

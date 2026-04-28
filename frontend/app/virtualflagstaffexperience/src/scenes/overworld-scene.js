@@ -35,9 +35,12 @@ export class Overworld extends Phaser.Scene {
     minigameinteractables;
     snowboardInteractable
     skiInteractable
+    dinerInteractable
+    dinerInteractableVisual
     interactablesIcons;
     skiInteractableIcon;
     snowboardInteractableIcon;
+    dinerInteractableIcon;
     skiEndlessMode = false;
     overlayImage;
     miniMapCamera;
@@ -189,18 +192,29 @@ export class Overworld extends Phaser.Scene {
        this.#npcIconGroup = this.add.graphics(npcIconGroup)
 
         /* ========== INTERACTABLES ========== */
+        this.#ensureFallbackTextures();
+
         // TODO: Rework how the snowboard and ski interactable objects work
         // snowboard interactables to start the ski/snowboard minigame
         this.minigameinteractables = this.add.group([
             this.skiInteractable = new Phaser.Physics.Arcade.Image(this, 1184, 496, ''),
             this.snowboardInteractable = new Phaser.Physics.Arcade.Image(this, 1056, 496, ''),
+            this.dinerInteractable = new Phaser.Physics.Arcade.Image(this, 1312, 656, ''),
         ])
 
         this.physics.add.existing(this.snowboardInteractable);
         this.physics.add.existing(this.skiInteractable);
+        this.physics.add.existing(this.dinerInteractable);
 
         this.snowboardInteractable.body.setSize(64, 32, true);
         this.skiInteractable.body.setSize(64, 32, true);
+        this.dinerInteractable.body.setSize(64, 48, true);
+
+        this.dinerInteractableVisual = this.add.image(
+            this.dinerInteractable.x,
+            this.dinerInteractable.y,
+            ASSET_KEYS.DINER_ACCESS_BOX
+        ).setDepth(2);
 
         this.physics.add.overlap(this.#playerInteractionZone, this.snowboardInteractable, () => {
             if(this.controls.isActionJustDown) {
@@ -214,11 +228,18 @@ export class Overworld extends Phaser.Scene {
             }
         }, null, this);
 
+        this.physics.add.overlap(this.#playerInteractionZone, this.dinerInteractable, () => {
+            if(this.controls.isActionJustDown) {
+                this.#minigameInteraction('DINER', SCENE_KEYS.DINER_GAME);
+            }
+        }, null, this);
+
 
         // create the icon group
         this.interactablesIcons = this.add.group([
             this.snowboardInteractableIcon = this.add.circle(this.snowboardInteractable.x, this.snowboardInteractable.y, 20, 0xFF00FF, 1),
             this.skiInteractableIcon = this.add.circle(this.skiInteractable.x, this.skiInteractable.y, 20, 0xFF00FF, 1),
+            this.dinerInteractableIcon = this.add.circle(this.dinerInteractable.x, this.dinerInteractable.y, 20, 0x4ecdc4, 1),
         ]);
 
         /* ========== REGISTERS ========== */
@@ -264,10 +285,10 @@ export class Overworld extends Phaser.Scene {
         this.#minimapTracking();
     }
 
-    #minigameInteraction(playerType) {
+    #minigameInteraction(playerType, sceneKey = SCENE_KEYS.SKI_GAME) {
         this.playerType = playerType;
-        this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
-        this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+        this.scene.switch(sceneKey);
+        this.scene.get(sceneKey).scene.restart();
     }
 
     #minimapTracking() {
@@ -303,5 +324,25 @@ export class Overworld extends Phaser.Scene {
 
     #registerCustomEvents() {
         return;
+    }
+
+    #ensureFallbackTextures() {
+        if (this.textures.exists(ASSET_KEYS.DINER_ACCESS_BOX)) return;
+
+        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0x4a241e, 1);
+        graphics.fillRoundedRect(0, 0, 48, 48, 6);
+        graphics.lineStyle(3, 0xffcf4f, 1);
+        graphics.strokeRoundedRect(2, 2, 44, 44, 6);
+        graphics.fillStyle(0xf6d28a, 1);
+        graphics.fillRoundedRect(10, 18, 28, 16, 4);
+        graphics.fillStyle(0x74381f, 1);
+        graphics.fillRect(13, 23, 22, 5);
+        graphics.fillStyle(0xe94535, 1);
+        graphics.fillCircle(18, 25, 3);
+        graphics.fillStyle(0x71c96a, 1);
+        graphics.fillCircle(30, 25, 3);
+        graphics.generateTexture(ASSET_KEYS.DINER_ACCESS_BOX, 48, 48);
+        graphics.destroy();
     }
 }

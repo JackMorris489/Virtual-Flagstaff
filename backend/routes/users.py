@@ -28,6 +28,11 @@ from pydantic import BaseModel
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
+GAME_NAMES_BY_KEY = {
+    "SKI_GAME": "Ski/Snowboard Extereme",
+    "DINER_GAME": "Diner Dash",
+}
+
 class IncentiveFormInput(BaseModel):
     incentives: list[dict]
 
@@ -174,6 +179,19 @@ def create_game_session(
     
     query = select(Game).where(Game.key == game_session_args.game_key)
     game: Game = database_service.get_query_result(session, query)
+
+    if not game:
+        game = database_service.create_model_instance(
+            Game,
+            session,
+            {
+                "name": GAME_NAMES_BY_KEY.get(
+                    game_session_args.game_key,
+                    game_session_args.game_key.replace("_", " ").title()
+                ),
+                "key": game_session_args.game_key
+            }
+        )
 
     game_session = {
         "score": game_session_args.score, 

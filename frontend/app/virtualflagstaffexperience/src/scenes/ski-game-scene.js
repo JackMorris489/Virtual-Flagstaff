@@ -294,7 +294,9 @@ export class SkiGame extends GameScene {
     }
 
     async getLeaderboard() {
-        return await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`)
+        return await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`, {
+            cache: 'no-store',
+        })
     }
 
     async getLeaderboardText() {

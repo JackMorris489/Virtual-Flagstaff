@@ -2,5 +2,9 @@
     {
         "name": "Ski/Snowboard Extereme",
         "key": "SKI_GAME"
+    },
+    {
+        "name": "Diner Dash",
+        "key": "DINER_GAME"
     }
 ]
