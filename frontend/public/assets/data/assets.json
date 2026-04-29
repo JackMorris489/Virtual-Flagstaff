@@ -202,6 +202,26 @@
     ]
   },
   {
+    "path": "assets/images",
+    "files": [
+      {
+        "type": "image",
+        "key": "WILDLIFE_RODENT",
+        "url": "rodent.png"
+      },
+      {
+        "type": "image",
+        "key": "WILDLIFE_DEER",
+        "url": "deer.png"
+      },
+      {
+        "type": "image",
+        "key": "WILDLIFE_BIRD",
+        "url": "bird.png"
+      }
+    ]
+  },
+  {
     "path": "assets/images/diner",
     "files": [
       {
