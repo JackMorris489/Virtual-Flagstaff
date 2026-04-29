@@ -419,7 +419,7 @@ export class DinerGame extends GameScene {
                 method: "PATCH",
                 credentials: "include",
             });
-            CUSTOM_EVENTS.REFRESH_QUESTS
+            EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
         }
 
         this.uiScene.showDialog(await this.buildEndDialogText(titleText));
