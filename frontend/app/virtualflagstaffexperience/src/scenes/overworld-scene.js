@@ -12,6 +12,7 @@ import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 import { NPC_DIALOG } from '../common/npc-dialog';
 import { TILED_LAYER_NAMES, TILED_TILESET_NAMES } from '../common/tiled/common';
 import apiFetch from '../../../utils/apiFetch';
+import { ENABLE_LOGGING } from '../common/config';
 
 
 /** 
@@ -62,13 +63,16 @@ export class Overworld extends Phaser.Scene {
         });
 
         // LOG TILEMAP DATA
-        console.log("Map Orientation: ", map.orientation);
-        console.log("Map Height", map.height, map.heightInPixels);
-        console.log("Map Width", map.width, map.widthInPixels);
-        console.log("Map Layers: ", map.layers);
-        console.log("TILESET DATA\nMap Tilesets: ", map.tilesets);
-        console.log("Tile Height: ", map.tileHeight);
-        console.log("Tile Width: ", map.tileWidth);
+        if(ENABLE_LOGGING) {
+            console.log("Map Orientation: ", map.orientation);
+            console.log("Map Height", map.height, map.heightInPixels);
+            console.log("Map Width", map.width, map.widthInPixels);
+            console.log("Map Layers: ", map.layers);
+            console.log("TILESET DATA\nMap Tilesets: ", map.tilesets);
+            console.log("Tile Height: ", map.tileHeight);
+            console.log("Tile Width: ", map.tileWidth);
+        }
+        
 
         // create the tilesets
         const bricks = map.addTilesetImage(TILED_TILESET_NAMES.BRICKS, ASSET_KEYS.BRICKS);
@@ -97,7 +101,7 @@ export class Overworld extends Phaser.Scene {
         this.#allCollisionLayer = map.createLayer(TILED_LAYER_NAMES.COLLISION, [collision], 0, 0);
         this.#allCollisionLayer.setDepth(0).setAlpha(0);
 
-        //
+        // create interactable layers
         const skiInteractable = map.createLayer(TILED_LAYER_NAMES.SKI_INTERACTABLES, [equipment], 0, 0).setDepth(10);
         const snowboardInteractable = map.createLayer(TILED_LAYER_NAMES.SNOWBOARD_INTERACTABLES, [equipment], 0, 0).setDepth(10);
         const hmvInteractable = map.createLayer(TILED_LAYER_NAMES.HMV_INTERACTABLES, [equipment], 0, 0).setDepth(10);
@@ -131,7 +135,7 @@ export class Overworld extends Phaser.Scene {
             y: 0,
             children: [this.player, this.#playerInteractionZone],
         }).setDepth(4);
-        this.playerIcon = this.add.circle(this.player.x, this.player.y, 20, 0xFF0000, 1);
+        this.playerIcon = this.add.circle(this.player.x, this.player.y, 30, 0xFF0000, 1);
 
 
         /* ========== Cameras ========== */
@@ -140,7 +144,6 @@ export class Overworld extends Phaser.Scene {
         this.cameras.main.startFollow(this.player);
 
         // camera hue shifting based on weather WIP
-        // TODO: REFINE/REMAKE THIS FUNCTION
         this.overlayImage = this.add.rectangle(
             this.cameras.main.width/2, 
             this.cameras.main.height/2, 
@@ -207,13 +210,12 @@ export class Overworld extends Phaser.Scene {
         /* ========== INTERACTABLES ========== */
         this.#ensureFallbackTextures();
 
-        // TODO: Rework how the snowboard and ski interactable objects work
         // snowboard interactables to start the ski/snowboard minigame
         this.minigameinteractables = this.add.group([
-            this.skiInteractable = new Phaser.Physics.Arcade.Image(this, 4384+32, 512+16, ''), 
-            this.snowboardInteractable = new Phaser.Physics.Arcade.Image(this, 4512+32, 512+16, ''), 
-            this.hmvInteractable = new Phaser.Physics.Arcade.Image(this, 4096+16, 1792+16, ''), 
-            this.dinerInteractable = new Phaser.Physics.Arcade.Image(this, 2944+32, 1888+8, ''), 
+            this.skiInteractable = new Phaser.Physics.Arcade.Image(this, 4544, 528, ''), 
+            this.snowboardInteractable = new Phaser.Physics.Arcade.Image(this, 4416, 528, ''), 
+            this.hmvInteractable = new Phaser.Physics.Arcade.Image(this, 4112, 1808, ''), 
+            this.dinerInteractable = new Phaser.Physics.Arcade.Image(this, 2976, 1896, ''), 
             this.wildlifeInteractable = new Phaser.Physics.Arcade.Image(this, 2528, 5168, ''), 
         ]).setDepth(10);
 
@@ -262,10 +264,11 @@ export class Overworld extends Phaser.Scene {
 
         // create the icon group
         this.interactablesIcons = this.add.group([
-            this.snowboardInteractableIcon = this.add.circle(this.snowboardInteractable.x, this.snowboardInteractable.y, 20, 0xFF00FF, 1),
-            this.skiInteractableIcon = this.add.circle(this.skiInteractable.x, this.skiInteractable.y, 20, 0xFF00FF, 1),
-            this.dinerInteractableIcon = this.add.circle(this.dinerInteractable.x, this.dinerInteractable.y, 20, 0x4ecdc4, 1),
-            this.monteVistaInteractableIcon = this.add.circle(this.hmvInteractable.x, this.hmvInteractable.y, 20, 0xFF00FF, 1),
+            this.skiInteractableIcon = this.add.circle(this.skiInteractable.x, this.skiInteractable.y, 30, 0xFF00FF, 1),
+            this.snowboardInteractableIcon = this.add.circle(this.snowboardInteractable.x, this.snowboardInteractable.y, 30, 0xFF00FF, 1),
+            this.dinerInteractableIcon = this.add.circle(this.dinerInteractable.x, this.dinerInteractable.y, 30, 0x4ecdc4, 1),
+            this.monteVistaInteractableIcon = this.add.circle(this.hmvInteractable.x, this.hmvInteractable.y, 30, 0xFF00FF, 1),
+            this.monteVistaInteractableIcon = this.add.circle(this.wildlifeInteractable.x, this.wildlifeInteractable.y, 30, 0xFF00FF, 1),
         ]);
 
         /* ========== REGISTERS ========== */
@@ -333,7 +336,7 @@ export class Overworld extends Phaser.Scene {
                 this.scene.get(SCENE_KEYS.DINER_GAME).scene.restart();
                 break;
 
-            case 'WILDLIFE':
+            case SCENE_KEYS.WILDLIFE_GAME:
                 this.scene.switch(this.scene.get(SCENE_KEYS.WILDLIFE_GAME));
                 this.scene.get(SCENE_KEYS.WILDLIFE_GAME).scene.restart();
                 break;

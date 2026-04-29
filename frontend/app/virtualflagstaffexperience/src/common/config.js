@@ -16,5 +16,6 @@ export const SKI_SPEED = 2.5;
 
 
 /* ========== WILDLIFE INDENTIFICATION CONFIGS ========== */
-export const CAMERA_SPEED = 200;
+export const CAMERA_SPEED = 300;
 export const CAMERA_PHOTOS = 10;
+export const ANIMAL_SPEED = 200;

@@ -67,13 +67,14 @@ export class WildlifePlayer extends CharacterGameObject {
     }
 
     interact() {
-        // confirm the object can be interacted with
-        if (this.interactedObjects.interactionComponent.canInteractWith()) {
-            // run interaction
-            this.interactedObjects.interactionComponent.runInteract();
-        }
-        else {
-            console.warn("Object cannot be interacted with");
+        // decrement the photos value
+        this.scene.photos --;
+
+        // take the photo
+        this.scene.takePhoto();
+
+        if (this.scene.photos <= 0) {
+            this.scene.endGame();
         }
     }
 
