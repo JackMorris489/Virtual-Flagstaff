@@ -8,3 +8,4 @@ from .quests import quests_router
 from .rewards import rewards_router
 from .quest_rewards import quest_rewards_router
 from .incentives import incentives_router
+from .survey_questions import survey_questions_router

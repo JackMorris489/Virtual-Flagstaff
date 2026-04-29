@@ -91,7 +91,10 @@ export default function SignUpForm({
             }
 
             setAuthOpen(false);
-            setSurveyOpen(true);
+            if (receiveNotifications)
+            {
+              setSurveyOpen(true);
+            }
             } catch (err: any) {
             alert(err?.message ?? "Unknown sign up error");
             } finally {

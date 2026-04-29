@@ -18,15 +18,20 @@ from database.models import (
     QuestReward
 )
 from database.database_service import SessionDep, database_service
-from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from email_utilities import EmailService
 from sqlmodel import select, and_
-from constants import ADMIN_EMAIL_BROADCAST_KEY
-from auth.dependencies import CurrentUser
+from auth.dependencies import CurrentUser, AdminUser
 from pydantic import BaseModel
 
 email_service = EmailService()
 users_router = APIRouter(prefix="/users", tags=["Users"])
+
+GAME_NAMES_BY_KEY = {
+    "SKI_GAME": "Ski/Snowboard Extereme",
+    "DINER_GAME": "Diner Dash",
+    "MONTE_VISTA_GAME": "Monte Vista Escape",
+}
 
 class IncentiveFormInput(BaseModel):
     incentives: list[dict]
@@ -175,11 +180,24 @@ def create_game_session(
     query = select(Game).where(Game.key == game_session_args.game_key)
     game: Game = database_service.get_query_result(session, query)
 
-    game_session = GameSession(
-        score=game_session_args.score, 
-        user_id=user.id, 
-        game_id=game.id
-    )
+    if not game:
+        game = database_service.create_model_instance(
+            Game,
+            session,
+            {
+                "name": GAME_NAMES_BY_KEY.get(
+                    game_session_args.game_key,
+                    game_session_args.game_key.replace("_", " ").title()
+                ),
+                "key": game_session_args.game_key
+            }
+        )
+
+    game_session = {
+        "score": game_session_args.score, 
+        "user_id": user.id, 
+        "game_id": game.id
+    }
 
     return database_service.create_model_instance(
         GameSession, 
@@ -216,37 +234,6 @@ def redeem_points(session: SessionDep, bg_tasks: BackgroundTasks, user: CurrentU
         email_service.notify_client_of_user_redeeming(bg_tasks, user, ifi.incentives)
         database_service.set_model_instance_by_id(User, session, user.id, user)
 
-@users_router.post("/notifications/broadcast")
-def broadcast_to_opted_in_users(
-    background_tasks: BackgroundTasks,
-    payload: dict,
-    session: SessionDep,
-    x_admin_key: str | None = Header(default=None),
-):
-    if not ADMIN_EMAIL_BROADCAST_KEY:
-        raise HTTPException(status_code=500, detail="ADMIN_EMAIL_BROADCAST_KEY not set")
-
-    if x_admin_key != ADMIN_EMAIL_BROADCAST_KEY:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    subject = payload.get("subject")
-    html_content = payload.get("html")  # client can send HTML
-    if not subject or not html_content:
-        raise HTTPException(status_code=400, detail="subject and html are required")
-
-    # only users who opted in + actually have an email
-    query = select(User).where(
-        User.receive_notifications == True, 
-        User.email != None,
-    )
-    users = session.exec(query).all()
-    recipients = [u.email for u in users if u.email]
-
-    email_service.broadcast_html_email(
-        background_tasks=background_tasks,
-        subject=subject,
-        recipients=recipients,
-        html=html_content,
-    )
-
-    return {"sent_to": len(recipients)}
+@users_router.put("/{id}")
+def update_user_with_id(id: int, update_user: User, admin: AdminUser, session: SessionDep):
+    return database_service.set_model_instance_by_id(User, session, id, update_user)

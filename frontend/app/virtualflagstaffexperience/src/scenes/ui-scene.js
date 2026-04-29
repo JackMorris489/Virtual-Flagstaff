@@ -17,6 +17,9 @@ export class UiScene extends Phaser.Scene {
     weather;
     skiscene;
     wildlifescene;
+    dinerScene;
+    skiendlessscene;
+    montevistascene;
     worldscene;
     #controls;
     #pauseContainer;
@@ -38,17 +41,19 @@ export class UiScene extends Phaser.Scene {
 
     createDialogUi()
     {
-        this.dialogBackground = this.add.image(0, 0, ASSET_KEYS.UI_DIALOG).setOrigin(0);
+        this.dialogBackground = this.add.image(0, 0, ASSET_KEYS.UI_DIALOG).setOrigin(0.5);
 
-        this.#dialogueContainer = this.add.container(32, 142, [
+        this.#dialogueContainer = this.add.container(this.scale.width / 2, this.scale.height / 2, [
             this.dialogBackground
         ]);
 
-        this.#dialogueContainerText = this.add.text(20, 20, '', {
+        this.#dialogueContainerText = this.add.text(0, 0, '', {
             ...DEFAULT_UI_TEXT_STYLE,
-            wordWrap: { width: 360 },
-            align: 'center'
-        }).setOrigin(0);
+            fontSize: 8,
+            wordWrap: { width: 430 },
+            align: 'center',
+            lineSpacing: 3,
+        }).setOrigin(0.5);
 
         this.#dialogueContainer.add(this.#dialogueContainerText);
         this.#dialogueContainer.setVisible(false);
@@ -77,6 +82,8 @@ export class UiScene extends Phaser.Scene {
         this.resumeScene(SCENE_KEYS.GAME_SCENE);
         this.resumeScene(SCENE_KEYS.SKI_GAME);
         this.resumeScene(SCENE_KEYS.WILDLIFE_GAME);
+        this.resumeScene(SCENE_KEYS.DINER_GAME);
+        this.resumeScene(SCENE_KEYS.MONTE_VISTA_GAME);
         this.resumeScene(SCENE_KEYS.TUTORIAL_SCENE);
 
         this.scene.stop(SCENE_KEYS.PAUSE_MENU);
@@ -97,6 +104,8 @@ export class UiScene extends Phaser.Scene {
         this.pauseScene(SCENE_KEYS.GAME_SCENE);
         this.pauseScene(SCENE_KEYS.SKI_GAME);
         this.pauseScene(SCENE_KEYS.WILDLIFE_GAME);
+        this.pauseScene(SCENE_KEYS.DINER_GAME);
+        this.pauseScene(SCENE_KEYS.MONTE_VISTA_GAME);
         this.pauseScene(SCENE_KEYS.TUTORIAL_SCENE);
 
         this.scene.launch(SCENE_KEYS.PAUSE_MENU);
@@ -129,6 +138,8 @@ export class UiScene extends Phaser.Scene {
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.wildlifescene = this.scene.get(SCENE_KEYS.WILDLIFE_GAME);
+        this.dinerScene = this.scene.get(SCENE_KEYS.DINER_GAME);
+        this.montevistascene = this.scene.get(SCENE_KEYS.MONTE_VISTA_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
         this.tutorialScene = this.scene.get(SCENE_KEYS.TUTORIAL_SCENE);
         this.pauseMenu = this.scene.get(SCENE_KEYS.PAUSE_MENU);
@@ -163,16 +174,16 @@ export class UiScene extends Phaser.Scene {
         const escJustDown = Phaser.Input.Keyboard.JustDown(this.#escKey);
         const skiPaused = this.skiscene && this.skiscene.scene.isPaused();
         const wildlifePaused = this.wildlifescene && this.wildlifescene.scene.isPaused();
+        const pausedMiniGame = this.getPausedDialogMiniGameScene();
         const dialogVisible = this.#dialogueContainer.visible;
 
-        // Handle ski dialog controls FIRST so ESC does not open the pause menu.
-        if (skiPaused && dialogVisible) {
+        // Handle mini-game dialog controls FIRST so ESC does not open the pause menu.
+        if (pausedMiniGame && dialogVisible) {
             if (enterJustDown) {
-                if (typeof this.skiscene.onEnterPressed === 'function') {
-                    this.skiscene.onEnterPressed();
-                } 
-                else {
-                    this.skiscene.scene.restart();
+                if (typeof pausedMiniGame.onEnterPressed === 'function') {
+                    pausedMiniGame.onEnterPressed();
+                } else {
+                    pausedMiniGame.scene.restart();
                 }
 
                 this.closeDialog();
@@ -180,7 +191,7 @@ export class UiScene extends Phaser.Scene {
             }
 
             if (escJustDown) {
-                this.returnToWorldFromSki();
+                this.returnToWorldFromMiniGame(pausedMiniGame);
                 return;
             }
 
@@ -216,18 +227,22 @@ export class UiScene extends Phaser.Scene {
     }
 
     returnToWorldFromSki() {
+        this.returnToWorldFromMiniGame(this.skiscene);
+    }
+
+    returnToWorldFromMiniGame(miniGameScene = this.getPausedDialogMiniGameScene()) {
         this.closeDialog();
 
         if (this.#pauseContainer) {
             this.#pauseContainer.setVisible(false);
         }
 
-        if (this.skiscene && this.skiscene.scene.isPaused()) {
-            this.skiscene.scene.resume();
+        if (miniGameScene && miniGameScene.scene.isPaused()) {
+            miniGameScene.scene.resume();
         }
 
-        if (this.skiscene) {
-            this.skiscene.scene.switch(SCENE_KEYS.GAME_SCENE);
+        if (miniGameScene) {
+            miniGameScene.scene.switch(SCENE_KEYS.GAME_SCENE);
         }
     }
 
@@ -248,6 +263,12 @@ export class UiScene extends Phaser.Scene {
     }
 
 
+    getPausedDialogMiniGameScene() {
+        const miniGameScenes = [this.skiscene, this.dinerScene, this.montevistascene];
+        return miniGameScenes.find((scene) => scene && scene.scene.isPaused());
+    }
+
+
     togglePause() {
         if (this.scene.isActive(SCENE_KEYS.PAUSE_MENU))
         {
@@ -263,6 +284,7 @@ export class UiScene extends Phaser.Scene {
 
     showDialog(message) {
         this.#dialogueContainerText.setText(message);
+        this.#dialogueContainer.setPosition(this.scale.width / 2, this.scale.height / 2);
 
         if (!this.dialogBackground) {
             console.error('dialogBackground is not initialized');
@@ -270,14 +292,14 @@ export class UiScene extends Phaser.Scene {
             return;
         }
 
-        const paddingX = 40;
-        const paddingY = 40;
+        const paddingX = 120;
+        const paddingY = 92;
 
         const textWidth = this.#dialogueContainerText.width;
         const textHeight = this.#dialogueContainerText.height;
 
-        const targetWidth = textWidth + paddingX;
-        const targetHeight = textHeight + paddingY;
+        const targetWidth = Phaser.Math.Clamp(textWidth + paddingX, 440, this.scale.width - 20);
+        const targetHeight = Phaser.Math.Clamp(textHeight + paddingY, 236, this.scale.height - 24);
 
         const baseWidth = this.dialogBackground.width;
         const baseHeight = this.dialogBackground.height;

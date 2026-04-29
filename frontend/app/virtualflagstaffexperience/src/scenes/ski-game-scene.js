@@ -120,7 +120,7 @@ export class SkiGame extends GameScene {
                 reward => reward.key === "ENDLESS_SKI_GAME"
             );
 
-            // TODO: Refactor this section of conditionals
+            // TODO: Refactor this section of conditionals (MAKE KEYS FOR EACH QUEST)
             if (playerModel === "SKIIER")
             {
                 questId = 2;
@@ -132,7 +132,7 @@ export class SkiGame extends GameScene {
             }
             ///////////////////////////////////////////////
 
-            const playerQuest = await apiFetch(`/users/me/quest/{questId}`, {credentials: "include"});
+            const playerQuest = await apiFetch(`/users/me/quest/${questId}`, {credentials: "include"});
 
             return hasEndlessMode && playerQuest.is_complete;
         }
@@ -294,7 +294,9 @@ export class SkiGame extends GameScene {
     }
 
     async getLeaderboard() {
-        return await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`)
+        return await apiFetch(`/game-sessions/${this.gameKey}/leaderboard`, {
+            cache: 'no-store',
+        })
     }
 
     async getLeaderboardText() {

@@ -40,11 +40,13 @@ export class GameScene extends Phaser.Scene {
             })
 
             console.log(game_session)
+            return game_session
         }
         
         catch (err)
         {
-        
+            console.error(`Failed to submit ${this.gameKey} score`, err);
+            return null
         }
     }
 }

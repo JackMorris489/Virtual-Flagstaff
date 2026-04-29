@@ -1,0 +1,63 @@
+[
+    {
+        "question": "First Name",
+        "input": "text"
+    },
+    {
+        "question": "Last Name",
+        "input": "text"
+    },
+    {
+        "question": "Are you...",
+        "input": "select",
+        "options": [
+            "Moving to Flagstaff",
+            "Thinking about moving to Flagstaff",
+            "Visiting Flagstaff",
+            "Just playing around"
+        ]
+    },
+    {
+        "question": "Are you into...",
+        "input": "checkbox",
+        "options": [
+            "Culture Communities",
+            "Club & Hobby Communities",
+            "Health-Sport-Recreation Communities"
+        ]
+    },
+    {
+        "question": "Do you...",
+        "input": "select",
+        "options": ["Own", "Rent", "RV", "Couch Surf"]
+    },
+    {
+        "question": "Are you...",
+        "input": "select",
+        "options": ["Single", "Partnered", "Married", "Divorced"]
+    },
+    {
+        "question": "How do you work?",
+        "input": "select",
+        "options": ["Remotely", "Semi-remotely", "In-Office"]
+    },
+    {
+        "question": "How old are you",
+        "input": "select",
+        "options": ["<31", "31-50", "50+"]
+    },
+    {
+        "question": "Where do you live now?",
+        "input": "select",
+        "options": ["East Coast", "West Coast", "Mid-west", "South", "North"]
+    },
+    {
+        "question": "What is your favorite season?",
+        "input": "select",
+        "options": ["Spring", "Summer", "Fall", "Winter"]
+    },
+    {
+        "question": "Anything else? (optional)",
+        "input": "textarea"
+    }
+]

@@ -3,6 +3,7 @@
 from os import getenv
 from utils import load_json
 from pathlib import Path
+import json
 
 HOURLY_FLAGSTAFF_WEATHER_API_URL = getenv( "HOURLY_FLAGSTAFF_WEATHER_API_URL" )
 
@@ -15,8 +16,8 @@ MAIL_PORT = getenv( "MAIL_PORT" )
 MAIL_SERVER = getenv( "MAIL_SERVER" )
 MAIL_FROM_NAME = getenv( "MAIL_FROM_NAME" )
 MAIL_TO = getenv( "MAIL_TO" )
-ADMIN_EMAIL_BROADCAST_KEY = getenv( "ADMIN_EMAIL_BROADCAST_KEY", "" )
 TOKEN_KEY = getenv("TOKEN_KEY")
+
 
 DB_SEED_FOLDER_PATH = Path("./database/seed")
 GAMES = load_json(DB_SEED_FOLDER_PATH/"games.json")
@@ -25,3 +26,5 @@ QUESTS = load_json(DB_SEED_FOLDER_PATH/"quests.json")
 REWARDS = load_json(DB_SEED_FOLDER_PATH/"rewards.json")
 QUEST_REWARDS = load_json(DB_SEED_FOLDER_PATH/"quest-rewards.json")
 INCENTIVES = load_json(DB_SEED_FOLDER_PATH/"incentives.json")
+SURVEY_QUESTIONS = load_json(DB_SEED_FOLDER_PATH/"survey.json")
+ADMINS = json.loads(getenv("ADMINS", "[]"))
