@@ -23,6 +23,7 @@ export default function VirtualFlagstaff() {
                 { UiScene },
                 { SkiGame },
                 { DinerGame },
+                { MonteVistaGame },
                 { TutorialScene },
                 { PauseMenu },
             ] = await Promise.all([
@@ -34,6 +35,7 @@ export default function VirtualFlagstaff() {
                 import('./src/scenes/ui-scene'),
                 import('./src/scenes/ski-game-scene'),
                 import('./src/scenes/diner-game-scene'),
+                import('./src/scenes/monte-vista-scene'),
                 import('./src/scenes/tutorial-scene'),
                 import('./src/scenes/pause-menu'),
             ]);
@@ -63,6 +65,7 @@ export default function VirtualFlagstaff() {
             game.scene.add(SCENE_KEYS.GAME_SCENE, Overworld)
             game.scene.add(SCENE_KEYS.SKI_GAME, SkiGame)
             game.scene.add(SCENE_KEYS.DINER_GAME, DinerGame)
+            game.scene.add(SCENE_KEYS.MONTE_VISTA_GAME, MonteVistaGame)
             game.scene.add(SCENE_KEYS.UI_SCENE, UiScene)
             game.scene.add(SCENE_KEYS.TUTORIAL_SCENE, TutorialScene)
             game.scene.add(SCENE_KEYS.PAUSE_MENU, PauseMenu)

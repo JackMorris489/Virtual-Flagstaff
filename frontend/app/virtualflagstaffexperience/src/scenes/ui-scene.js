@@ -18,6 +18,7 @@ export class UiScene extends Phaser.Scene {
     skiscene;
     dinerScene;
     skiendlessscene;
+    montevistascene;
     worldscene;
     #controls;
     #pauseContainer;
@@ -80,6 +81,7 @@ export class UiScene extends Phaser.Scene {
         this.resumeScene(SCENE_KEYS.GAME_SCENE);
         this.resumeScene(SCENE_KEYS.SKI_GAME);
         this.resumeScene(SCENE_KEYS.DINER_GAME);
+        this.resumeScene(SCENE_KEYS.MONTE_VISTA_GAME);
         this.resumeScene(SCENE_KEYS.TUTORIAL_SCENE);
 
         this.scene.stop(SCENE_KEYS.PAUSE_MENU);
@@ -100,6 +102,7 @@ export class UiScene extends Phaser.Scene {
         this.pauseScene(SCENE_KEYS.GAME_SCENE);
         this.pauseScene(SCENE_KEYS.SKI_GAME);
         this.pauseScene(SCENE_KEYS.DINER_GAME);
+        this.pauseScene(SCENE_KEYS.MONTE_VISTA_GAME);
         this.pauseScene(SCENE_KEYS.TUTORIAL_SCENE);
 
         this.scene.launch(SCENE_KEYS.PAUSE_MENU);
@@ -132,6 +135,7 @@ export class UiScene extends Phaser.Scene {
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
         this.dinerScene = this.scene.get(SCENE_KEYS.DINER_GAME);
+        this.montevistascene = this.scene.get(SCENE_KEYS.MONTE_VISTA_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
         this.tutorialScene = this.scene.get(SCENE_KEYS.TUTORIAL_SCENE);
         this.pauseMenu = this.scene.get(SCENE_KEYS.PAUSE_MENU);
@@ -217,7 +221,7 @@ export class UiScene extends Phaser.Scene {
 
 
     getPausedDialogMiniGameScene() {
-        const miniGameScenes = [this.skiscene, this.dinerScene];
+        const miniGameScenes = [this.skiscene, this.dinerScene, this.montevistascene];
         return miniGameScenes.find((scene) => scene && scene.scene.isPaused());
     }
 
