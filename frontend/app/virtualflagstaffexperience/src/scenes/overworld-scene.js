@@ -165,6 +165,7 @@ export class Overworld extends Phaser.Scene {
         this.miniMapCamera.ignore(groundHigh);
 
         /* ========== NPCs ========== */
+        console.log("Texture exists:", this.textures.exists("SPIDER"));
         const npcs = await apiFetch("/npcs");
 
         let npcGroup = [];
@@ -191,7 +192,7 @@ export class Overworld extends Phaser.Scene {
                 npc.name,
                 questId,
                 npc.key
-            );
+            ).setDepth(10);
 
             npcGroup.push(npcObject);
             npcIconGroup.push(this.add.circle(npcPos.x, npcPos.y, 20, 0xFFFF00, 1));
