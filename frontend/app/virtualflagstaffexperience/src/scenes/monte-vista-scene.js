@@ -270,6 +270,8 @@ export class MonteVistaGame extends GameScene {
             'You have escaped!\n\n'
         );
         this.time.delayedCall(3000, () => {
+            this.uiScene.closeDialog()
+            this.isDialogOpen = false;
             this.scene.switch(SCENE_KEYS.GAME_SCENE);
         });
     }
