@@ -16,9 +16,9 @@ class User(UserBase, table=True):
     phone_number: str | None = Field(default=None, unique=True, index=True)
     receive_notifications: bool = Field(default=False)
     survey: dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
-    completed_tutorial: bool
-    points: int = 0
-    is_admin: bool = False
+    completed_tutorial: bool = Field(default=False)
+    points: int = Field(default=0)
+    is_admin: bool = Field(default=False)
 
     game_sessions: list["GameSession"] = Relationship(back_populates="user", cascade_delete=True)
     user_quests: list["UserQuest"] = Relationship(back_populates="user", cascade_delete=True)

@@ -6,5 +6,9 @@
     {
         "name": "Diner Dash",
         "key": "DINER_GAME"
+    },
+    {
+        "name": "Monte Vista Escape",
+        "key": "MONTE_VISTA_GAME"
     }
 ]

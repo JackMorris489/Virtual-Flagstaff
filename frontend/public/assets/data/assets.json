@@ -52,10 +52,41 @@
         "atlasURL": "main_green.json"
       },
       {
+        "type": "image",
+        "key": "CAMERA_PLAYER",
+        "url": "camera.png"
+      },
+      {
         "type": "spritesheet",
         "key": "DAGGER",
         "url": "dagger.png",
         "frameConfig": { "frameWidth": 16, "frameHeight": 16 }
+      }
+      
+    ]
+  },
+  {
+    "path": "assets/images/npcs",
+    "files": [
+      {
+        "type": "image",
+        "key": "SKIIER_NPC",
+        "url": "skiier.png"
+      },
+      {
+        "type": "image",
+        "key": "SNOWBOARDER_NPC",
+        "url": "snowboarder.png"
+      },
+      {
+        "type": "image",
+        "key": "CHEF_NPC",
+        "url": "chef.png"
+      },
+      {
+        "type": "image",
+        "key": "SUIT_NPC",
+        "url": "suit.png"
       }
     ]
   },
@@ -74,19 +105,9 @@
     "path": "assets/tiled",
     "files": [
       {
-        "type": "image",
-        "key": "FLAGSTAFF_BACKGROUND",
-        "url": "flagstaff_background.png"
-      },
-      {
-        "type": "image",
-        "key": "FLAGSTAFF_FOREGROUND",
-        "url": "flagstaff_foreground.png"
-      },
-      {
         "type": "tilemapTiledJSON",
         "key": "FLAGSTAFF_LEVEL",
-        "url": "flagstaff.json"
+        "url": "downtown.json"
       }
     ]
   },
@@ -137,12 +158,7 @@
         "type": "image",
         "key": "SKI_GAME_BARRIER",
         "url": "skicolliders.png"
-      }
-    ]
-  },
-  {
-    "path": "assets/images",
-    "files": [
+      },
       {
         "type": "image",
         "key": "SNOWBOARDER",
@@ -172,6 +188,16 @@
         "type": "tilemapTiledJSON",
         "key": "SKI_GAME_LEVEL",
         "url": "skigame.json"
+      }
+    ]
+  },
+  {
+    "path": "assets/images",
+    "files": [
+      {
+        "type": "image",
+        "key": "WILDLIFE_GAME_BACKGROUND",
+        "url": "wildlifebackdrop.png"
       }
     ]
   },
@@ -241,6 +267,46 @@
     ]
   },
   {
+    "path": "assets/images/hotel",
+    "files": [
+      {
+        "type": "image",
+        "key": "MONTE_VISTA_FLOOR",
+        "url": "floor_tile.png"
+      },
+      {
+        "type": "image",
+        "key": "MONTE_VISTA_DESK",
+        "url": "desk.png"
+      },
+      {
+        "type": "image",
+        "key": "MONTE_VISTA_PAINTING",
+        "url": "painting.png"
+      },
+      {
+        "type": "image",
+        "key": "MONTE_VISTA_GHOST",
+        "url": "ghost.png" 
+      },
+      {
+        "type": "image",
+        "key": "MONTE_VISTA_SAFE",
+        "url": "safe.png"
+      },
+      {
+        "type": "image",
+        "key": "MONTE_VISTA_TRIGGER",
+        "url": "book.png"
+      },
+      {
+        "type": "image",
+        "key": "MONTE_VISTA_EXIT",
+        "url": "exit.png"
+      }
+    ]
+  },
+  {
     "path": "assets/tiled/lpc-victorian-preview",
     "files": [
       {
@@ -255,13 +321,23 @@
       },
       {
         "type": "image",
-        "key": "VICTORASTREET",
+        "key": "TERRAIN",
+        "url": "terrain-map-v8.png"
+      },
+      {
+        "type": "image",
+        "key": "VICTORIAN_STREET",
         "url": "victorian-streets.png"
       },
       {
         "type": "image",
-        "key": "VICTORATENEMENT",
+        "key": "VICTORIAN_TENEMENT",
         "url": "victorian-tenement.png"
+      },
+      {
+        "type": "image",
+        "key": "VICTORIAN_EXTRAS",
+        "url": "victorian-windows-doors.png"
       }
     ]
   },
@@ -277,11 +353,6 @@
         "type": "image",
         "key": "EQUIPMENT",
         "url": "equipment.jpg"
-      },
-      {
-        "type": "image",
-        "key": "STREET",
-        "url": "street.png"
       },
       {
         "type": "image",

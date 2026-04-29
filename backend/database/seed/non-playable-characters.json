@@ -3,7 +3,7 @@
         "name": "Skier", 
         "key": "SKIER",
         "x_pos": 50,
-        "y_pos": -100,
+        "y_pos": 0,
         "dialog": {
             "initial": [
                 "Oh hey there buddy, you here to hit the snow slopes too?",
@@ -19,7 +19,7 @@
         "name": "Snowboarder", 
         "key": "SNOWBOARDER",
         "x_pos": 100,
-        "y_pos": -100,
+        "y_pos": 0,
         "dialog": {
             "initial": [
                 "Hey there! You here to rip some on these gnarly slopes?",
@@ -28,6 +28,28 @@
                 "Just head up and after crossing the road head left.",
                 "Walk on over to the pair of boards and we'll hit the slopes!"
             ],
+            "inProgress": ["In Progress"],
+            "completed": ["Completed"]
+        }
+    },
+    {
+        "name": "Waiter",
+        "key": "WAITER",
+        "x_pos": 150,
+        "y_pos": 0,
+        "dialog": {
+            "initial": ["Initial"],
+            "inProgress": ["In Progress"],
+            "completed": ["Completed"]
+        }
+    },
+    {
+        "name": "Kid",
+        "key": "Kid",
+        "x_pos": 200,
+        "y_pos": 0,
+        "dialog": {
+            "initial": ["Initial"],
             "inProgress": ["In Progress"],
             "completed": ["Completed"]
         }

@@ -114,25 +114,25 @@ export class SkiGame extends GameScene {
         {
             let playerModel = ASSET_KEYS[this.scene.get(SCENE_KEYS.GAME_SCENE).playerType];
             const playerRewards = await this.getPlayerRewards();
-            console.log(playerRewards)
 
             const hasEndlessMode = playerRewards.some(
                 reward => reward.key === "ENDLESS_SKI_GAME"
             );
 
-            // TODO: Refactor this section of conditionals
+            let questId;
+            // TODO: Refactor this section of conditionals (MAKE KEYS FOR EACH QUEST)
             if (playerModel === "SKIIER")
             {
-                questId = 2;
+                questId = 1;
             }
 
             else if (playerModel === "SNOWBOARDER")
             {
-                questId = 1;
+                questId = 2;
             }
             ///////////////////////////////////////////////
 
-            const playerQuest = await apiFetch(`/users/me/quest/{questId}`, {credentials: "include"});
+            const playerQuest = await apiFetch(`/users/me/quest/${questId}`, {credentials: "include"});
 
             return hasEndlessMode && playerQuest.is_complete;
         }
@@ -364,12 +364,12 @@ export class SkiGame extends GameScene {
         // TODO: Refactor this section of conditionals
         if (playerModel === "SKIIER")
         {
-            questId = 2;
+            questId = 1;
         }
 
         else if (playerModel === "SNOWBOARDER")
         {
-            questId = 1;
+            questId = 2;
         }
         ///////////////////////////////////////////////
 

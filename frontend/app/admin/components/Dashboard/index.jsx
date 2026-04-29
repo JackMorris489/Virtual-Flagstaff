@@ -1,6 +1,6 @@
 import DashboardSection from "./DashboardSection";
 import IncentivesDashboard from "./IncentivesDashboard";
-import NpcsDashboard from "./NpcsDashboard";
+import NpcsDashboard from "./NPCsDashboard";
 import QuestsDashboard from "./QuestsDashboard";
 import SurveyDashboard from "./SurveyDashboard";
 import UsersDashboard from "./UsersDashboard";
@@ -18,9 +18,9 @@ export default function Dashboard()
             <DashboardSection title="Incentives">
                 <IncentivesDashboard/>
             </DashboardSection>
-            <QuestsDashboard/>
-            <NpcsDashboard/>
-            
+            <DashboardSection title="Non-Playable Characters">
+                <NpcsDashboard/>
+            </DashboardSection>
         </>
     )
 }

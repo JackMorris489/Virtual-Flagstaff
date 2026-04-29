@@ -21,7 +21,6 @@ from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from email_utilities import EmailService
 from sqlmodel import select, and_
-from constants import ADMIN_EMAIL_BROADCAST_KEY
 from auth.dependencies import CurrentUser, AdminUser
 from pydantic import BaseModel
 
@@ -31,6 +30,7 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
 GAME_NAMES_BY_KEY = {
     "SKI_GAME": "Ski/Snowboard Extereme",
     "DINER_GAME": "Diner Dash",
+    "MONTE_VISTA_GAME": "Monte Vista Escape",
 }
 
 class IncentiveFormInput(BaseModel):
@@ -145,6 +145,8 @@ def update_user_quest(
     quest_id: int,
     session: SessionDep
 ) -> UserQuestPublic:
+    print(user)
+    print(quest_id)
     query = select(UserQuest).where(
         and_(
             UserQuest.user_id == user.id,
@@ -153,6 +155,7 @@ def update_user_quest(
     )
     
     user_quest: UserQuest = database_service.get_query_result(session, query)
+    print(user_quest)
 
     if not user_quest.is_complete:
         updated_user_quest = UserQuestUpdate(is_complete=True)
@@ -179,19 +182,6 @@ def create_game_session(
     
     query = select(Game).where(Game.key == game_session_args.game_key)
     game: Game = database_service.get_query_result(session, query)
-
-    if not game:
-        game = database_service.create_model_instance(
-            Game,
-            session,
-            {
-                "name": GAME_NAMES_BY_KEY.get(
-                    game_session_args.game_key,
-                    game_session_args.game_key.replace("_", " ").title()
-                ),
-                "key": game_session_args.game_key
-            }
-        )
 
     game_session = {
         "score": game_session_args.score, 

@@ -15,7 +15,6 @@ import { InteractingObjectComponent } from '../../components/game-object/interac
 **/
 export class SkiPlayer extends CharacterGameObject {
     interactingObjectComponent;
-    skiAcceleration;
 
     constructor(config){
         super({
