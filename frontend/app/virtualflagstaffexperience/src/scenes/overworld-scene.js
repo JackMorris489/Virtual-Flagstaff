@@ -33,8 +33,11 @@ export class Overworld extends Phaser.Scene {
     currentDialogNumber = 0;
     #allCollisionLayer;
     minigameinteractables;
-    snowboardInteractable
-    skiInteractable
+    snowboardInteractable;
+    skiInteractable;
+    hmvInteractable;
+    dinerInteractable;
+    wildlifeInteractable;
     interactablesIcons;
     skiInteractableIcon;
     snowboardInteractableIcon;
@@ -51,7 +54,6 @@ export class Overworld extends Phaser.Scene {
 
     async create() {
         /* ========== MAP ========== */
-        // TODO: ADD MIDDLEGROUND FOR DETAILED ITEMS
         // load in the tilemap data
         const map = this.make.tilemap({
             key: ASSET_KEYS.FLAGSTAFF_LEVEL,
@@ -68,25 +70,37 @@ export class Overworld extends Phaser.Scene {
 
         // create the tilesets
         const bricks = map.addTilesetImage(TILED_TILESET_NAMES.BRICKS, ASSET_KEYS.BRICKS);
-        const street = map.addTilesetImage(TILED_TILESET_NAMES.STREET, ASSET_KEYS.STREET);
-        const streets = map.addTilesetImage(TILED_TILESET_NAMES.STREETS, ASSET_KEYS.STREETS);
-        const roofs = map.addTilesetImage(TILED_TILESET_NAMES.ROOFS, ASSET_KEYS.ROOFS);
         const equipment = map.addTilesetImage(TILED_TILESET_NAMES.EQUIPMENT, ASSET_KEYS.EQUIPMENT);
-        const victorianStreet = map.addTilesetImage(TILED_TILESET_NAMES.VICTORASTREET, ASSET_KEYS.VICTORASTREET);
-        const victorianTenement = map.addTilesetImage(TILED_TILESET_NAMES.VICTORATENEMENT, ASSET_KEYS.VICTORATENEMENT);
-        const collisionTiles = map.addTilesetImage(TILED_TILESET_NAMES.COLLISION, ASSET_KEYS.COLLISION);
+        const flasgtaffStreet = map.addTilesetImage(TILED_TILESET_NAMES.STREETS, ASSET_KEYS.STREETS);
+        const roofs = map.addTilesetImage(TILED_TILESET_NAMES.ROOFS, ASSET_KEYS.ROOFS);
+        const terrain = map.addTilesetImage(TILED_TILESET_NAMES.TERRAIN, ASSET_KEYS.TERRAIN)
+        const victorianStreet = map.addTilesetImage(TILED_TILESET_NAMES.VICTORIAN_STREET, ASSET_KEYS.VICTORIAN_STREET);
+        const victorianTenement = map.addTilesetImage(TILED_TILESET_NAMES.VICTORIAN_TENEMENT, ASSET_KEYS.VICTORIAN_TENEMENT);
+        const victorianExtras = map.addTilesetImage(TILED_TILESET_NAMES.VICTORIAN_EXTRAS, ASSET_KEYS.VICTORIAN_EXTRAS);
+        const collision = map.addTilesetImage(TILED_TILESET_NAMES.COLLISION, ASSET_KEYS.COLLISION);
 
         // create the map layers
-        const groundLayer = map.createLayer(TILED_LAYER_NAMES.GROUND_LAYER, [bricks, street, streets], 0, 0);
-        const groundLayer2 = map.createLayer(TILED_LAYER_NAMES.GROUND_LAYER_2, [equipment], 1024, 0);
-        const buildings1 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_1, [bricks, roofs, victorianStreet, victorianTenement], 512, 0).setDepth(1);
-        const buildings2 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_2, [bricks, roofs, victorianStreet, victorianTenement], 512, 0).setDepth(2);
-        const buildings3 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_3, [bricks, roofs, victorianStreet, victorianTenement], 512, 0).setDepth(3);
-        const buildings4 = map.createLayer(TILED_LAYER_NAMES.BUILDINGS_4, [bricks, roofs, victorianStreet, victorianTenement], 1024, 1024).setDepth(4);
+        const groundLow = map.createLayer(TILED_LAYER_NAMES.GROUND_LOW, [bricks, flasgtaffStreet, terrain], 0, 0).setDepth(0);
+        const groundHigh = map.createLayer(TILED_LAYER_NAMES.GROUND_HIGH, [bricks, flasgtaffStreet, terrain], 0, 0).setDepth(1);
+        const mapExtras = map.createLayer(TILED_LAYER_NAMES.MAP_EXTRAS, [victorianStreet], 0, 0).setDepth(2);
+        const buildingsBase = map.createLayer(TILED_LAYER_NAMES.BUILDING_BASE, [victorianTenement, roofs], 0, 0).setDepth(3);
+        const buildingsGrate = map.createLayer(TILED_LAYER_NAMES.BUILDING_GRATE, [roofs], 0, 0).setDepth(4);
+        const buildingsFrontEave = map.createLayer(TILED_LAYER_NAMES.BUILDING_FRONT_EAVE, [roofs, victorianTenement], 0, 0).setDepth(5);
+        const buildingsSideEave = map.createLayer(TILED_LAYER_NAMES.BUILDING_SIDE_EAVE, [roofs], 0, 0).setDepth(6);
+        const buildingsEaveOverlap = map.createLayer(TILED_LAYER_NAMES.BUILDING_EAVE_OVERLAP, [roofs], 0, 0).setDepth(7);
+        const buildingsExtra = map.createLayer(TILED_LAYER_NAMES.BUILDING_EXTRAS, [victorianTenement, victorianStreet], 0, 0).setDepth(8);
+        const buildingsDoorWindows = map.createLayer(TILED_LAYER_NAMES.BUILDING_DOORS_WINDOWS, [victorianExtras], 0, 0).setDepth(9);
 
         // create collision map
-        this.#allCollisionLayer = map.createLayer(TILED_LAYER_NAMES.ALL_COLLISION, [collisionTiles], 0, 0);
-        this.#allCollisionLayer.setDepth(2).setAlpha(0);
+        this.#allCollisionLayer = map.createLayer(TILED_LAYER_NAMES.COLLISION, [collision], 0, 0);
+        this.#allCollisionLayer.setDepth(0).setAlpha(0);
+
+        //
+        const skiInteractable = map.createLayer(TILED_LAYER_NAMES.SKI_INTERACTABLES, [equipment], 0, 0).setDepth(10);
+        const snowboardInteractable = map.createLayer(TILED_LAYER_NAMES.SNOWBOARD_INTERACTABLES, [equipment], 0, 0).setDepth(10);
+        const hmvInteractable = map.createLayer(TILED_LAYER_NAMES.HMV_INTERACTABLES, [equipment], 0, 0).setDepth(10);
+        const dinerInteractable = map.createLayer(TILED_LAYER_NAMES.DINER_INTERACTABLES, [equipment], 0, 0).setDepth(10);
+        const wildlifeInteractable = map.createLayer(TILED_LAYER_NAMES.WILDLIFE_INTERACTABLES, [equipment], 0, 0).setDepth(10);
 
         /* ========== CONTROLS ========== */
         // check if keyboard is avalible then create controls
@@ -96,10 +110,10 @@ export class Overworld extends Phaser.Scene {
         }
         this.controls = new KeyboardComponent(this.input.keyboard);
 
-        const spawnPoint = {x: groundLayer.width/2 + 300, y: groundLayer.height/2 + 600}
-
         /* ========== PLAYER ========== */
         // create the player container to hold the player and interaction zone
+        const spawnPoint = {x: map.widthInPixels-(91*32), y: map.heightInPixels-(22*32)}
+        
         this.player = new Player({
             scene: this,
             position: {x: spawnPoint.x, y: spawnPoint.y},
@@ -114,7 +128,7 @@ export class Overworld extends Phaser.Scene {
             x: 0, 
             y: 0,
             children: [this.player, this.#playerInteractionZone],
-        });
+        }).setDepth(4);
         this.playerIcon = this.add.circle(this.player.x, this.player.y, 20, 0xFF0000, 1);
 
 
@@ -136,7 +150,6 @@ export class Overworld extends Phaser.Scene {
         this.overlayImage.setScrollFactor(0);
 
         // Minimap
-        // TODO: REFINE
         this.miniMapCamera = this.cameras.add(
             this.scale.width - this.scale.width/5 - 10, 
             10, 
@@ -144,10 +157,10 @@ export class Overworld extends Phaser.Scene {
             this.scale.height/5, 
             false, 
             'minimap'
-        ).setZoom(0.1);
+        ).setZoom(0.05);
         this.miniMapCamera.ignore(this.#playerContainer);
         this.miniMapCamera.ignore(this.overlayImage);
-        this.miniMapCamera.ignore(groundLayer2);
+        this.miniMapCamera.ignore(groundHigh);
 
         /* ========== NPCs ========== */
         const npcs = await apiFetch("/npcs");
@@ -185,21 +198,36 @@ export class Overworld extends Phaser.Scene {
         this.#interactiveNPCGroup = this.add.group(npcGroup, {runChildUpdate: true})
 
        // create the icon group
-       this.#npcIconGroup = this.add.graphics(npcIconGroup)
+        this.#npcIconGroup = this.add.graphics(npcIconGroup)
 
         /* ========== INTERACTABLES ========== */
         // TODO: Rework how the snowboard and ski interactable objects work
         // snowboard interactables to start the ski/snowboard minigame
         this.minigameinteractables = this.add.group([
-            this.skiInteractable = new Phaser.Physics.Arcade.Image(this, 1184, 496, ''),
-            this.snowboardInteractable = new Phaser.Physics.Arcade.Image(this, 1056, 496, ''),
-        ])
+            this.skiInteractable = new Phaser.Physics.Arcade.Image(this, 4384+32, 512+16, ''), 
+            this.snowboardInteractable = new Phaser.Physics.Arcade.Image(this, 4512+32, 512+16, ''), 
+            this.hmvInteractable = new Phaser.Physics.Arcade.Image(this, 4096+16, 1792+16, ''), 
+            this.dinerInteractable = new Phaser.Physics.Arcade.Image(this, 2944+32, 1888+8, ''), 
+            this.wildlifeInteractable = new Phaser.Physics.Arcade.Image(this, 2528, 5168, ''), 
+        ]).setDepth(10);
 
-        this.physics.add.existing(this.snowboardInteractable);
         this.physics.add.existing(this.skiInteractable);
+        this.physics.add.existing(this.snowboardInteractable);
+        this.physics.add.existing(this.hmvInteractable);
+        this.physics.add.existing(this.dinerInteractable);
+        this.physics.add.existing(this.wildlifeInteractable);
 
-        this.snowboardInteractable.body.setSize(64, 32, true);
         this.skiInteractable.body.setSize(64, 32, true);
+        this.snowboardInteractable.body.setSize(64, 32, true);
+        this.hmvInteractable.body.setSize(32, 32, true);
+        this.dinerInteractable.body.setSize(64, 64, true);
+        this.wildlifeInteractable.body.setSize(64, 32, true);
+
+        this.physics.add.overlap(this.#playerInteractionZone, this.skiInteractable, () => {
+            if(this.controls.isActionJustDown) {
+                this.#minigameInteraction('SKIIER');
+            }
+        }, null, this);
 
         this.physics.add.overlap(this.#playerInteractionZone, this.snowboardInteractable, () => {
             if(this.controls.isActionJustDown) {
@@ -207,9 +235,21 @@ export class Overworld extends Phaser.Scene {
             }
         }, null, this);
 
-        this.physics.add.overlap(this.#playerInteractionZone, this.skiInteractable, () => {
+        this.physics.add.overlap(this.#playerInteractionZone, this.hmvInteractable, () => {
             if(this.controls.isActionJustDown) {
-                this.#minigameInteraction('SKIIER');
+                this.#minigameInteraction('HMV');
+            }
+        }, null, this);
+
+        this.physics.add.overlap(this.#playerInteractionZone, this.dinerInteractable, () => {
+            if(this.controls.isActionJustDown) {
+                this.#minigameInteraction('DINER');
+            }
+        }, null, this);
+
+        this.physics.add.overlap(this.#playerInteractionZone, this.wildlifeInteractable, () => {
+            if(this.controls.isActionJustDown) {
+                this.#minigameInteraction('WILDLIFE');
             }
         }, null, this);
 
@@ -241,20 +281,18 @@ export class Overworld extends Phaser.Scene {
             this
         )
 
-
         this.cameras.main.ignore(this.playerIcon);
         for (const npcIcon of npcIconGroup)
         {
             this.cameras.main.ignore(npcIcon)
         }
         this.cameras.main.ignore(this.interactablesIcons);
-
     };
 
 
     handlePlayerInRangeOfNpc()
     {
-        EVENT_BUS.emit("PLAYER_IN_RANGE_OF_NPC")
+        EVENT_BUS.emit("PLAYER_IN_RANGE_OF_NPC");
     }
 
 
@@ -263,15 +301,40 @@ export class Overworld extends Phaser.Scene {
         this.#minimapTracking();
     }
 
-    #minigameInteraction(playerType) {
-        this.playerType = playerType;
-        this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
-        this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+    #minigameInteraction(gameType) {
+        switch(gameType) {
+            case 'SKIIER':
+                this.playerType = gameType;
+                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
+                this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+                break;
+
+            case 'SNOWBOARDER':
+                this.playerType = gameType;
+                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
+                this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+                break;
+
+            case 'HMV':
+                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
+                this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+                break;
+
+            case 'DINER':
+                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
+                this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+                break;
+
+            case 'WILDLIFE':
+                this.scene.switch(this.scene.get(SCENE_KEYS.WILDLIFE_GAME));
+                this.scene.get(SCENE_KEYS.WILDLIFE_GAME).scene.restart();
+                break;
+        }
     }
 
     #minimapTracking() {
-        this.miniMapCamera.scrollX = Phaser.Math.Clamp(this.player.physicsBody.x, 880, 1484);
-        this.miniMapCamera.scrollY = Phaser.Math.Clamp(this.player.physicsBody.y, 412, 1312);
+        this.miniMapCamera.scrollX = Phaser.Math.Clamp(this.player.physicsBody.x, 0, 10000);
+        this.miniMapCamera.scrollY = Phaser.Math.Clamp(this.player.physicsBody.y, 0, 10000);
         this.playerIcon.setPosition(this.player.physicsBody.x, this.player.physicsBody.y);
     }
 
@@ -281,7 +344,6 @@ export class Overworld extends Phaser.Scene {
     }
 
     #registerColiders() {
-
         // interactive npc group colliders
         this.#interactiveNPCGroup.getChildren().forEach((npc) => {
             npc.setCollideWorldBounds(false);

@@ -16,7 +16,7 @@ export class UiScene extends Phaser.Scene {
     dialogBackground;
     weather;
     skiscene;
-    skiendlessscene;
+    wildlifescene;
     worldscene;
     #controls;
     #pauseContainer;
@@ -76,6 +76,7 @@ export class UiScene extends Phaser.Scene {
     {
         this.resumeScene(SCENE_KEYS.GAME_SCENE);
         this.resumeScene(SCENE_KEYS.SKI_GAME);
+        this.resumeScene(SCENE_KEYS.WILDLIFE_GAME);
         this.resumeScene(SCENE_KEYS.TUTORIAL_SCENE);
 
         this.scene.stop(SCENE_KEYS.PAUSE_MENU);
@@ -95,6 +96,7 @@ export class UiScene extends Phaser.Scene {
     {
         this.pauseScene(SCENE_KEYS.GAME_SCENE);
         this.pauseScene(SCENE_KEYS.SKI_GAME);
+        this.pauseScene(SCENE_KEYS.WILDLIFE_GAME);
         this.pauseScene(SCENE_KEYS.TUTORIAL_SCENE);
 
         this.scene.launch(SCENE_KEYS.PAUSE_MENU);
@@ -126,6 +128,7 @@ export class UiScene extends Phaser.Scene {
     setupSceneReferences()
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
+        this.wildlifescene = this.scene.get(SCENE_KEYS.WILDLIFE_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
         this.tutorialScene = this.scene.get(SCENE_KEYS.TUTORIAL_SCENE);
         this.pauseMenu = this.scene.get(SCENE_KEYS.PAUSE_MENU);
@@ -159,6 +162,7 @@ export class UiScene extends Phaser.Scene {
         const enterJustDown = Phaser.Input.Keyboard.JustDown(this.#enterKey);
         const escJustDown = Phaser.Input.Keyboard.JustDown(this.#escKey);
         const skiPaused = this.skiscene && this.skiscene.scene.isPaused();
+        const wildlifePaused = this.wildlifescene && this.wildlifescene.scene.isPaused();
         const dialogVisible = this.#dialogueContainer.visible;
 
         // Handle ski dialog controls FIRST so ESC does not open the pause menu.
@@ -166,7 +170,8 @@ export class UiScene extends Phaser.Scene {
             if (enterJustDown) {
                 if (typeof this.skiscene.onEnterPressed === 'function') {
                     this.skiscene.onEnterPressed();
-                } else {
+                } 
+                else {
                     this.skiscene.scene.restart();
                 }
 
@@ -176,6 +181,27 @@ export class UiScene extends Phaser.Scene {
 
             if (escJustDown) {
                 this.returnToWorldFromSki();
+                return;
+            }
+
+            return;
+        }
+
+        if (wildlifePaused && dialogVisible) {
+            if (enterJustDown) {
+                if (typeof this.wildlifescene.onEnterPressed === 'function') {
+                    this.wildlifescene.onEnterPressed();
+                } 
+                else {
+                    this.wildlifescene.scene.restart();
+                }
+
+                this.closeDialog();
+                return;
+            }
+
+            if (escJustDown) {
+                this.returnToWorldFromWildlife();
                 return;
             }
 
@@ -202,6 +228,22 @@ export class UiScene extends Phaser.Scene {
 
         if (this.skiscene) {
             this.skiscene.scene.switch(SCENE_KEYS.GAME_SCENE);
+        }
+    }
+
+    returnToWorldFromWildlife() {
+        this.closeDialog();
+
+        if (this.#pauseContainer) {
+            this.#pauseContainer.setVisible(false);
+        }
+
+        if (this.wildlifescene && this.wildlifescene.scene.isPaused()) {
+            this.wildlifescene.scene.resume();
+        }
+
+        if (this.wildlifescene) {
+            this.wildlifescene.scene.switch(SCENE_KEYS.GAME_SCENE);
         }
     }
 
