@@ -21,7 +21,6 @@ from database.database_service import SessionDep, database_service
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from email_utilities import EmailService
 from sqlmodel import select, and_
-from constants import ADMIN_EMAIL_BROADCAST_KEY
 from auth.dependencies import CurrentUser, AdminUser
 from pydantic import BaseModel
 
