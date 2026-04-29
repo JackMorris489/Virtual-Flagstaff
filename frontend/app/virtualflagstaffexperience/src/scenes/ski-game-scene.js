@@ -364,12 +364,12 @@ export class SkiGame extends GameScene {
         // TODO: Refactor this section of conditionals
         if (playerModel === "SKIIER")
         {
-            questId = 2;
+            questId = 1;
         }
 
         else if (playerModel === "SNOWBOARDER")
         {
-            questId = 1;
+            questId = 2;
         }
         ///////////////////////////////////////////////
 

@@ -145,6 +145,8 @@ def update_user_quest(
     quest_id: int,
     session: SessionDep
 ) -> UserQuestPublic:
+    print(user)
+    print(quest_id)
     query = select(UserQuest).where(
         and_(
             UserQuest.user_id == user.id,
@@ -153,6 +155,7 @@ def update_user_quest(
     )
     
     user_quest: UserQuest = database_service.get_query_result(session, query)
+    print(user_quest)
 
     if not user_quest.is_complete:
         updated_user_quest = UserQuestUpdate(is_complete=True)
