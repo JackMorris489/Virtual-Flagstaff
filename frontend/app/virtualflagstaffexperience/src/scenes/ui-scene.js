@@ -16,6 +16,7 @@ export class UiScene extends Phaser.Scene {
     dialogBackground;
     weather;
     skiscene;
+    wildlifescene;
     dinerScene;
     skiendlessscene;
     montevistascene;
@@ -80,6 +81,7 @@ export class UiScene extends Phaser.Scene {
     {
         this.resumeScene(SCENE_KEYS.GAME_SCENE);
         this.resumeScene(SCENE_KEYS.SKI_GAME);
+        this.resumeScene(SCENE_KEYS.WILDLIFE_GAME);
         this.resumeScene(SCENE_KEYS.DINER_GAME);
         this.resumeScene(SCENE_KEYS.MONTE_VISTA_GAME);
         this.resumeScene(SCENE_KEYS.TUTORIAL_SCENE);
@@ -101,6 +103,7 @@ export class UiScene extends Phaser.Scene {
     {
         this.pauseScene(SCENE_KEYS.GAME_SCENE);
         this.pauseScene(SCENE_KEYS.SKI_GAME);
+        this.pauseScene(SCENE_KEYS.WILDLIFE_GAME);
         this.pauseScene(SCENE_KEYS.DINER_GAME);
         this.pauseScene(SCENE_KEYS.MONTE_VISTA_GAME);
         this.pauseScene(SCENE_KEYS.TUTORIAL_SCENE);
@@ -134,6 +137,7 @@ export class UiScene extends Phaser.Scene {
     setupSceneReferences()
     {
         this.skiscene = this.scene.get(SCENE_KEYS.SKI_GAME);
+        this.wildlifescene = this.scene.get(SCENE_KEYS.WILDLIFE_GAME);
         this.dinerScene = this.scene.get(SCENE_KEYS.DINER_GAME);
         this.montevistascene = this.scene.get(SCENE_KEYS.MONTE_VISTA_GAME);
         this.worldscene = this.scene.get(SCENE_KEYS.GAME_SCENE);
@@ -168,6 +172,8 @@ export class UiScene extends Phaser.Scene {
     update() {
         const enterJustDown = Phaser.Input.Keyboard.JustDown(this.#enterKey);
         const escJustDown = Phaser.Input.Keyboard.JustDown(this.#escKey);
+        const skiPaused = this.skiscene && this.skiscene.scene.isPaused();
+        const wildlifePaused = this.wildlifescene && this.wildlifescene.scene.isPaused();
         const pausedMiniGame = this.getPausedDialogMiniGameScene();
         const dialogVisible = this.#dialogueContainer.visible;
 
@@ -186,6 +192,27 @@ export class UiScene extends Phaser.Scene {
 
             if (escJustDown) {
                 this.returnToWorldFromMiniGame(pausedMiniGame);
+                return;
+            }
+
+            return;
+        }
+
+        if (wildlifePaused && dialogVisible) {
+            if (enterJustDown) {
+                if (typeof this.wildlifescene.onEnterPressed === 'function') {
+                    this.wildlifescene.onEnterPressed();
+                } 
+                else {
+                    this.wildlifescene.scene.restart();
+                }
+
+                this.closeDialog();
+                return;
+            }
+
+            if (escJustDown) {
+                this.returnToWorldFromWildlife();
                 return;
             }
 
@@ -216,6 +243,22 @@ export class UiScene extends Phaser.Scene {
 
         if (miniGameScene) {
             miniGameScene.scene.switch(SCENE_KEYS.GAME_SCENE);
+        }
+    }
+
+    returnToWorldFromWildlife() {
+        this.closeDialog();
+
+        if (this.#pauseContainer) {
+            this.#pauseContainer.setVisible(false);
+        }
+
+        if (this.wildlifescene && this.wildlifescene.scene.isPaused()) {
+            this.wildlifescene.scene.resume();
+        }
+
+        if (this.wildlifescene) {
+            this.wildlifescene.scene.switch(SCENE_KEYS.GAME_SCENE);
         }
     }
 
