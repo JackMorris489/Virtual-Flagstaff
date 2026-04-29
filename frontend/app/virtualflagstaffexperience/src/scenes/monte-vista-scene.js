@@ -4,6 +4,7 @@ import { ASSET_KEYS } from '../common/assets';
 import { KeyboardComponent } from '../components/input/keyboard-component';
 import { GameScene } from './game-scene';
 import apiFetch from '../../../utils/apiFetch';
+import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 
 export class MonteVistaGame extends GameScene {
     #controls;
@@ -260,6 +261,20 @@ export class MonteVistaGame extends GameScene {
     }
 
     #exit() {
+        try 
+        {
+            apiFetch("/users/me/quests/4", {
+                method: "PATCH",
+                credentials: "include"
+            })
+            EVENT_BUS.emit(CUSTOM_EVENTS.REFRESH_QUESTS)
+        }
+        catch (err) 
+        {
+
+        }
+
+
         if(!this.hasKey) {
             this.#showDialog('You rattle the handle a few times... It is locked\n\n(Enter to Close)');
             return;

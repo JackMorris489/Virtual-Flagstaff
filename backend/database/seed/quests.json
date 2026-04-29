@@ -8,5 +8,15 @@
         "name": "Go Ski!",
         "description": "Go tryout the ski mini-game!",
         "npc_name": "Skier"
+    },
+    {
+        "name": "Put the fries in the bag!",
+        "description": "Go tryout the diner game!",
+        "npc_name": "Waiter"
+    },
+    {
+        "name": "Mystery at Monte Vista!",
+        "description": "Solve the mystery at the Monte Vista Hotel",
+        "npc_name": "Kid"
     }
 ]
