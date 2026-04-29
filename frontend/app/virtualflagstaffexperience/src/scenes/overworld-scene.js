@@ -264,7 +264,7 @@ export class Overworld extends Phaser.Scene {
             }
         }, null, this);
 
-        this.physics.add.overlap(this.#playerInteractionZone, this.monteVistaInteractable, () => {
+        this.physics.add.overlap(this.#playerInteractionZone, this.hmvInteractable, () => {
             if(this.controls.isActionJustDown) {
                 this.#minigameInteraction('MONTEVISTA', SCENE_KEYS.MONTE_VISTA_GAME);
             }
@@ -276,7 +276,7 @@ export class Overworld extends Phaser.Scene {
             this.snowboardInteractableIcon = this.add.circle(this.snowboardInteractable.x, this.snowboardInteractable.y, 20, 0xFF00FF, 1),
             this.skiInteractableIcon = this.add.circle(this.skiInteractable.x, this.skiInteractable.y, 20, 0xFF00FF, 1),
             this.dinerInteractableIcon = this.add.circle(this.dinerInteractable.x, this.dinerInteractable.y, 20, 0x4ecdc4, 1),
-            this.monteVistaInteractableIcon = this.add.circle(this.monteVistaInteractable.x, this.monteVistaInteractable.y, 20, 0xFF00FF, 1),
+            this.monteVistaInteractableIcon = this.add.circle(this.hmvInteractable.x, this.hmvInteractable.y, 20, 0xFF00FF, 1),
         ]);
 
         /* ========== REGISTERS ========== */
