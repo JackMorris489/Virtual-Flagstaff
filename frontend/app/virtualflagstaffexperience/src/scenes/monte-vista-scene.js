@@ -12,6 +12,7 @@ export class MonteVistaGame extends GameScene {
 
     interactables = {};
     hasKey = false;
+    isDialogOpen = false;
 
     constructor() {
         super({
@@ -28,7 +29,7 @@ export class MonteVistaGame extends GameScene {
         this.#createInteractables();
         this.uiScene = this.scene.get(SCENE_KEYS.UI_SCENE);
 
-        this.uiScene.showDialog(
+        this.#showDialog(
             'Welcome to the Monte Vista Hotel...\n' +
             'You seem to be trapped! Find clues to escape.\n\n' +
             'X to interact\n' +
@@ -36,6 +37,19 @@ export class MonteVistaGame extends GameScene {
         );
 
         this.isStartScreen = true;
+
+        this.input.keyboard.on('keydown-ENTER', () => {
+            if (this.isStartScreen) {
+                this.isStartScreen = false;
+                this.scene.resume();
+                return;
+            }
+
+            if (this.isDialogOpen) {
+                this.uiScene.closeDialog();
+                this.isDialogOpen = false;
+            }
+        });
     }
 
     update() {
@@ -52,34 +66,45 @@ export class MonteVistaGame extends GameScene {
         if(this.isStartScreen) {
             this.isStartScreen = false;
             this.scene.resume();
+            return;
+        }
+
+        if(this.isDialogOpen) {
+            this.uiScene.closeDialog();
+            this.isDialogOpen = false;
         }
     }
 
 
 
+    #showDialog(text) {
+        this.isDialogOpen = true;
+        this.uiScene.showDialog(text);
+    }
+
     #createRoom() {
-        this.add.tileSprite(256, 232, 512, 464, ASSET_KEYS.MONTE_VISTA_FLOOR);
+        this.add.tileSprite(256, 232, 350, 350, ASSET_KEYS.MONTE_VISTA_FLOOR);
     }
 
     #createPlayer() {
-        this.player = this.physics.add.sprite(256, 232, 'player');
+        this.player = this.physics.add.sprite(256, 232, ASSET_KEYS.PLAYER);
         this.player.setCollideWorldBounds(true);
     }
 
     #createInteractables() {
         const createSpot = (x, y, key) => {
-            const trigger = this.physics.add.image(x, y, '');
+            const trigger = this.physics.add.image(x, y, '').setVisible(false);
             const visual = this.add.image(x, y, key);
 
             return { trigger, visual };
         };
 
         this.interactables = {
-            desk: createSpot(200, 180, ASSET_KEYS.MONTE_VISTA_DESK),
-            painting: createSpot(350, 120, ASSET_KEYS.MONTE_VISTA_PAINTING),
-            ghost: createSpot(120, 300, ASSET_KEYS.MONTE_VISTA_GHOST),
-            safe: createSpot(400, 300, ASSET_KEYS.MONTE_VISTA_SAFE),
-            exit: createSpot(256, 80, ASSET_KEYS.MONTE_VISTA_EXIT),
+            desk: createSpot(350, 100, ASSET_KEYS.MONTE_VISTA_DESK),
+            painting: createSpot(150, 300, ASSET_KEYS.MONTE_VISTA_PAINTING),
+            ghost: createSpot(300, 300, ASSET_KEYS.MONTE_VISTA_GHOST),
+            safe: createSpot(160, 160, ASSET_KEYS.MONTE_VISTA_SAFE),
+            exit: createSpot(250, 100, ASSET_KEYS.MONTE_VISTA_EXIT),
         };
     }
 
@@ -108,29 +133,32 @@ export class MonteVistaGame extends GameScene {
     }
 
     #desk() {
-        this.uiScene.showDialog(
+        this.#showDialog(
             'You open the drawer at the desk...\n' +
             'There is an old note. You unravel it to read\n' +
-            '"The safe contains the key to unlock the door and escape"'
+            '"The safe contains the key to unlock the door and escape"\n\n' +
+            '(Enter to Close)'
         );
     }
 
     #painting() {
-        this.uiScene.showDialog(
+        this.#showDialog(
             'You admire the painting of the Monte Vista\n' +
             'Looking down at the bottom of the frame you notice a plaque\n' +
-            'It states "The Monte Vista first opened its doors in 1927 on New Years Day."'
+            'It states "The Monte Vista first opened its doors in 1927 on New Years Day."\n\n' +
+            '(Enter to Close)'
         );
     }
 
     #ghost() {
-        this.uiScene.showDialog(
+        this.#showDialog(
             'You talk to the creepy looking woman in the corner...\n\n' +
             'Ghost: "I have seen many famous guests stay here...\n' +
             'George Babbit, Siouxsie Sioux, Bing Crosby, and others.\n' +
             'Did you know that the Monte Vista cocktail lounge opened during the prohibition era?\n' +
             'I heard it acted as a newspaper publishing house to avoid getting caught"\n\n' +
-            'The ghost seems to have done nothing but waste your time...'
+            'The ghost seems to have done nothing but waste your time...\n\n' +
+            '(Enter to Close)'
         );
     }
 
@@ -139,13 +167,11 @@ export class MonteVistaGame extends GameScene {
     }
 
     #openKeypad() {
-        this.scene.pause();
-
         let inputCode = '';
 
         const overlay = this.add.rectangle(256, 232, 512, 464, 0x000000, 0.6).setDepth(100);
 
-        const panel = this.add.rectangle(256, 232, 260, 0x222222, 1).setStrokeStyle(3, 0xffffff).setDepth(101);
+        const panel = this.add.rectangle(256, 232, 260, 260, 0x222222, 1).setStrokeStyle(3, 0xffffff).setDepth(101);
 
         const display = this.add.text(256, 150, '', {
             fontSize: '20px',
@@ -172,8 +198,10 @@ export class MonteVistaGame extends GameScene {
                     color: '#ffffff'
                 }).setOrigin(0.5).setDepth(103);
 
+                const value = number;
+
                 btn.on('pointerdown', () => {
-                    inputCode += number.toString();
+                    inputCode += value.toString();
                     display.setText(inputCode);
                 });
 
@@ -208,9 +236,9 @@ export class MonteVistaGame extends GameScene {
         enterBtn.on('pointerdown', () => {
             if (inputCode === '1927') {
                 this.hasKey = true;
-                this.uiScene.showDialog('The safe door swings open, you got the key!');
+                this.#showDialog('The safe door swings open, you got the key!\n\n(Enter to Close)');
             } else {
-                this.uiScene.showDialog('The lock beeps angrily... wrong code.');
+                this.#showDialog('The lock beeps angrily... wrong code.\n\n(Enter to Close)');
             }
 
             cleanup();
@@ -233,15 +261,15 @@ export class MonteVistaGame extends GameScene {
 
     #exit() {
         if(!this.hasKey) {
-            this.uiScene.showDialog('You rattle the handle a few times... It is locked');
+            this.#showDialog('You rattle the handle a few times... It is locked\n\n(Enter to Close)');
             return;
         }
-        this.uiScene.showDialog(
+        this.#showDialog(
             'You place the key you got from the safe into the lock...\n' +
             'It fits and the lock turns\n' +
-            'You have escaped!'
+            'You have escaped!\n\n'
         );
-        this.submitGameSession.delayedCall(1500, () => {
+        this.time.delayedCall(3000, () => {
             this.scene.start(SCENE_KEYS.GAME_SCENE);
         });
     }
