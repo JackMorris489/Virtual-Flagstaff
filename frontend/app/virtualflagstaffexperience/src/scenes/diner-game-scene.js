@@ -4,6 +4,7 @@ import { ASSET_KEYS } from '../common/assets';
 import { KeyboardComponent } from '../components/input/keyboard-component';
 import { GameScene } from './game-scene';
 import apiFetch from '../../../utils/apiFetch';
+import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus';
 
 const WAITER_SPEED = 210;
 const ORDER_POINTS = 5;
@@ -411,6 +412,15 @@ export class DinerGame extends GameScene {
 
         await this.submitGameSession();
         await this.#awardPlayerPoints();
+
+        if (this.wave >= 3)
+        {
+            await apiFetch(`/users/me/quests/3`, {
+                method: "PATCH",
+                credentials: "include",
+            });
+            CUSTOM_EVENTS.REFRESH_QUESTS
+        }
 
         this.uiScene.showDialog(await this.buildEndDialogText(titleText));
     }

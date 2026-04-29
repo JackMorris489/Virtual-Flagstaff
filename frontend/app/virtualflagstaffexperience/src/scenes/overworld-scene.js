@@ -243,31 +243,19 @@ export class Overworld extends Phaser.Scene {
 
         this.physics.add.overlap(this.#playerInteractionZone, this.hmvInteractable, () => {
             if(this.controls.isActionJustDown) {
-                this.#minigameInteraction('HMV');
+                this.#minigameInteraction(SCENE_KEYS.MONTE_VISTA_GAME);
             }
         }, null, this);
 
         this.physics.add.overlap(this.#playerInteractionZone, this.dinerInteractable, () => {
             if(this.controls.isActionJustDown) {
-                this.#minigameInteraction('DINER');
+                this.#minigameInteraction(SCENE_KEYS.DINER_GAME);
             }
         }, null, this);
 
         this.physics.add.overlap(this.#playerInteractionZone, this.wildlifeInteractable, () => {
             if(this.controls.isActionJustDown) {
-                this.#minigameInteraction('WILDLIFE');
-            }
-        }, null, this);
-
-        this.physics.add.overlap(this.#playerInteractionZone, this.dinerInteractable, () => {
-            if(this.controls.isActionJustDown) {
-                this.#minigameInteraction('DINER', SCENE_KEYS.DINER_GAME);
-            }
-        }, null, this);
-
-        this.physics.add.overlap(this.#playerInteractionZone, this.hmvInteractable, () => {
-            if(this.controls.isActionJustDown) {
-                this.#minigameInteraction('MONTEVISTA', SCENE_KEYS.MONTE_VISTA_GAME);
+                this.#minigameInteraction(SCENE_KEYS.WILDLIFE_GAME);
             }
         }, null, this);
 
@@ -325,24 +313,24 @@ export class Overworld extends Phaser.Scene {
         switch(gameType) {
             case 'SKIIER':
                 this.playerType = gameType;
-                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
+                this.scene.switch(SCENE_KEYS.SKI_GAME);
                 this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
                 break;
 
             case 'SNOWBOARDER':
                 this.playerType = gameType;
-                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
+                this.scene.switch(SCENE_KEYS.SKI_GAME);
                 this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
                 break;
 
-            case 'HMV':
-                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
-                this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+            case SCENE_KEYS.MONTE_VISTA_GAME:
+                this.scene.switch(SCENE_KEYS.MONTE_VISTA_GAME);
+                this.scene.get(SCENE_KEYS.MONTE_VISTA_GAME).scene.restart();
                 break;
 
-            case 'DINER':
-                this.scene.switch(this.scene.get(SCENE_KEYS.SKI_GAME));
-                this.scene.get(SCENE_KEYS.SKI_GAME).scene.restart();
+            case SCENE_KEYS.DINER_GAME:
+                this.scene.switch(SCENE_KEYS.DINER_GAME);
+                this.scene.get(SCENE_KEYS.DINER_GAME).scene.restart();
                 break;
 
             case 'WILDLIFE':
