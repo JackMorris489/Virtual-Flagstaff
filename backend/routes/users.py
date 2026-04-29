@@ -31,6 +31,7 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
 GAME_NAMES_BY_KEY = {
     "SKI_GAME": "Ski/Snowboard Extereme",
     "DINER_GAME": "Diner Dash",
+    "MONTE_VISTA_GAME": "Monte Vista Escape",
 }
 
 class IncentiveFormInput(BaseModel):

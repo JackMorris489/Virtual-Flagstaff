@@ -31,5 +31,27 @@
             "inProgress": ["In Progress"],
             "completed": ["Completed"]
         }
+    },
+    {
+        "name": "Waiter",
+        "key": "WAITER",
+        "x_pos": 150,
+        "y_pos": -100,
+        "dialog": {
+            "initial": ["Initial"],
+            "inProgress": ["In Progress"],
+            "completed": ["Completed"]
+        }
+    },
+    {
+        "name": "Kid",
+        "key": "Kid",
+        "x_pos": 200,
+        "y_pos": -100,
+        "dialog": {
+            "initial": ["Initial"],
+            "inProgress": ["In Progress"],
+            "completed": ["Completed"]
+        }
     }
 ]

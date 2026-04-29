@@ -37,10 +37,13 @@ export class Overworld extends Phaser.Scene {
     skiInteractable
     dinerInteractable
     dinerInteractableVisual
+    monteVistaInteractable
+    monteVistaInteractableVisual
     interactablesIcons;
     skiInteractableIcon;
     snowboardInteractableIcon;
     dinerInteractableIcon;
+    monteVistaInteractableIcon;
     skiEndlessMode = false;
     overlayImage;
     miniMapCamera;
@@ -200,20 +203,30 @@ export class Overworld extends Phaser.Scene {
             this.skiInteractable = new Phaser.Physics.Arcade.Image(this, 1184, 496, ''),
             this.snowboardInteractable = new Phaser.Physics.Arcade.Image(this, 1056, 496, ''),
             this.dinerInteractable = new Phaser.Physics.Arcade.Image(this, 1312, 656, ''),
+            // random location for now
+            this.monteVistaInteractable = new Phaser.Physics.Arcade.Image(this, 1312, 700, ''),
         ])
 
         this.physics.add.existing(this.snowboardInteractable);
         this.physics.add.existing(this.skiInteractable);
         this.physics.add.existing(this.dinerInteractable);
+        this.physics.add.existing(this.monteVistaInteractable);
 
         this.snowboardInteractable.body.setSize(64, 32, true);
         this.skiInteractable.body.setSize(64, 32, true);
         this.dinerInteractable.body.setSize(64, 48, true);
+        this.monteVistaInteractable.body.setSize(64, 32, true);
 
         this.dinerInteractableVisual = this.add.image(
             this.dinerInteractable.x,
             this.dinerInteractable.y,
             ASSET_KEYS.DINER_ACCESS_BOX
+        ).setDepth(2);
+
+        this.monteVistaInteractableVisual = this.add.image(
+            this.monteVistaInteractable.x,
+            this.monteVistaInteractable.y,
+            ASSET_KEYS.MONTE_VISTA_TRIGGER
         ).setDepth(2);
 
         this.physics.add.overlap(this.#playerInteractionZone, this.snowboardInteractable, () => {
@@ -234,12 +247,19 @@ export class Overworld extends Phaser.Scene {
             }
         }, null, this);
 
+        this.physics.add.overlap(this.#playerInteractionZone, this.monteVistaInteractable, () => {
+            if(this.controls.isActionJustDown) {
+                this.#minigameInteraction('MONTEVISTA', SCENE_KEYS.MONTE_VISTA_GAME);
+            }
+        }, null, this);
+
 
         // create the icon group
         this.interactablesIcons = this.add.group([
             this.snowboardInteractableIcon = this.add.circle(this.snowboardInteractable.x, this.snowboardInteractable.y, 20, 0xFF00FF, 1),
             this.skiInteractableIcon = this.add.circle(this.skiInteractable.x, this.skiInteractable.y, 20, 0xFF00FF, 1),
             this.dinerInteractableIcon = this.add.circle(this.dinerInteractable.x, this.dinerInteractable.y, 20, 0x4ecdc4, 1),
+            this.monteVistaInteractableIcon = this.add.circle(this.monteVistaInteractable.x, this.monteVistaInteractable.y, 20, 0xFF00FF, 1),
         ]);
 
         /* ========== REGISTERS ========== */
