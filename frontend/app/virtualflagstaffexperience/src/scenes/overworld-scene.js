@@ -182,6 +182,9 @@ export class Overworld extends Phaser.Scene {
                 x: spawnPoint.x + npc.x_pos, 
                 y: spawnPoint.y + npc.y_pos
             }
+            const npcModel = ASSET_KEYS[npc.name];
+            console.log(npcModel);
+            console.log(npc.name);
             const npcObject = new InteractiveNPC(
                 {
                     scene: this,
@@ -189,6 +192,7 @@ export class Overworld extends Phaser.Scene {
                         x: npcPos.x,
                         y: npcPos.y
                     },
+                    assetKey: npcModel,
                     id: npc.id,
                     interactionType: "DIALOG",
                 },

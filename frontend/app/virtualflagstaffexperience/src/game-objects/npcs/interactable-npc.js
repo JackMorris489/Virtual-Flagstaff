@@ -20,25 +20,11 @@ export class NPC extends CharacterGameObject
 {
     constructor(config)
     {
-        const animconfig = {
-            key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true
-        }
-        const animationConfig = {
-            WALK_UP: animconfig,
-            WALK_DOWN: animconfig,
-            WALK_LEFT: animconfig,
-            WALK_RIGHT: animconfig,
-
-            IDLE_UP: animconfig,
-            IDLE_DOWN: animconfig,
-            IDLE_LEFT: animconfig,
-            IDLE_RIGHT: animconfig,
-        }
-
+        const animationConfig = {}
         super({
             scene: config.scene,
             position: config.position,
-            assetKey: ASSET_KEYS.SPIDER,
+            assetKey: config.assetKey,
             animationConfig,
             frame: 0,
             id: `${config.id}`,
@@ -111,11 +97,6 @@ export class InteractiveNPC extends NPC {
                 }
             }
         );
-
-        // add state machine states
-        this._stateMachine.addState(new IdleState(this));
-        this._stateMachine.addState(new MoveState(this));
-        this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE);
     }
 
     async getQuest()
@@ -214,7 +195,6 @@ export class InteractiveNPC extends NPC {
             this.scene.currentDialogNumber = 0;
             this.unfreeze();
             await this.handleAssigningQuest();
-
         }
     }
 }

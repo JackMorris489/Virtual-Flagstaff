@@ -176,6 +176,7 @@ export class WildlifeGame extends GameScene {
 
                 // add score
                 this.calculateScore(animal);
+                this.scoreText.setText(`Score: ${this.score}`);
 
                 // delete animal
                 this.#animals.remove(animal, true);
